@@ -19,6 +19,15 @@ const loadRegister = async (req, res) => {
     }
 }
 
+const loadOtp = async (req, res) => {
+    try {
+        res.render('otpVerification')
+    }
+    catch(error) {
+        console.log(error.message);
+    }
+}
+
 const insertUser = async (req, res) => {
 
 
@@ -60,6 +69,7 @@ const insertUser = async (req, res) => {
 
 const verifyLogin = async(req, res) => {
     try{
+        console.log(req.body);
         const email = req.body.email;
         const password = req.body.password;
 
@@ -69,14 +79,15 @@ const verifyLogin = async(req, res) => {
             const passwordMatch = await bcrypt.compare(password, userData.password);
             
             if(passwordMatch){
-                if(userData.is_verified === 0){
-                    res.render('home');
+                // if(userData.is_verified === 0){
+                //     res.render('home');
 
-                }
-                else{
+                // }
+                // else{
+                    console.log("hello");
                     req.session.user_id = userData._id;
                     res.redirect('/home');
-                }
+                // }
             }
             else {
                 res.render('login',{message:"Email and Password is incorrect...!!!"});
@@ -146,5 +157,6 @@ module.exports ={
     loadLogin,
     loadHome,
     loadAboutUs,
-    loadContactUs
+    loadContactUs,
+    loadOtp
 }

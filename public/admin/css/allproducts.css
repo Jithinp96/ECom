@@ -1,0 +1,64 @@
+.circular-image {
+    width: 50px; /* Adjust the size of the circle */
+    height: 50px; /* Adjust the size of the circle */
+    border-radius: 50%; /* Make the image circular */
+    overflow: hidden; /* Hide the corners that extend beyond the circle */
+    cursor: pointer;
+  }
+
+  .circular-image img {
+    width: 100%; /* Make the image fill the circular container */
+    height: auto; /* Maintain the aspect ratio */
+  }
+  /* Add these styles to your CSS file or within a style tag in the head of your HTML document */
+
+
+/* Styles for the image popup */
+
+
+.image-popup {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.7);
+justify-content: center;
+align-items: center;
+}
+.popup-content {
+position: relative;
+text-align: center;
+max-width: 500px; /* Set the maximum width for the popup content */
+max-height: 400px; /* Set the maximum height for the popup content */
+border-radius: 8px;
+overflow: hidden;
+background: #fff; /* Optional: Set a background color for the popup */
+}
+
+#popupImage {
+width: 100%; /* Ensure the image takes the full width of the popup */
+height: 100%; /* Ensure the image takes the full height of the popup */
+object-fit: cover; /* Maintain aspect ratio and cover the entire space */
+}
+.popup-content img {
+width: 100%;
+height: auto;
+}
+
+.close-popup {
+position: absolute;
+top: 10px;
+right: 15px;
+font-size: 20px;
+color: #ff0000;
+cursor: pointer;
+}
+
+.close-button {
+padding: 10px 20px;
+font-size: 16px;
+margin-top: 10px;
+cursor: pointer;
+}
