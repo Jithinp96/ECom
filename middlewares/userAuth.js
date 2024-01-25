@@ -1,12 +1,10 @@
 const isLogin = async(req, res, next) => {
     try{
-
-        if(req.session.user_id){
-            
+        if(req.session.userid){
             next();
         }
         else {
-            res.redirect('/login');
+            res.redirect('/');
         }
     } catch(error) {
         console.log(error.message);
@@ -15,25 +13,33 @@ const isLogin = async(req, res, next) => {
 
 const isLogout = async(req, res, next) => {
     try{
-
-        // if(!req.session.user_id){
-        //     next();
-        // }else{
-
-        //     res.redirect('/home');
-        // }
-        if(req.session.userid){
-            return res.redirect('/home');
-             
+        
+        if(!req.session.userid){
+            next();
+        }else{
+            res.redirect('/');
         }
-        next();
-
     } catch(error) {
         console.log(error.message);
     }
 }
 
+const isAuthenticated = async (req, res, next) => {
+    try {
+        if (req.session && req.session.userid) {
+            res.locals.userAuthenticated = true;
+            return next();
+        } else {
+            res.locals.userAuthenticated = false;
+            return next();
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 module.exports = {
     isLogin,
-    isLogout
+    isLogout,
+    isAuthenticated
 }

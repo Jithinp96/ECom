@@ -1,26 +1,28 @@
+const express = require("express");
 const mongoose = require("mongoose");
+const session = require('express-session')
+const flash = require('connect-flash');
+const nocache = require('nocache');
+const app = express();
+const path = require("path");
+
+app.use(nocache());
 mongoose.connect("mongodb://127.0.0.1:27017/Elegify");
 
-const express = require("express");
-const app = express();
 
-const session = require('express-session');
-const crypto = require("crypto");
-
-const nocache = require('nocache');
-app.use(nocache());
-
-const path = require("path");
 
 require("dotenv").config(); //FOR THE >ENV FILE
 
 app.use(express.static(path.join(__dirname,'public')))
+app.use(express.static(path.join(__dirname,'public/uploads')))
 
 app.use(session({
-  secret: crypto.randomBytes(64).toString('hex'),
+  secret: 'SECRET_KEY', // Change this to a long, random string
   resave: false,
   saveUninitialized: true,
-}))
+  cookie: { secure: false } // Set to true if using HTTPS
+}));
+app.use(flash());
 
 //FOR USER ROUTES
 const userRoute = require('./routes/userRoute');

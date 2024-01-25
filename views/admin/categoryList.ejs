@@ -1,0 +1,278 @@
+<%-include('../layouts/adminHeader.ejs')%>
+<%-include('../layouts/adminSidebar.ejs')%>
+<div class="page-wrapper">
+    <br>
+    <div class="container" style="display: flex; justify-content: right;">
+        <button type="button" class="btn btn-success" data-toggle="modal" 
+        data-target="#signup-modal">Add Category</button>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- Container fluid  -->
+    <!-- ============================================================== -->
+    <div class="container-fluid">
+        <!-- ============================================================== -->
+        <!-- Start Page Content -->
+        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Categories</h4>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Action</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if(Array.isArray(categories) && categories.length>0) { %>
+                                        <% categories.forEach(function(category, index) { %>
+                                            <tr>
+                                                <td><%= index + 1 %></td>
+                                                <td><%= category.name %></td>
+                                                
+                                                <td>
+                                                    <a href="#" class="edit-category" data-categoryid="<%= category._id %>">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </td>
+                                                
+                                                <td>
+                                                    <a href="#" class="btn-status-toggle" data-categoryid="<%= category._id %>">
+                                                        <% if (category.is_listed) { %>
+                                                            <span class="badge badge-success">Listed</span>
+                                                        <% } else { %>
+                                                            <span class="badge badge-danger">Unlisted</span>
+                                                        <% } %>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="3">No Categories Available</td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+    <!-- <footer class="footer text-center text-muted">
+        All Rights Reserved by Adminmart. Designed and Developed by <a
+            href="https://wrappixel.com">WrapPixel</a>.
+    </footer> -->
+
+
+
+</div>
+</div>
+
+<!-- ADD CATEGORY modal content -->
+<div id="signup-modal" class="modal fade" tabindex="-1" role="dialog"
+aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content">
+
+<div class="modal-body">
+    <div class="text-center mt-2 mb-4">
+        <a href="index.html" class="text-success">
+            <span><img class="mr-2" src="../assets/images/logo-icon.png"
+                    alt="" height="18"><img
+                    src="../assets/images/logo-text.png" alt=""
+                    height="18"></span>
+        </a>
+    </div>
+
+    <form class="pl-3 pr-3" id="categoryForm">
+
+        <div class="form-group">
+            <label for="username">Category Name</label>
+            <input class="form-control" type="text" id="categoryName"
+                required="" placeholder="Enter Category Name">
+
+                
+        </div>
+
+        <div class="form-group text-center">
+            <button class="btn btn-primary" type="button" id="submitBtn">Add</button>
+        </div>
+
+    </form>
+
+</div>
+</div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!-- Edit modal content -->
+<div id="edit-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form class="pl-3 pr-3" id="editCategoryForm">
+                    <div class="form-group">
+                        <label for="editCategoryName">New Category Name</label>
+                        <input class="form-control" type="text" id="editCategoryName" required placeholder="Enter New Category Name">
+                    </div>
+                    <div class="form-group text-center">
+                        <button class="btn btn-primary" type="button" id="editSubmitBtn">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Listen for button click
+        $('#submitBtn').click(function () {
+          console.log('clicking');
+            // Get form data
+            var formData = {
+                categoryName: $('#categoryName').val()
+                // Add more form fields as needed
+            };
+           console.log(formData)
+            // Send AJAX request to the server
+            $.ajax({
+                type: 'POST',
+                url: '/admin/save-category',  // Replace with your server-side route
+                data: JSON.stringify(formData),
+                contentType: 'application/JSON',
+                success: function (response) {
+                    if(response.success) {
+                        console.log('Data saved successfully:', response);
+                        $('#signup-modal').modal('hide');
+                        location.reload();
+                    }
+                   
+                  
+                    // Optionally, close the modal or perform other actions
+                 
+                },
+                error: function (error) {
+                    console.error('Error saving data:', error);
+                }
+            });
+        });
+    });
+
+
+    //LISTING AND UNLISTING
+
+    
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const statusButtons = document.querySelectorAll('.btn-status-toggle');
+
+        statusButtons.forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                const categoryId = this.getAttribute('data-categoryid');
+                toggleCategoryStatus(categoryId, this);
+            });
+        });
+
+        function toggleCategoryStatus(categoryId, button) {
+            // Send Fetch API request to update the category status
+            fetch(`/admin/toggleCategoryStatus/${categoryId}`, {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update UI based on the server response
+                if (data.success) {
+                    updateUI(button, data.category.is_listed);
+                } else {
+                    console.error('Error toggling category status:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error toggling category status:', error);
+            });
+        }
+
+        function updateUI(button, isListed) {
+            // Update the button text and badge based on the new status
+            const badge = button.querySelector('.badge');
+            if (isListed) {
+                badge.textContent = 'Listed';
+                badge.classList.remove('badge-danger');
+                badge.classList.add('badge-success');
+            } else {
+                badge.textContent = 'Unlisted';
+                badge.classList.remove('badge-success');
+                badge.classList.add('badge-danger');
+            }
+        }
+    });
+</script>
+
+
+<script>
+    $(document).ready(function () {
+
+        // Listen for edit button click
+        $('.edit-category').on('click', function (e) {
+            e.preventDefault();
+            
+            // Get the category ID from the data attribute
+            const categoryId = $(this).data('categoryid');
+
+            // Use categoryId to fetch category details or open the edit modal
+            // You may use AJAX to fetch category details and populate the modal form
+
+            // For now, let's assume you have a function to open the modal
+            openEditModal(categoryId);
+        });
+        
+        // Listen for edit modal save button click
+        $('#editSubmitBtn').click(function () {
+            const categoryId = $('#editCategoryForm').data('categoryid');
+            const newCategoryName = $('#editCategoryName').val();
+            editCategory(categoryId, newCategoryName);
+        });
+    });
+
+    function openEditModal(categoryId) {
+        // Set the category ID in the edit modal
+        $('#editCategoryForm').data('categoryid', categoryId);
+        // Open the edit modal
+        $('#edit-modal').modal('show');
+    }
+
+    function editCategory(categoryId, newCategoryName) {
+        // Send AJAX request to the server to update the category name
+        $.ajax({
+            type: 'POST',
+            url: `/admin/edit-category/${categoryId}`,
+            data: { id: categoryId, name: newCategoryName },
+            success: function (response) {
+                if (response.success) {
+                    console.log('Category updated successfully:', response);
+                    $('#edit-modal').modal('hide');
+                    location.reload();
+                } else {
+                    console.error('Error updating category:', response.message);
+                }
+            },
+            error: function (error) {
+                console.error('Error updating category:', error);
+            }
+        });
+    }
+</script>
+
+
+<%-include('../layouts/adminFooter.ejs')%>

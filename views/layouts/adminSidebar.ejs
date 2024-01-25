@@ -1,7 +1,15 @@
 <%-include('../layouts/adminHeader.ejs')%>
 
-
-<!-- ============================================================== -->
+    <!-- ============================================================== -->
+    <!-- Preloader - style you can find in spinners.css -->
+    <!-- ============================================================== -->
+    <div class="preloader">
+        <div class="lds-ripple">
+            <div class="lds-pos"></div>
+            <div class="lds-pos"></div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
     <!-- Main wrapper - style you can find in pages.scss -->
     <!-- ============================================================== -->
     <div id="main-wrapper" data-theme="light" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
@@ -52,13 +60,7 @@
                 <!-- End Logo -->
                 <!-- ============================================================== -->
                 <div class="navbar-collapse collapse" id="navbarSupportedContent">
-                    
-        
-                    <!-- ============================================================== -->
-                    <!-- Right side toggle and nav items -->
-                    <!-- ============================================================== -->
                     <ul class="navbar-nav float-right">
-                        
                         <!-- ============================================================== -->
                         <!-- User profile and search -->
                         <!-- ============================================================== -->
@@ -68,7 +70,7 @@
                                 <img src="/admin/assets/images/users/profile-pic.jpg" alt="user" class="rounded-circle"
                                     width="40">
                                 <span class="ml-2 d-none d-lg-inline-block"><span>Hello,</span> <span
-                                        class="text-dark">Jason Doe</span> <i data-feather="chevron-down"
+                                        class="text-dark">Admin</span> <i data-feather="chevron-down"
                                         class="svg-icon"></i></span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right user-dd animated flipInY">
@@ -113,56 +115,44 @@
                 <!-- Sidebar navigation-->
                 <nav class="sidebar-nav">
                     <ul id="sidebarnav">
-                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="index.html"
+                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="../admin/dashboard"
                                 aria-expanded="false"><i data-feather="home" class="feather-icon"></i><span
                                     class="hide-menu">Dashboard</span></a></li>
                         <li class="list-divider"></li>
 
-
-                        <li class="nav-small-cap"><span class="hide-menu">Customers</span></li>
-                        <!-- <li class="sidebar-item"> <a class="sidebar-link" href="ticket-list.html"
-                                aria-expanded="false"><i data-feather="tag" class="feather-icon"></i><span
-                                    class="hide-menu">Users List
-                                </span></a>
-                        </li> -->
-
-                        <!-- --------------------------------------- -->
-                        <li class="nav-small-cap"><span class="hide-menu">Category</span></li>
-
-                        <li class="sidebar-item"> <a class="sidebar-link" href="ticket-list.html"
-                                aria-expanded="false"><i data-feather="tag" class="feather-icon"></i><span
-                                    class="hide-menu">Category List
-                                </span></a>
-                        </li>
-                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="app-chat.html"
-                                aria-expanded="false"><i data-feather="message-square" class="feather-icon"></i><span
-                                    class="hide-menu">Add Category</span></a></li>
+                        
+                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="../admin/userList"
+                            aria-expanded="false"><i data-feather="users" class="feather-icon"></i><span
+                                class="hide-menu">Customers</span></a></li>
                         <li class="list-divider"></li>
 
-                        <!-- ------------------------------------------ -->
-                        <li class="nav-small-cap"><span class="hide-menu">Products</span></li>
-
-                        <li class="sidebar-item"> <a class="sidebar-link" href="ticket-list.html"
-                                aria-expanded="false"><i data-feather="tag" class="feather-icon"></i><span
-                                    class="hide-menu">Products List
-                                </span></a>
-                        </li>
-                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="app-chat.html"
-                                aria-expanded="false"><i data-feather="message-square" class="feather-icon"></i><span
-                                    class="hide-menu">Add Product</span></a></li>
+                        
+                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="../admin/category"
+                            aria-expanded="false"><i data-feather="grid" class="feather-icon"></i><span
+                                class="hide-menu">Category</span></a></li>
+                        <li class="list-divider"></li>
+                        
+                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="../admin/product"
+                            aria-expanded="false"><i data-feather="list" class="feather-icon"></i><span
+                                class="hide-menu">Products</span></a></li>
+                        <li class="list-divider"></li>
+                        
+                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="index.html"
+                            aria-expanded="false"><i data-feather="box" class="feather-icon"></i><span
+                                class="hide-menu">Orders</span></a></li>
                         <li class="list-divider"></li>
 
-
-                        <!-- ------------------------------------------ -->
-                        <li class="nav-small-cap"><span class="hide-menu">Orders</span></li>
+                        
+                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="index.html"
+                            aria-expanded="false"><i data-feather="percent" class="feather-icon"></i><span
+                                class="hide-menu">Coupons</span></a></li>
                         <li class="list-divider"></li>
 
-                        <!-- ------------------------------------------ -->
-                        <li class="nav-small-cap"><span class="hide-menu">Coupons</span></li>
                         <li class="list-divider"></li>
-
-                        <br><br><br>
-                        <!-- ---------------------------------------------- -->
+                        <li class="nav-small-cap"><span class="hide-menu">Hi, Admin</span></li>
+                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="../admin/docs/docs.html"
+                                aria-expanded="false"><i data-feather="edit-3" class="feather-icon"></i><span
+                                    class="hide-menu">Profile</span></a></li>
                         <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="authentication-login1.html"
                                 aria-expanded="false"><i data-feather="log-out" class="feather-icon"></i><span
                                     class="hide-menu">Logout</span></a></li>
@@ -175,6 +165,5 @@
         <!-- ============================================================== -->
         <!-- End Left Sidebar - style you can find in sidebar.scss  -->
         <!-- ============================================================== -->
-
 
 <%-include('../layouts/adminFooter.ejs')%>        

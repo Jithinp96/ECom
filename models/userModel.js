@@ -17,16 +17,21 @@ const user = mongoose.Schema({
         type: String,
         required:true
     },
+    dateJoined: {
+      type: Date,
+      default: Date.now
+    },
       is_admin :{
         type : Number,
         default:0
     },
-      Blocked :{
+      is_blocked :{
         type:Boolean,
         default:false
     },
-      verified :{
+      is_verified :{
         type : Boolean,
+        default:false
     }
 })
 

@@ -1,40 +1,14 @@
 <%-include('../layouts/adminHeader.ejs')%>
 <%-include('../layouts/adminSidebar.ejs')%>
 
-<!-- ============================================================== -->
+        <!-- ============================================================== -->
         <!-- Page wrapper  -->
         <!-- ============================================================== -->
         <div class="page-wrapper">
-            <!-- ============================================================== -->
-            <!-- Bread crumb and right sidebar toggle -->
-            <!-- ============================================================== -->
-            <!-- <div class="page-breadcrumb">
-                <div class="row">
-                    <div class="col-7 align-self-center">
-                        <h4 class="page-title text-truncate text-dark font-weight-medium mb-1">Basic Table</h4>
-                        <div class="d-flex align-items-center">
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb m-0 p-0">
-                                    <li class="breadcrumb-item"><a href="index.html" class="text-muted">Home</a></li>
-                                    <li class="breadcrumb-item text-muted active" aria-current="page">Library</li>
-                                </ol>
-                            </nav>
-                        </div>
-                    </div>
-                    <div class="col-5 align-self-center">
-                        <div class="customize-input float-right">
-                            <select class="custom-select custom-select-set form-control bg-white border-0 custom-shadow custom-radius">
-                                <option selected>Aug 19</option>
-                                <option value="1">July 19</option>
-                                <option value="2">Jun 19</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-            <!-- ============================================================== -->
-            <!-- End Bread crumb and right sidebar toggle -->
-            <!-- ============================================================== -->
+            <br>
+            <div class="container" style="display: flex; justify-content: right;">
+                <a href="/admin/addProduct" class="btn btn-success">Add Product</a>
+            </div>
             <!-- ============================================================== -->
             <!-- Container fluid  -->
             <!-- ============================================================== -->
@@ -46,59 +20,52 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="card-title">Customer Details</h4>
-                                <!-- <h6 class="card-subtitle">Using the most basic table markup, here’s how
-                                    <code>.table</code>-based tables look in Bootstrap. All table styles are inherited
-                                    in Bootstrap 4, meaning any nested tables will be styled in the same manner as the
-                                    parent.</h6> -->
-                                <h6 class="card-title mt-5"><i
-                                        class="mr-1 font-18 mdi mdi-numeric-1-box-multiple-outline"></i> Table With
-                                    Outside Padding</h6>
+                                <h4 class="card-title">Products</h4>
                                 <div class="table-responsive">
                                     <table class="table">
                                         <thead>
                                             <tr>
-                                                <th scope="col">#</th>
+                                                <th scope="col">ID</th>
                                                 <th scope="col">Name</th>
-                                                <th scope="col">Mobile</th>
-                                                <th scope="col">Email</th>
-                                                <th scope="col">Date Joined</th>
+                                                <th scope="col">Price</th>
+                                                <th scope="col">Category</th>
+                                                <th scope="col">Quantity</th>
+                                                <th scope="col">Images</th>
+                                                <th scope="col">Action</th>
                                                 <th scope="col">Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <th scope="row">1</th>
-                                                <td>Mark</td>
-                                                <td>Otto</td>
-                                                <td>@mdo</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">2</th>
-                                                <td>Jacob</td>
-                                                <td>Thornton</td>
-                                                <td>@fat</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">3</th>
-                                                <td>Larry</td>
-                                                <td>the Bird</td>
-                                                <td>@twitter</td>
-                                            </tr>
+                                            <% if(Array.isArray(products) && products.length>0) { %>
+                                                <% products.forEach(function(product, index) { %>
+                                                    <tr>
+                                                        <td><%= index + 1 %></td>
+                                                        <td><%= product.name %></td>
+                                                        <td><%= product.price %></td>
+                                                        <td><%= product.category %></td>
+                                                        <td><%= product.quantity %></td>
+                                                        <td>
+                                                            <img src="/uploads/<%= product.image[0] %>" alt="Product Image " class="product-image" style="width: 100px; height: 100px; border-radius: 50%;">
+          
+                                                            <!-- <img src="../../public/uploads/1706103041470-IMG_1663.jpg"> -->
+                                                        </td>
+                                                        <td>
+                                                            <a href="/admin/editProduct" class="edit-product" data-productid="<%= product._id %>">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="3">No Product Available</td>
+                                                </tr>
+                                            <% } %>
                                         </tbody>
                                     </table>
                                 </div>
                                 
-            <!-- ============================================================== -->
-            <!-- footer -->
-            <!-- ============================================================== -->
-            <footer class="footer text-center text-muted">
-                All Rights Reserved by Adminmart. Designed and Developed by <a
-                    href="https://wrappixel.com">WrapPixel</a>.
-            </footer>
-            <!-- ============================================================== -->
-            <!-- End footer -->
-            <!-- ============================================================== -->
+           
         </div>
         <!-- ============================================================== -->
         <!-- End Page wrapper  -->
