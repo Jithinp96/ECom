@@ -31,8 +31,8 @@ admin_route.post('/edit-category/:categoryId', categoryController.editCategory);
 
 admin_route.get('/product', adminAuth.isLogin, productController.loadProductList);
 admin_route.post('/submitProduct',upload.array('image', 4), productController.addProduct);
-admin_route.get('/addProduct', adminAuth.isLogin, productController.loadCategory);
-admin_route.get('/editProduct', adminAuth.isLogin, productController.loadEditProduct);
-
+admin_route.get('/addproduct', adminAuth.isLogin, productController.loadCategory);
+admin_route.get('/editProduct', productController.loadEditProduct);
+admin_route.post('/toggleProductStatus/:productId', productController.toggleProductStatus);
 
 module.exports = admin_route;

@@ -17,10 +17,6 @@
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="card-title">Customer Details</h4>
-                                <!-- <h6 class="card-subtitle">Using the most basic table markup, here’s how
-                                    <code>.table</code>-based tables look in Bootstrap. All table styles are inherited
-                                    in Bootstrap 4, meaning any nested tables will be styled in the same manner as the
-                                    parent.</h6> -->
                                 <div class="table-responsive">
                                     <table class="table">
                                         <thead>
@@ -39,7 +35,7 @@
                                                 <% users.forEach(function(user, index) { %>
                                                     <tr>
                                                         <td><%= index + 1 %></td>
-                                                        <td><%= user.name %></td>
+                                                        <td><%= user.fname %> &nbsp; <%= user.lname %></td>
                                                         <td><%= user.mobile %></td>
                                                         <td><%= user.email %></td>
                                                         <td><%= user.dateJoined.toLocaleDateString() %></td>

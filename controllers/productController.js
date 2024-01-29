@@ -50,14 +50,44 @@ const addProduct = async (req, res) => {
 };
 
 
+const toggleProductStatus = async (req, res) => {
+    try {
+        const productId = req.params.productId;
+        const product = await Products.findById(productId);
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'product not found' });
+        }
+
+        // Toggle the 'is_listed' property
+        product.is_listed = !product.is_listed;
+        await product.save();
+
+        // Send the updated product information as JSON response
+        res.json({
+            success: true,
+            product: {
+                _id: product._id,
+                is_listed: product.is_listed,
+            },
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+
 const loadEditProduct = async (req, res) => {
     try {
-        const category = await Category.find()
-        res.render('editProduct', {categories: category});
+        const category = await Category.find();
+        res.render('editProduct', { categories: category });
     } catch (error) {
-        console.log(error);
+        console.error('Error in loadEditProduct controller:', error);
+        res.status(500).send('Internal Server Error');
     }
-}
+};
+
 
 
 module.exports = {
@@ -65,4 +95,5 @@ module.exports = {
     loadCategory,
     addProduct,
     loadEditProduct,
+    toggleProductStatus,
 }

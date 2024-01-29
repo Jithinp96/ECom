@@ -7,13 +7,11 @@ const addCategory = async (req, res) => {
     try {
 
         const exist = await Categories.findOne({name:categoryName});
-        console.log(exist);
+        // console.log(exist);
         if(exist){
-            console.log("if Part");
             req.flash('name', 'Category already exists');
         }
         else{
-            console.log("Else part");
             const newCategory = new Categories({
                 name: categoryName
             })

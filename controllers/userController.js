@@ -4,6 +4,7 @@ const nodemailer = require('nodemailer')
 // const userAuth = require("../middlewares/userAuth")
 
 const UserOTPVerification = require("../models/userOTPVerification");
+const Products = require("../models/productModel");
 const { request } = require('express');
 
 const securePassword = async(password) => {
@@ -38,7 +39,8 @@ const insertUser = async (req, res) => {
             
             const user = User({
                 email: req.body.email,
-                name: req.body.name,
+                fname: req.body.fname,
+                lname: req.body.lname,
                 mobile:req.body.mobile,
                 password: spassword,
                 is_admin: 0,
@@ -75,7 +77,8 @@ const sendOTPVerificationEmail = async ({email}, res) => {
             }
         })
         const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
-        
+        console.log("OTP: "+otp);
+
         // mail options
         const mailOptions = {
             from: 'jithinyt07@gmail.com',
@@ -128,10 +131,10 @@ const verifyOTP = async (req, res) => {
         const email = req.body.email;
         const otp = req.body.digit1 + req.body.digit2 + req.body.digit3 + req.body.digit4;
         const userVerification = await UserOTPVerification.findOne({email:email});
-        console.log('userVerification:', userVerification);
+        // console.log('userVerification:', userVerification);
 
         if (! userVerification) {
-            req.flash('error', 'OTP expired');
+            // req.flash('error', 'OTP expired');
             res.redirect('/login')
             return;
         }
@@ -163,25 +166,25 @@ const verifyOTP = async (req, res) => {
                     req.session.user = {
                         _id: user._id,
                         email: user.email,
-                        name: user.name
+                        fname: user.fname
 
                     };
                     // console.log("ghgfd"+user.name);
-
-                    res.redirect('/');
+                    // Redirect to the login page with a success parameter
+                    res.redirect('/login?success=true');
                 } 
                 else {
                     console.log("user blocked from this site");
 
 
-                    req.flash('error', 'you are blocked from this contact with admin');
-                    res.redirect('/signin')
+                    // req.flash('error', 'you are blocked from this contact with admin');
+                    res.redirect('/login')
 
                 }
 
             }
         } else {
-            req.flash('error', 'otp is incorrect you have to verifey again login to get otp');
+            // req.flash('error', 'otp is incorrect you have to verifey again login to get otp');
             res.redirect('/login')
 
         }
@@ -231,10 +234,16 @@ const verifyLogin = async(req, res) => {
         if(userData){
             const passwordMatch = await bcrypt.compare(password, userData.password);
             
-            if(passwordMatch){
+            if(passwordMatch && !userData.is_blocked){
+                if(!userData.is_verified){
+                    res.render('login',{message:"Email is not verified...!!!"});
+                }
+                else{
                     req.session.userid = userData._id;
                     res.redirect('/');
                     // console.log(req.session.userid);
+                }
+                
             }
             else {
                 res.render('login',{message:"Email and Password is incorrect...!!!"});
@@ -291,14 +300,24 @@ const loadContactUs = async (req, res) => {
 
 const loadHome = async (req, res) => {
     try {
-        res.render('home',{userAuthenticated: req.session.userid})
+        const products = await Products.find({ is_listed: true });
+        res.render('home',{userAuthenticated: req.session.userid, products })
     }
     catch(error) {
         console.log(error.message);
     }
 }
 
-
+const loadProductDetails = async (req, res) => {
+    try {
+        const productId = req.params.productId;
+        const product = await Products.findById(productId);
+        res.render('productDetailsPage',{product})
+    }
+    catch(error) {
+        console.log(error.message);
+    }
+}
 
 
 module.exports ={
@@ -313,5 +332,6 @@ module.exports ={
     loadLogin,
     loadHome,
     loadAboutUs,
-    loadContactUs
+    loadContactUs,
+    loadProductDetails,
 }

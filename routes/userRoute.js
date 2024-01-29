@@ -10,6 +10,9 @@ const bodyParser = require('body-parser');
 user_route.use(bodyParser.json());
 user_route.use(bodyParser.urlencoded({extended:true}));
 
+// user_route.use(express.json());
+// user_route.use(express.urlencoded({extended:true}));
+
 const userController = require("../controllers/userController");
 
 user_route.get('/register',userController.loadRegister);
@@ -28,7 +31,9 @@ user_route.get('/aboutus',userController.loadAboutUs);
 user_route.get('/contactus',userController.loadContactUs);
 
 user_route.get('/', userAuth.isAuthenticated, userController.loadHome);
+user_route.get('/home', userAuth.isAuthenticated, userController.loadHome);
 
 user_route.post('/register',userController.insertUser);
+user_route.get('/productdetails/:productId',userController.loadProductDetails);
 
 module.exports = user_route

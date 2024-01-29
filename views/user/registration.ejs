@@ -1,9 +1,16 @@
 <%-include('../layouts/header.ejs')%>
 <%-include('../layouts/navbar.ejs')%>
 
-<div class="page-wrapper">
-    
+<style>
+    .text-red {
+        color: red;
+    }
+    .small-text {
+        font-size: 12px; /* Adjust the font size as needed */
+    }
+</style>
 
+<div class="page-wrapper">
     <main class="main">
 
         <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('assets/images/backgrounds/login-bg.jpg')">
@@ -17,11 +24,16 @@
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane fade show active" id="register-2" role="tabpanel" aria-labelledby="register-tab-2">
-                                <form method="post" action="/register">
+                                <form method="post" action="/register" onsubmit="return validateForm()">
 
                                     <div class="form-group">
-                                        <label for="register-name-2">Full Name *</label>
-                                        <input type="text" class="form-control" id="register-name-2" name="name" required>
+                                        <label for="register-first-name-2">First Name *</label>
+                                        <input type="text" class="form-control" id="register-first-name-2" name="fname" required>
+                                    </div><!-- End .form-group -->
+
+                                    <div class="form-group">
+                                        <label for="register-last-name-2">Last Name *</label>
+                                        <input type="text" class="form-control" id="register-last-name-2" name="lname" required>
                                     </div><!-- End .form-group -->
 
                                     <div class="form-group">
@@ -39,24 +51,13 @@
                                         <input type="password" class="form-control" id="register-password-2" name="password" required>
                                     </div> <!-- End .form-group -->
 
-                                    <!-- <div class="form-group">
+                                    <div class="form-group">
                                         <label for="register-confirpassword-2">Confirm Password *</label>
                                         <input type="password" class="form-control" id="register-confirmpassword-2" name="confirmPassword" required>
-                                    </div>  End .form-group -->
-
-                                    <!-- <div class="form-group">
-                                        <label for="singin-password-2">Password *</label>
-                                        <input type="password" class="form-control" id="singin-password-2" name="password" required>
-                                        <div class="password-error error-message"></div>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="confirm-password">Confirm Password *</label>
-                                        <input type="password" class="form-control" id="confirm-password" name="confirmPassword" required>
-                                        <div class="confirm-password-error error-message"></div>
-                                    </div> -->
+                                    </div> <!--  End .form-group -->
 
                                     <div class="form-footer">
+                                        <div id="validation-message"></div>
                                         <button type="submit" class="btn btn-outline-primary-2">
                                             <span>SIGN UP</span>
                                             <i class="icon-long-arrow-right"></i>
@@ -68,7 +69,7 @@
                                         </div><!-- End .custom-checkbox -->
                                     </div><!-- End .form-footer -->
                                 </form>
-                        
+                                <p>Already a member? <a href="/login" class="forgot-link">Login</a></p>
                             </div><!-- .End .tab-pane -->
                         </div><!-- End .tab-content -->
                     </div><!-- End .form-tab -->
@@ -76,172 +77,113 @@
             </div><!-- End .container -->
         </div><!-- End .login-page section-bg -->
     </main><!-- End .main -->
-
-    
 </div><!-- End .page-wrapper -->
+
 <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
-<!-- Sign in / Register Modal -->
-<div class="modal fade" id="signin-modal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true"><i class="icon-close"></i></span>
-                </button>
 
-                <div class="form-box">
-                    <div class="form-tab">
-                        <ul class="nav nav-pills nav-fill" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="signin-tab" data-toggle="tab" href="#signin" role="tab" aria-controls="signin" aria-selected="true">Sign In</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="register-tab" data-toggle="tab" href="#register" role="tab" aria-controls="register" aria-selected="false">Register</a>
-                            </li>
-                        </ul>
-                        <div class="tab-content" id="tab-content-5">
-                            <div class="tab-pane fade show active" id="signin" role="tabpanel" aria-labelledby="signin-tab">
-                                <form action="#">
-                                    <div class="form-group">
-                                        <label for="singin-email">Username or email address *</label>
-                                        <input type="text" class="form-control" id="singin-email" name="singin-email" required>
-                                    </div><!-- End .form-group -->
-
-                                    <div class="form-group">
-                                        <label for="singin-password">Password *</label>
-                                        <input type="password" class="form-control" id="singin-password" name="singin-password" required>
-                                    </div><!-- End .form-group -->
-
-                                    <div class="form-footer">
-                                        <button type="submit" class="btn btn-outline-primary-2">
-                                            <span>LOG IN</span>
-                                            <i class="icon-long-arrow-right"></i>
-                                        </button>
-
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="signin-remember">
-                                            <label class="custom-control-label" for="signin-remember">Remember Me</label>
-                                        </div><!-- End .custom-checkbox -->
-
-                                        <a href="#" class="forgot-link">Forgot Your Password?</a>
-                                    </div><!-- End .form-footer -->
-                                </form>
-                                <div class="form-choice">
-                                    <p class="text-center">or sign in with</p>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <a href="#" class="btn btn-login btn-g">
-                                                <i class="icon-google"></i>
-                                                Login With Google
-                                            </a>
-                                        </div><!-- End .col-6 -->
-                                        <div class="col-sm-6">
-                                            <a href="#" class="btn btn-login btn-f">
-                                                <i class="icon-facebook-f"></i>
-                                                Login With Facebook
-                                            </a>
-                                        </div><!-- End .col-6 -->
-                                    </div><!-- End .row -->
-                                </div><!-- End .form-choice -->
-                            </div><!-- .End .tab-pane -->
-                            <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
-                                <form action="#">
-                                    <div class="form-group">
-                                        <label for="register-email">Your email address *</label>
-                                        <input type="email" class="form-control" id="register-email" name="register-email" required>
-                                    </div><!-- End .form-group -->
-
-                                    <div class="form-group">
-                                        <label for="register-password">Password *</label>
-                                        <input type="password" class="form-control" id="register-password" name="register-password" required>
-                                    </div><!-- End .form-group -->
-
-                                    <div class="form-footer">
-                                        <button type="submit" class="btn btn-outline-primary-2">
-                                            <span>SIGN UP</span>
-                                            <i class="icon-long-arrow-right"></i>
-                                        </button>
-
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="register-policy" required>
-                                            <label class="custom-control-label" for="register-policy">I agree to the <a href="#">privacy policy</a> *</label>
-                                        </div><!-- End .custom-checkbox -->
-                                    </div><!-- End .form-footer -->
-                                </form>
-                                <div class="form-choice">
-                                    <p class="text-center">or sign in with</p>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <a href="#" class="btn btn-login btn-g">
-                                                <i class="icon-google"></i>
-                                                Login With Google
-                                            </a>
-                                        </div><!-- End .col-6 -->
-                                        <div class="col-sm-6">
-                                            <a href="#" class="btn btn-login  btn-f">
-                                                <i class="icon-facebook-f"></i>
-                                                Login With Facebook
-                                            </a>
-                                        </div><!-- End .col-6 -->
-                                    </div><!-- End .row -->
-                                </div><!-- End .form-choice -->
-                            </div><!-- .End .tab-pane -->
-                        </div><!-- End .tab-content -->
-                    </div><!-- End .form-tab -->
-                </div><!-- End .form-box -->
-            </div><!-- End .modal-body -->
-        </div><!-- End .modal-content -->
-    </div><!-- End .modal-dialog -->
-</div><!-- End .modal -->
 
 
 <%-include('../layouts/footbar.ejs')%>
 
-<!-- <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const form = document.querySelector('#signin-2 form');
-      const passwordInput = form.querySelector('#singin-password-2');
-      const confirmPasswordInput = form.querySelector('#confirm-password');
-      const formFooter = form.querySelector('.form-footer');
-      
-      form.addEventListener('submit', function (event) {
-        if (!validatePassword() || !validateConfirmPassword()) {
-          event.preventDefault(); // Prevent form submission if validation fails
+<script>
+    function validateForm() {
+        // Reset previous validation messages
+        clearValidationMessages();
+
+        var firstNameInput = document.getElementById('register-first-name-2');
+        var lastNameInput = document.getElementById('register-last-name-2');
+        var emailInput = document.getElementById('register-email-2');
+        var mobileInput = document.getElementById('register-mobile');
+        var passwordInput = document.getElementById('register-password-2');
+        var confirmPasswordInput = document.getElementById('register-confirmpassword-2');
+
+        // Validate first name
+        if (!validateNoSpaces(firstNameInput.value)) {
+            displayValidationMessage('First Name cannot contain blank spaces.', 'register-first-name-2');
+            return false;
         }
-      });
-  
-      function validatePassword() {
-        const passwordValue = passwordInput.value;
-        const passwordError = form.querySelector('.password-error');
-  
-        if (passwordValue.length < 8) {
-          passwordError.textContent = 'Password must be at least 8 characters';
-          return false;
-        } else {
-          passwordError.textContent = '';
-          return true;
+
+        // Validate last name
+        if (!validateNoSpaces(lastNameInput.value)) {
+            displayValidationMessage('Last Name cannot contain blank spaces.', 'register-last-name-2');
+            return false;
         }
-      }
-  
-      function validateConfirmPassword() {
-        const passwordValue = passwordInput.value;
-        const confirmPasswordValue = confirmPasswordInput.value;
-        const confirmPasswordError = form.querySelector('.confirm-password-error');
-  
-        if (confirmPasswordValue !== passwordValue) {
-          confirmPasswordError.textContent = 'Passwords do not match';
-          return false;
-        } else {
-          confirmPasswordError.textContent = '';
-          return true;
+
+        // Validate email format
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        if (!emailRegex.test(emailInput.value)) {
+            displayValidationMessage('Invalid email format. Please enter a valid email.', 'register-email-2');
+            return false;
         }
-      }
-  
-      // Add event listeners for input
-      passwordInput.addEventListener('input', validatePassword);
-      confirmPasswordInput.addEventListener('input', validateConfirmPassword);
-    });
-  </script> -->
+
+        // Validate password
+        if (!validateNoSpaces(mobileInput.value)) {
+            displayValidationMessage('Mobile cannot contain blank spaces.', 'register-mobile');
+            return false;
+        }
+
+        // Validate mobile number length
+        if (mobileInput.value.length < 10) {
+            displayValidationMessage('Mobile number should be at least 10 digits.', 'register-mobile');
+            return false;
+        }
+
+        // Validate password
+        if (!validateNoSpaces(passwordInput.value)) {
+            displayValidationMessage('Password cannot contain blank spaces.', 'register-password-2');
+            return false;
+        }
+
+        // Validate confirm password
+        if (!validateNoSpaces(confirmPasswordInput.value)) {
+            displayValidationMessage('Confirm Password cannot contain blank spaces.', 'register-confirmpassword-2');
+            return false;
+        }
+
+        // Validate password and confirm password match
+        if (passwordInput.value !== confirmPasswordInput.value) {
+            displayValidationMessage('Password and Confirm Password should be the same.', 'register-confirmpassword-2');
+            return false;
+        }
+
+        // Allow form submission if all validations pass
+        return true;
+    }
+
+    function validateNoSpaces(inputValue, inputId) {
+        // Use a regular expression to check for spaces
+        var spaceRegex = /\s/;
+        return !spaceRegex.test(inputValue);
+    }
+
+    function displayValidationMessage(message, inputId) {
+        var inputField = document.getElementById(inputId);
+        var messageDiv = document.createElement('div');
+        messageDiv.classList.add('text-red', 'small-text'); // You can add styling classes here
+        messageDiv.textContent = message;
+
+        // Insert the message div below the input field
+        inputField.parentNode.insertBefore(messageDiv, inputField.nextSibling);
+    
+        // Remove the message when the user starts typing in the input field
+        inputField.addEventListener('input', function () {
+            messageDiv.remove();
+        });
+    
+    }
+
+    function clearValidationMessages() {
+        var validationMessages = document.querySelectorAll('.text-red');
+        validationMessages.forEach(function (message) {
+            message.remove();
+        });
+    }
+</script>
+
+
+
+
+
 
 <%-include('../layouts/footer.ejs')%>

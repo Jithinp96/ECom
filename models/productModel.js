@@ -24,6 +24,10 @@ const productSchema = mongoose.Schema({
     image:{
         type:[String],
         required:true
+    },
+    is_listed: {
+        type: Boolean,
+        default:true
     }
 });
 

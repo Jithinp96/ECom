@@ -6,14 +6,7 @@
         <button type="button" class="btn btn-success" data-toggle="modal" 
         data-target="#signup-modal">Add Category</button>
     </div>
-
-    <!-- ============================================================== -->
-    <!-- Container fluid  -->
-    <!-- ============================================================== -->
     <div class="container-fluid">
-        <!-- ============================================================== -->
-        <!-- Start Page Content -->
-        <!-- ============================================================== -->
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -61,115 +54,129 @@
                                 </tbody>
                             </table>
                         </div>
-    <!-- <footer class="footer text-center text-muted">
-        All Rights Reserved by Adminmart. Designed and Developed by <a
-            href="https://wrappixel.com">WrapPixel</a>.
-    </footer> -->
-
-
-
-</div>
-</div>
-
-<!-- ADD CATEGORY modal content -->
-<div id="signup-modal" class="modal fade" tabindex="-1" role="dialog"
-aria-hidden="true">
-<div class="modal-dialog">
-<div class="modal-content">
-
-<div class="modal-body">
-    <div class="text-center mt-2 mb-4">
-        <a href="index.html" class="text-success">
-            <span><img class="mr-2" src="../assets/images/logo-icon.png"
-                    alt="" height="18"><img
-                    src="../assets/images/logo-text.png" alt=""
-                    height="18"></span>
-        </a>
-    </div>
-
-    <form class="pl-3 pr-3" id="categoryForm">
-
-        <div class="form-group">
-            <label for="username">Category Name</label>
-            <input class="form-control" type="text" id="categoryName"
-                required="" placeholder="Enter Category Name">
-
-                
-        </div>
-
-        <div class="form-group text-center">
-            <button class="btn btn-primary" type="button" id="submitBtn">Add</button>
-        </div>
-
-    </form>
-
-</div>
-</div><!-- /.modal-content -->
-</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
-
-<!-- Edit modal content -->
-<div id="edit-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-body">
-                <form class="pl-3 pr-3" id="editCategoryForm">
-                    <div class="form-group">
-                        <label for="editCategoryName">New Category Name</label>
-                        <input class="form-control" type="text" id="editCategoryName" required placeholder="Enter New Category Name">
                     </div>
-                    <div class="form-group text-center">
-                        <button class="btn btn-primary" type="button" id="editSubmitBtn">Save Changes</button>
+                </div>
+
+                <!-- ADD CATEGORY modal content -->
+                <div id="signup-modal" class="modal fade" tabindex="-1" role="dialog"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+
+                <div class="modal-body">
+                    <div class="text-center mt-2 mb-4">
+                        <a href="index.html" class="text-success">
+                            <span><img class="mr-2" src="../assets/images/logo-icon.png"
+                                    alt="" height="18"><img
+                                    src="../assets/images/logo-text.png" alt=""
+                                    height="18"></span>
+                        </a>
                     </div>
-                </form>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+
+                    <form class="pl-3 pr-3" id="categoryForm">
+
+                        <div class="form-group">
+                            <label for="username">Category Name</label>
+                            <input class="form-control" type="text" id="categoryName"
+                                required="" placeholder="Enter Category Name">
+                            <div class="invalid-feedback" id="categoryNameError">
+                                Category Name should not contain blank spaces.
+                            </div>
+                                
+                        </div>
+
+                        <div class="form-group text-center">
+                            <button class="btn btn-primary" type="button" id="submitBtn">Add</button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
+    <!-- Edit modal content -->
+    <div id="edit-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form class="pl-3 pr-3" id="editCategoryForm">
+                        <div class="form-group">
+                            <label for="editCategoryName">New Category Name</label>
+                            <input class="form-control" type="text" id="editCategoryName" required placeholder="Enter New Category Name">
+                            <div class="invalid-feedback" id="editCategoryNameError">Category Name should not contain blank
+                                spaces.
+                            </div>
+                        </div>
+                        <div class="form-group text-center">
+                            <button class="btn btn-primary" type="button" id="editSubmitBtn">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
 <script>
     $(document).ready(function () {
-        // Listen for button click
-        $('#submitBtn').click(function () {
-          console.log('clicking');
-            // Get form data
-            var formData = {
-                categoryName: $('#categoryName').val()
-                // Add more form fields as needed
-            };
-           console.log(formData)
-            // Send AJAX request to the server
-            $.ajax({
-                type: 'POST',
-                url: '/admin/save-category',  // Replace with your server-side route
-                data: JSON.stringify(formData),
-                contentType: 'application/JSON',
-                success: function (response) {
-                    if(response.success) {
-                        console.log('Data saved successfully:', response);
-                        $('#signup-modal').modal('hide');
-                        location.reload();
-                    }
-                   
-                  
-                    // Optionally, close the modal or perform other actions
-                 
-                },
-                error: function (error) {
-                    console.error('Error saving data:', error);
+    // Listen for button click
+    $('#submitBtn').click(function () {
+        // Get form data
+        var categoryName = $('#categoryName').val();
+
+        // Check if the categoryName contains blank spaces
+        if (containsBlankSpaces(categoryName)) {
+            // Show error message
+            $('#categoryNameError').show();
+            return; // Exit the function if validation fails
+        } else {
+            // Hide error message if validation succeeds
+            $('#categoryNameError').hide();
+        }
+
+        // Continue with your existing logic to send AJAX request
+        var formData = {
+            categoryName: categoryName
+            // Add more form fields as needed
+        };
+
+        // Send AJAX request to the server
+        $.ajax({
+            type: 'POST',
+            url: '/admin/save-category',  // Replace with your server-side route
+            data: JSON.stringify(formData),
+            contentType: 'application/JSON',
+            success: function (response) {
+                if (response.success) {
+                    console.log('Data saved successfully:', response);
+                    $('#signup-modal').modal('hide');
+                    location.reload();
                 }
-            });
+            },
+            error: function (error) {
+                console.error('Error saving data:', error);
+            }
         });
     });
+    $('#categoryName').on('input', function () {
+            $('#categoryNameError').hide();
+        });
+});
+
+function containsBlankSpaces(value) {
+    // Check if the value contains blank spaces
+    return /\s/.test(value);
+}
 
 
-    //LISTING AND UNLISTING
-
-    
 </script>
+
+<!-- LISTING AND UNLISTING -->
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -219,7 +226,7 @@ aria-hidden="true">
     });
 </script>
 
-
+<!-- EDIT CATEGORY -->
 <script>
     $(document).ready(function () {
 
@@ -243,6 +250,11 @@ aria-hidden="true">
             const newCategoryName = $('#editCategoryName').val();
             editCategory(categoryId, newCategoryName);
         });
+
+        // Add an event listener for the input field in the edit modal to hide the error message on input
+        $('#editCategoryName').on('input', function () {
+            $('#editCategoryNameError').hide();
+        });
     });
 
     function openEditModal(categoryId) {
@@ -253,6 +265,17 @@ aria-hidden="true">
     }
 
     function editCategory(categoryId, newCategoryName) {
+        // Check if the newCategoryName contains blank spaces
+        if (containsBlankSpaces(newCategoryName)) {
+            // Show error message
+            $('#editCategoryNameError').show();
+            return; // Exit the function if validation fails
+        } else {
+            // Hide error message if validation succeeds
+            $('#editCategoryNameError').hide();
+        }
+        
+        
         // Send AJAX request to the server to update the category name
         $.ajax({
             type: 'POST',
@@ -271,6 +294,11 @@ aria-hidden="true">
                 console.error('Error updating category:', error);
             }
         });
+    }
+
+    function containsBlankSpaces(value) {
+        // Check if the value contains blank spaces
+        return /\s/.test(value);
     }
 </script>
 

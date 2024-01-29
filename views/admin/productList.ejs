@@ -28,7 +28,7 @@
                                                 <th scope="col">ID</th>
                                                 <th scope="col">Name</th>
                                                 <th scope="col">Price</th>
-                                                <th scope="col">Category</th>
+                                                <th scope="col">Product</th>
                                                 <th scope="col">Quantity</th>
                                                 <th scope="col">Images</th>
                                                 <th scope="col">Action</th>
@@ -50,8 +50,17 @@
                                                             <!-- <img src="../../public/uploads/1706103041470-IMG_1663.jpg"> -->
                                                         </td>
                                                         <td>
-                                                            <a href="/admin/editProduct" class="edit-product" data-productid="<%= product._id %>">
+                                                            <a href="/admin/editProduct" class="edit-product">
                                                                 <i class="fas fa-edit"></i>
+                                                            </a>
+                                                        </td>
+                                                        <td>
+                                                            <a href="#" class="btn-status-toggle" data-productid="<%= product._id %>">
+                                                                <% if (product.is_listed) { %>
+                                                                    <span class="badge badge-success">Listed</span>
+                                                                <% } else { %>
+                                                                    <span class="badge badge-danger">Unlisted</span>
+                                                                <% } %>
                                                             </a>
                                                         </td>
                                                     </tr>
@@ -78,4 +87,52 @@
     <!-- ============================================================== -->
 
 
+<!-- LISTING AND UNLISTING -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const statusButtons = document.querySelectorAll('.btn-status-toggle');
+
+        statusButtons.forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                const productId = this.getAttribute('data-productid');
+                toggleproductStatus(productId, this);
+            });
+        });
+
+        function toggleproductStatus(productId, button) {
+            // Send Fetch API request to update the product status
+            fetch(`/admin/toggleproductStatus/${productId}`, {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update UI based on the server response
+                if (data.success) {
+                    updateUI(button, data.product.is_listed);
+                } else {
+                    console.error('Error toggling product status:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error toggling product status:', error);
+            });
+        }
+
+        function updateUI(button, isListed) {
+            // Update the button text and badge based on the new status
+            const badge = button.querySelector('.badge');
+            if (isListed) {
+                badge.textContent = 'Listed';
+                badge.classList.remove('badge-danger');
+                badge.classList.add('badge-success');
+            } else {
+                badge.textContent = 'Unlisted';
+                badge.classList.remove('badge-success');
+                badge.classList.add('badge-danger');
+            }
+        }
+    });
+</script>
 <%-include('../layouts/adminFooter.ejs')%>

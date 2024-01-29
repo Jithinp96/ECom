@@ -2,16 +2,15 @@
 <%-include('../layouts/adminSidebar.ejs')%>
 
 <div class="page-wrapper">
-
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Enter Product Details</h4>
-                        <form action="/admin/submitProduct" method="POST" enctype="multipart/form-data">
+                        <form action="/admin/submitProduct" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
                             <div class="form-body">
-                                <div class="form-group">
+                                <div class="form-group" >
                                     <div class="row">
                                         <label class="col-lg-2">Name</label>
                                         <div class="col-lg-10">
@@ -20,12 +19,13 @@
                                                 <div class="col-md-11">
                                                     <input type="text" class="form-control" id="name" name="name"
                                                         placeholder="Enter Product Name">
+                                                    <div id="nameContainer" class="text-danger"></div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" >
                                     <div class="row">
                                         <label class="col-lg-2">Price</label>
                                         <div class="col-lg-10">
@@ -34,12 +34,13 @@
                                                 <div class="col-md-11">
                                                     <input type="text" class="form-control" id="price" name="price"
                                                         placeholder="Enter Product Price">
+                                                    <div id="priceContainer" class="text-danger"></div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" >
                                     <div class="row">
                                         <label class="col-lg-2">Quantity</label>
                                         <div class="col-lg-10">
@@ -48,12 +49,13 @@
                                                 <div class="col-md-11">
                                                     <input type="number" class="form-control" id="quantity" name="quantity"
                                                         placeholder="Enter Quantity">
+                                                    <div id="quantityContainer" class="text-danger"></div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" >
                                     <div class="row">
                                         <label class="col-lg-2">Category</label>
                                         <div class="col-lg-10">
@@ -69,6 +71,7 @@
                                                                     <option value="<%= category.name %>"><%= category.name %></option>
                                                                 <% }); %>
                                                             </select>
+                                                            <div id="categoryContainer" class="text-danger"></div>
                                                         </div>
                                                     <!-- </form> -->
                                                 </div>
@@ -77,7 +80,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" >
                                     <div class="row">
                                         <label class="col-lg-2">Description</label>
                                         <div class="col-lg-10">
@@ -85,6 +88,7 @@
                                                 <div class="col-md-11">
                                                     <textarea class="form-control" rows="3" id="description" name="description"
                                                     placeholder="Text Here..."></textarea>
+                                                    <div id="descriptionContainer" class="text-danger"></div>
                                                 </div>
                                                 
                                             </div>
@@ -125,6 +129,115 @@
 
 
 <script>
+//FORM VALIDATION
+document.addEventListener('DOMContentLoaded', function () {
+        // Add input event listeners to clear warning messages when the user starts typing
+        addInputEventListener('name');
+        addInputEventListener('price');
+        addInputEventListener('quantity');
+        addInputEventListener('category');
+        addInputEventListener('description');
+        addInputEventListener('imageInput');
+    });
+
+    function addInputEventListener(fieldName) {
+        // Get the input field element
+        var inputField = document.getElementById(fieldName);
+
+        // Add input event listener
+        inputField.addEventListener('input', function () {
+            // Clear the warning message below the respective input field
+            clearWarningMessage(fieldName);
+        });
+    }
+
+    function validateForm() {
+        // Get input field values
+        var name = document.getElementById('name').value.trim();
+        var price = document.getElementById('price').value.trim();
+        var quantity = document.getElementById('quantity').value.trim();
+        var category = document.getElementById('category').value.trim();
+        var description = document.getElementById('description').value.trim();
+        var imageCount = document.getElementById('imageInput').files.length;
+
+        // Clear previous warning messages
+        clearWarningMessages();
+
+        // Perform validation
+        if (name === '') {
+            displayWarningMessage('name', 'Please enter a valid product name.');
+            return false;
+        }
+
+        if (price === '') {
+            displayWarningMessage('price', 'Please enter a valid product price.');
+            return false;
+        }
+
+        if (isNaN(price) || parseFloat(price) <= 0) {
+            displayWarningMessage('price', 'Please enter a valid positive numeric price.');
+            return false;
+        }
+
+        if (quantity === '') {
+            displayWarningMessage('quantity', 'Please enter a valid quantity.');
+            return false;
+        }
+
+        if (isNaN(quantity) || parseInt(quantity) <= 0) {
+            displayWarningMessage('quantity', 'Please enter a valid positive numeric quantity.');
+            return false;
+        }
+
+        if (category === 'Choose...') {
+            displayWarningMessage('category', 'Please select a valid category.');
+            return false;
+        }
+
+        if (description === '') {
+            displayWarningMessage('description', 'Please enter a valid product description.');
+            return false;
+        }
+
+        // Validate image count
+        if (imageCount !== 4) {
+            displayWarningMessage('imageInput', 'Please select exactly 4 images.');
+            return false;
+        }
+
+        // Additional validations can be added as needed
+
+        return true; // If all validations pass
+    }
+
+    function displayWarningMessage(fieldName, message) {
+        // Create a warning message element
+        var warningMessage = document.createElement('div');
+        warningMessage.className = 'text-danger';
+        warningMessage.textContent = message;
+
+        // Append the warning message below the respective input field
+        document.getElementById(fieldName + 'Container').appendChild(warningMessage);
+    }
+
+    function clearWarningMessage(fieldName) {
+        // Clear the warning message below the respective input field
+        var warningMessageContainer = document.getElementById(fieldName + 'Container');
+        warningMessageContainer.querySelector('.text-danger').innerHTML = ''; // Remove all child elements
+    }
+
+    function clearWarningMessages() {
+        // Clear all existing warning messages
+        var warningMessageContainers = document.querySelectorAll('.text-danger');
+        warningMessageContainers.forEach(function (container) {
+            container.innerHTML = ''; // Remove all child elements
+        });
+    }
+
+
+
+
+// for image preview
     function previewImages() {
         let input = document.getElementById('imageInput');
         let previewContainer = document.getElementById('imagePreview');
