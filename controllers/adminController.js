@@ -52,7 +52,7 @@ const loadUserList = async (req,res) => {
 
 const toggleUserStatus = async (req, res) => {
     try {
-        console.log("inside toggle fn top");
+        // console.log("inside toggle fn top");
         const userId = req.params.id;
         const user = await Users.findById(userId);
 

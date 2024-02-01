@@ -1,6 +1,14 @@
 <%-include('../layouts/header.ejs')%>
 <%-include('../layouts/navbar.ejs')%>
 
+<style>
+    /* Custom style to set text color to black */
+    #newaddress-modal input {
+        color: black;
+    }
+</style>
+
+
 <main class="main">
     <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
         <div class="container">
@@ -19,21 +27,37 @@
                 </div>End .checkout-discount -->
                 <form action="#">
                     <div class="row">
+                        
                         <div class="col-lg-9">
                             <br>
-                            <h5>Select Address</h5>
-                            <div class="card" style="width: 80rem;">
-                                <div class="card-body">
-                                    <ul class="selection-list">
-                                        <li class="selected">
-                                            <input type="radio" id="cardSelection" name="cardSelection" checked>
-                                        </li>
-                                    </ul>
-                                    <h5 class="card-title">Card title</h5>
-                                    <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <!-- <div class="container" style="display: flex; justify-content: left;">
+                                <h5>Select Address</h5>
+                                <button type="button" class="btn btn-success" data-toggle="modal" 
+                                data-target="#signup-modal">Add Address</button>
+                            </div> -->
+                            <div class="container-fluid" style="display: flex; justify-content: space-between;">
+                                <h5>Select Address</h5>
+                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newaddress-modal">
+                                    Add New Address
+                                </button>
+                            </div>
+                            
+                            <div class="container-fluid">
+                                <div class="address-card" style="width: 80rem;">
+                                    <div class="card-body">
+                                        <ul class="selection-list">
+                                            <li class="selected">
+                                                <input type="radio" id="addressSelection" name="addressSelection" checked>
+                                            </li>
+                                        </ul>
+                                        <h5 class="card-title">John Doe</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">123 Main Street, Cityville</h6>
+                                        <p class="card-text">Country: YourCountry</p>
+                                        <p class="card-text">Zip Code: 12345</p>
+                                    </div>
                                 </div>
                             </div>
+                            
                         </div><!-- End .col-lg-9 -->
                         <aside class="col-lg-3">
                             <div class="summary">
@@ -65,42 +89,29 @@
                                         </tr>
                                         <tr class="summary-total">
                                             <td>Total:</td>
-                                            <td>₹<%= checkoutProduct.totalPrice %></td>
+                                            <td>₹<%= grandTotal %></td>
                                         </tr><!-- End .summary-total -->
                                                     
                                     </tbody>
                                 </table><!-- End .table table-summary -->
 
                                 <div class="accordion-summary" id="accordion-payment">
-                                    <div class="card">
+                                    <!-- <div class="card">
                                         <div class="card-header" id="heading-1">
                                             <h2 class="card-title">
                                                 <a role="button" data-toggle="collapse" href="#collapse-1" aria-expanded="true" aria-controls="collapse-1">
                                                     Direct bank transfer
                                                 </a>
                                             </h2>
-                                        </div><!-- End .card-header -->
+                                        </div>End .card-header
                                         <div id="collapse-1" class="collapse show" aria-labelledby="heading-1" data-parent="#accordion-payment">
                                             <div class="card-body">
                                                 Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
-                                            </div><!-- End .card-body -->
-                                        </div><!-- End .collapse -->
-                                    </div><!-- End .card -->
+                                            </div>End .card-body
+                                        </div>End .collapse
+                                    </div>End .card -->
 
-                                    <div class="card">
-                                        <div class="card-header" id="heading-2">
-                                            <h2 class="card-title">
-                                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
-                                                    Check payments
-                                                </a>
-                                            </h2>
-                                        </div><!-- End .card-header -->
-                                        <div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
-                                            <div class="card-body">
-                                                Ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. 
-                                            </div><!-- End .card-body -->
-                                        </div><!-- End .collapse -->
-                                    </div><!-- End .card -->
+                                    
 
                                     <div class="card">
                                         <div class="card-header" id="heading-3">
@@ -111,37 +122,7 @@
                                             </h2>
                                         </div><!-- End .card-header -->
                                         <div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
-                                            <div class="card-body">Quisque volutpat mattis eros. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. 
-                                            </div><!-- End .card-body -->
-                                        </div><!-- End .collapse -->
-                                    </div><!-- End .card -->
-
-                                    <div class="card">
-                                        <div class="card-header" id="heading-4">
-                                            <h2 class="card-title">
-                                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-4" aria-expanded="false" aria-controls="collapse-4">
-                                                    PayPal <small class="float-right paypal-link">What is PayPal?</small>
-                                                </a>
-                                            </h2>
-                                        </div><!-- End .card-header -->
-                                        <div id="collapse-4" class="collapse" aria-labelledby="heading-4" data-parent="#accordion-payment">
-                                            <div class="card-body">
-                                                Nullam malesuada erat ut turpis. Suspendisse urna nibh, viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum.
-                                            </div><!-- End .card-body -->
-                                        </div><!-- End .collapse -->
-                                    </div><!-- End .card -->
-
-                                    <div class="card">
-                                        <div class="card-header" id="heading-5">
-                                            <h2 class="card-title">
-                                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5">
-                                                    Credit Card (Stripe)
-                                                    <img src="assets/images/payments-summary.png" alt="payments cards">
-                                                </a>
-                                            </h2>
-                                        </div><!-- End .card-header -->
-                                        <div id="collapse-5" class="collapse" aria-labelledby="heading-5" data-parent="#accordion-payment">
-                                            <div class="card-body"> Donec nec justo eget felis facilisis fermentum.Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Lorem ipsum dolor sit ame.
+                                            <div class="card-body">Cash on delivery is a way of buying things online without paying in advance. You only pay with cash when you get the item delivered to your door. 
                                             </div><!-- End .card-body -->
                                         </div><!-- End .collapse -->
                                     </div><!-- End .card -->
@@ -160,7 +141,167 @@
     </div><!-- End .page-content -->
 </main><!-- End .main -->
 
+<!-- Add your modal HTML with an error message area -->
 
+<div class="modal fade" id="newaddress-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add New Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">Name</label>
+                        <input type="text" class="form-control" id="addressName" placeholder="Enter your name">
+                        <div id="validationMessagesName" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">House Name</label>
+                        <input type="text" class="form-control" id="houseName" placeholder="Enter your house name">
+                        <div id="validationMessagesHouse" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">Street</label>
+                        <input type="text" class="form-control" id="street" placeholder="Enter your street name">
+                        <div id="validationMessagesStreet" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">City</label>
+                        <input type="text" class="form-control" id="city" placeholder="Enter your city name">
+                        <div id="validationMessagesCity" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">Pincode</label>
+                        <input type="text" class="form-control" id="pincode" placeholder="Enter your pincode">
+                        <div id="validationMessagesPincode" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">Mobile</label>
+                        <input type="text" class="form-control" id="mobile" placeholder="Enter your mobile number">
+                        <div id="validationMessagesMobile" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="saveAddressBtn" class="btn btn-primary">Save Address</button>
+                    </div>
+                </form>
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="saveAddressBtn" class="btn btn-primary">Save Address</button>
+            </div> -->
+            
+        </div>
+    </div>
+</div>
+
+<!-- Add your script -->
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Add event listener to clear error message on input focus
+        $('#addressName, #houseName, #street, #city, #pincode, #mobile').on('input', function () {
+            var fieldId = '#validationMessages' + $(this).attr('id').charAt(0).toUpperCase() + $(this).attr('id').slice(1);
+            $(fieldId).hide().empty();
+        });
+
+        $('#saveAddressBtn').click(function () {
+            // Clear previous error messages
+            $('.text-danger').empty().hide();
+
+            // Validate each input field
+            var addressName = $('#addressName').val().trim();
+            var houseName = $('#houseName').val().trim();
+            var street = $('#street').val().trim();
+            var city = $('#city').val().trim();
+            var pincode = $('#pincode').val().trim();
+            var mobile = $('#mobile').val().trim();
+
+            var isValid = true;
+
+            if (addressName === '') {
+                appendErrorMessage('#validationMessagesName', 'Please enter your name.');
+                isValid = false;
+            }
+
+            if (houseName === '') {
+                appendErrorMessage('#validationMessagesHouse', 'Please enter your house name.');
+                isValid = false;
+            }
+
+            if (street === '') {
+                appendErrorMessage('#validationMessagesStreet', 'Please enter your street name.');
+                isValid = false;
+            }
+
+            if (city === '') {
+                appendErrorMessage('#validationMessagesCity', 'Please enter your city name.');
+                isValid = false;
+            }
+
+            // Validate pincode with exactly 6 digits
+            if (!/^\d{6}$/.test(pincode)) {
+                appendErrorMessage('#validationMessagesPincode', 'Please enter a valid 6-digit pincode.');
+                isValid = false;
+            }
+
+            // Validate mobile with exactly 10 digits
+            if (!/^\d{10}$/.test(mobile)) {
+                appendErrorMessage('#validationMessagesMobile', 'Please enter a valid 10-digit mobile number.');
+                isValid = false;
+            }
+
+            // If all validation passes, you can proceed to save the address
+            if (isValid) {
+                // Create an object with the address details
+                var newAddress = {
+                    name: addressName,
+                    housename: houseName,
+                    street: street,
+                    city: city,
+                    pin: parseInt(pincode),
+                    mobile: parseInt(mobile)
+                };
+
+                // Now, you can save the address details to MongoDB
+                saveAddressToDatabase(newAddress);
+
+                // Close the modal
+                $('#newaddress-modal').modal('hide');
+            }
+        });
+
+        function appendErrorMessage(fieldId, message) {
+            $(fieldId).html(message).show();
+        }
+
+        function saveAddressToDatabase(newAddress) {
+            // Perform an AJAX request or use a backend route to save the address to MongoDB
+            // Example using jQuery AJAX (replace with your actual backend route)
+            $.ajax({
+                type: 'POST',
+                url: '/api/saveAddress', // Replace with your backend route
+                contentType: 'application/json',
+                data: JSON.stringify(newAddress),
+                success: function (response) {
+                    // Handle the success response
+                    console.log('Address saved successfully:', response);
+                },
+                error: function (error) {
+                    // Handle the error response
+                    console.error('Error saving address:', error);
+                }
+            });
+        }
+    });
+</script>
 
 
 <%-include('../layouts/footbar.ejs')%>

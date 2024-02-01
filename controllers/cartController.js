@@ -1,5 +1,6 @@
 const Cart = require("../models/cartModel");
-const Product = require('../models/productModel')
+const Product = require('../models/productModel');
+const User = require("../models/userModel");
 
 const loadCart = async (req, res) => {
     try {
@@ -133,10 +134,34 @@ const removeFromCart = async (req, res) => {
     }
 };
 
+const checkoutAddAddress = async(req, res) => {
+    try {
+        const user = await User.findById(req.session.userid)
+
+        // Add the address details to the user's address array
+        user.address.push({
+            name: req.body.name,
+            housename: req.body.housename,
+            street: req.body.street,
+            city: req.body.city,
+            pin: req.body.pin,
+            mobile: req.body.mobile
+        });
+
+        // Save the user with the new address to MongoDB
+        const savedUser = await user.save();
+
+        res.status(200).json({ message: 'Address saved successfully', user: savedUser });
+    } catch (error) {
+        console.error('Error saving address:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
 
 module.exports = {
     loadCart,
     addToCart,
     loadCheckout,
     removeFromCart,
+    checkoutAddAddress
 }
