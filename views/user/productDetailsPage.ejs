@@ -112,8 +112,16 @@
                                     </div><!-- End .details-filter-row -->
 
                                     <div class="product-details-action">
-                                        <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-
+                                        <!-- <a href="#" id="addToCartBtn" class="btn-product btn-cart" onclick="addToCart('<%=product._id%>', '<%=userId%>')">
+                                            <span>Add to Cart</span>
+                                        </a> -->
+                                        <a href="#" id="addToCartBtn" class="btn-product btn-cart">
+                                            <span>Add to Cart</span>
+                                        </a>
+            
+                                        <a href="/cart" id="viewCartBtn" class="btn-product btn-cart" style="display: none;">
+                                            <span>View Cart</span>
+                                        </a>
                                         <div class="details-action-wrapper">
                                             <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
                         
@@ -247,7 +255,93 @@
         </main><!-- End .main -->
 
         <%-include('../layouts/footbar.ejs')%>
-    <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
+    <!-- <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button> -->
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const productId = '<%= product._id %>';
+    const userId = '<%= userId %>';
+
+    console.log('Script is running');
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    const viewCartBtn = document.getElementById('viewCartBtn');
+    console.log('addToCartBtn:', addToCartBtn);
+    console.log('viewCartBtn:', viewCartBtn);
+
+    // Function to check if the product is in the cart
+    const checkCartStatus = async () => {
+    try {
+        const response = await fetch('/checkcart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId, userId })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to check cart status');
+        }
+
+        const data = await response.json();
+
+        if (data.isProductInCart) {
+            console.log('Product is in the cart');
+            addToCartBtn.style.display = 'none';
+            viewCartBtn.style.display = 'inline-block';
+        } else {
+            console.log('Product is NOT in the cart');
+            addToCartBtn.style.display = 'inline-block';
+            viewCartBtn.style.display = 'none';
+        }
+        } catch (error) {
+            console.error('Error checking cart status:', error);
+        }
+    };
+
+    // Initial check on page load
+    checkCartStatus();
+
+    // Function to add product to cart
+    const addToCart = async () => {
+        const Quantity = document.getElementById('qty').value;
+        const data = {
+            productId: productId,
+            userId: userId,
+            quantity: Quantity
+        };
+
+        try {
+            const response = await fetch('/addtocart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to add product to cart');
+            }
+
+            const responseData = await response.json();
+            console.log(responseData.message);
+
+            // After adding to cart, update the button text
+            checkCartStatus();
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+        }
+    };
+
+    // Add event listener for the "Add to Cart" button
+    addToCartBtn.addEventListener('click', addToCart);
+});
+
+</script>
+    
+
 
     <!-- Plugins JS File -->
     <script src="/assets/js/jquery.min.js"></script>
@@ -263,6 +357,7 @@
     <!-- Main JS File -->
     <script src="/assets/js/main.js"></script>
 </body>
+
 
 
 <!-- molla/product.html  22 Nov 2019 09:55:05 GMT -->

@@ -14,6 +14,7 @@ user_route.use(bodyParser.urlencoded({extended:true}));
 // user_route.use(express.urlencoded({extended:true}));
 
 const userController = require("../controllers/userController");
+const cartController = require("../controllers/cartController");
 
 user_route.get('/register',userController.loadRegister);
 user_route.post('/register',userController.insertUser);
@@ -35,5 +36,12 @@ user_route.get('/home', userAuth.isAuthenticated, userController.loadHome);
 
 user_route.post('/register',userController.insertUser);
 user_route.get('/productdetails/:productId',userController.loadProductDetails);
+
+user_route.get('/cart', userAuth.isLogin, cartController.loadCart);
+user_route.post('/addtocart', cartController.addToCart);
+user_route.delete('/removeFromCart/:productId', userAuth.isLogin, cartController.removeFromCart);
+
+
+user_route.get('/checkout', userAuth.isLogin, cartController.loadCheckout);
 
 module.exports = user_route

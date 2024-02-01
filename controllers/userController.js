@@ -310,9 +310,10 @@ const loadHome = async (req, res) => {
 
 const loadProductDetails = async (req, res) => {
     try {
+        const userId=req.session.userid
         const productId = req.params.productId;
         const product = await Products.findById(productId);
-        res.render('productDetailsPage',{product})
+        res.render('productDetailsPage',{product,userId})
     }
     catch(error) {
         console.log(error.message);
