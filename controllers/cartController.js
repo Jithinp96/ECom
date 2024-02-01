@@ -89,6 +89,12 @@ const addToCart = async (req, res) => {
 const loadCheckout = async(req, res) => {
     try {
         let userId = req.session.userid;
+
+        // Fetch user addresses
+        const user = await User.findById(userId);
+        const userAddresses = user.address;
+
+        // Fetch cart products
         const checkoutProduct = await Cart.find({ userid: userId }).populate({
             path: "product.productid",
             model: Product, // Use the actual Product model
@@ -96,13 +102,16 @@ const loadCheckout = async(req, res) => {
         });
         // res.render('checkout', {checkoutProduct});
 
+        // Calculate grand total
         const grandTotal = checkoutProduct.reduce((acc, checkoutItem) => {
             return acc + checkoutItem.product.reduce((acc, product) => {
                 return acc + product.totalPrice;
             }, 0);
         }, 0);
 
-        res.render('checkout', { checkoutProduct, grandTotal });
+    
+
+        res.render('checkout', { checkoutProduct, grandTotal, userAddresses });
 
     } catch (error) {
         console.log(error);

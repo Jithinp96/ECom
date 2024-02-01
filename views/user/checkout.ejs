@@ -6,6 +6,12 @@
     #newaddress-modal input {
         color: black;
     }
+
+    /* Button customization */
+    .custom-small-button {
+    font-size: 12px; /* Adjust the font size as needed */
+    padding: 5px 10px; /* Adjust the padding as needed */
+}
 </style>
 
 
@@ -37,26 +43,40 @@
                             </div> -->
                             <div class="container-fluid" style="display: flex; justify-content: space-between;">
                                 <h5>Select Address</h5>
-                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newaddress-modal">
+                                <!-- <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newaddress-modal">
+                                    Add New Address
+                                </button> -->
+
+                                <button type="button" class="btn btn-success custom-small-button" data-toggle="modal" data-target="#newaddress-modal">
                                     Add New Address
                                 </button>
                             </div>
-                            
+
                             <div class="container-fluid">
-                                <div class="address-card" style="width: 80rem;">
-                                    <div class="card-body">
-                                        <ul class="selection-list">
-                                            <li class="selected">
-                                                <input type="radio" id="addressSelection" name="addressSelection" checked>
-                                            </li>
-                                        </ul>
-                                        <h5 class="card-title">John Doe</h5>
-                                        <h6 class="card-subtitle mb-2 text-muted">123 Main Street, Cityville</h6>
-                                        <p class="card-text">Country: YourCountry</p>
-                                        <p class="card-text">Zip Code: 12345</p>
-                                    </div>
-                                </div>
+                                <% if (userAddresses && userAddresses.length > 0) { %>
+                                    <% userAddresses.forEach((address, index) => { %>
+                                        <div class="address-card" style="width: 80rem;">
+                                            <div class="card-body" style="display: flex; align-items: center;">
+                                                <ul class="selection-list" style="margin-right: 1rem;">
+                                                    <li class="<%= index === 0 ? 'selected' : '' %>">
+                                                        <input type="radio" id="addressSelection<%= index %>" name="addressSelection" <%= index === 0 ? 'checked' : '' %>>
+                                                    </li>
+                                                </ul>
+                                                <div>
+                                                    <h5 class="card-title"><%= address.name %></h5>
+                                                    <p class="card-text"><%= address.housename %></p>
+                                                    <p class="card-text"><%= address.street %>, <%= address.city %></p>
+                                                    <p class="card-text">Zip Code: <%= address.pin %></p>
+                                                    <p class="card-text">Mobile: <%= address.mobile %></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <p>No addresses found. Please add a new address.</p>
+                                <% } %>
                             </div>
+                            
                             
                         </div><!-- End .col-lg-9 -->
                         <aside class="col-lg-3">
@@ -293,6 +313,9 @@
                 success: function (response) {
                     // Handle the success response
                     console.log('Address saved successfully:', response);
+
+                    // Reload the page after successful save
+                    location.reload();
                 },
                 error: function (error) {
                     // Handle the error response

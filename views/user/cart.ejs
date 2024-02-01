@@ -54,7 +54,7 @@
                                                             data-decimals="0" 
                                                             required
                                                         >
-                                                    </div><!-- End .cart-product-quantity -->
+                                                    </div> <!-- End .cart-product-quantity -->
                                                 </td>
                                                 
                                                 <td class="total-col">₹<%= product.totalPrice %></td>
@@ -166,42 +166,6 @@
         });
     }
 </script>
-
-<!-- <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Function to calculate and update subtotal and grand total
-        const updateTotals = () => {
-            // Get all quantity and price elements
-            const quantityElements = document.querySelectorAll('.quantity-input');
-            const priceElements = document.querySelectorAll('.total-col');
-
-            let subtotal = 0;
-
-            // Calculate subtotal
-            for (let i = 0; i < quantityElements.length; i++) {
-                const quantity = parseInt(quantityElements[i].value);
-                const price = parseFloat(priceElements[i].textContent.replace('₹', ''));
-
-                subtotal += quantity * price;
-            }
-
-            // Display subtotal
-            document.getElementById('subtotal').textContent = subtotal.toFixed(2);
-
-            // Update grand total (assuming no shipping cost for simplicity)
-            document.getElementById('grandTotal').textContent = subtotal.toFixed(2);
-        };
-
-        // Initial calculation on page load
-        updateTotals();
-
-        // Add event listeners for quantity changes
-        const quantityInputs = document.querySelectorAll('.quantity-input');
-        quantityInputs.forEach(input => {
-            input.addEventListener('input', updateTotals);
-        });
-    });
-</script> -->
 
 <%-include('../layouts/footbar.ejs')%>
 <%-include('../layouts/footer.ejs')%>
