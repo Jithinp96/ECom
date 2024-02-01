@@ -1,6 +1,7 @@
 const Cart = require("../models/cartModel");
 const Product = require('../models/productModel');
 const User = require("../models/userModel");
+const Order = require("../models/orderModel");
 
 const loadCart = async (req, res) => {
     try {
@@ -167,10 +168,64 @@ const checkoutAddAddress = async(req, res) => {
     }
 }
 
+const placeOrder = async (req, res) => {
+    try {
+        // Extract order details from the form
+        const { selectedAddress, paymentMode } = req.body;
+
+        // Retrieve other order details (products, subtotal, etc.) as needed
+        const checkoutProduct = await Cart.find({ userid: req.session.userid }).populate({
+            path: "product.productid",
+            model: Product, // Use the actual Product model
+            select: 'name price',
+        });
+
+        const products = checkoutProduct.reduce((acc, checkoutItem) => {
+            return acc.concat(checkoutItem.product.map(product => ({
+                productid: product.productid._id,
+                name: product.productid.name,
+                price: product.productid.price,
+                quantity: product.quantity,
+                total: product.totalPrice,
+                orderStatus: 'placed', // You can set the initial order status here
+                reason: 'N/A', // Default reason, you can modify this based on your requirements
+                image: product.productid.image // Assuming there is an 'image' field in your Product model
+            })));
+        }, []);
+
+        const subtotal = products.reduce((acc, product) => acc + product.total, 0);
+
+        // Create a new order
+        const newOrder = new Order({
+            userid: req.session.userid,
+            products: products,
+            paymentMode: paymentMode,
+            subtotal: subtotal,
+            address: selectedAddress,
+            date: new Date(),
+            // Add other fields as needed
+        });
+
+        
+        // Save the order to the database
+        await newOrder.save();
+
+        // Optionally, clear the user's cart or perform other actions
+
+        // Redirect or render success page
+        res.redirect('/home'); // Redirect to a success page
+    } catch (error) {
+        console.error('Error placing order:', error);
+        // Handle errors and redirect to an error page
+        res.redirect('/error'); // Redirect to an error page
+    }
+}
+
 module.exports = {
     loadCart,
     addToCart,
     loadCheckout,
     removeFromCart,
-    checkoutAddAddress
+    checkoutAddAddress,
+    placeOrder,
 }

@@ -1,6 +1,7 @@
 <%-include('../layouts/header.ejs')%>
 <%-include('../layouts/navbar.ejs')%>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10"></link>
 <style>
     /* Custom style to set text color to black */
     #newaddress-modal input {
@@ -31,7 +32,7 @@
                         <label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
                     </form>
                 </div>End .checkout-discount -->
-                <form action="#">
+                <form action="/placeOrder" method="POST">
                     <div class="row">
                         
                         <div class="col-lg-9">
@@ -57,9 +58,14 @@
                                     <% userAddresses.forEach((address, index) => { %>
                                         <div class="address-card" style="width: 80rem;">
                                             <div class="card-body" style="display: flex; align-items: center;">
-                                                <ul class="selection-list" style="margin-right: 1rem;">
+                                                <!-- <ul class="selection-list" style="margin-right: 1rem;">
                                                     <li class="<%= index === 0 ? 'selected' : '' %>">
                                                         <input type="radio" id="addressSelection<%= index %>" name="addressSelection" <%= index === 0 ? 'checked' : '' %>>
+                                                    </li>
+                                                </ul> -->
+                                                <ul class="selection-list" style="margin-right: 1rem;">
+                                                    <li class="<%= index === 0 ? 'selected' : '' %>">
+                                                        <input type="radio" id="addressSelection<%= index %>" name="addressSelection" data-address-id="<%= address._id %>" <%= index === 0 ? 'checked' : '' %>>
                                                     </li>
                                                 </ul>
                                                 <div>
@@ -77,6 +83,8 @@
                                 <% } %>
                             </div>
                             
+                            <input type="hidden" name="selectedAddress" id="selectedAddress" value="<%= userAddresses.length > 0 ? userAddresses[0]._id : '' %>">
+                            <input type="hidden" name="paymentMode" id="paymentMode" value="cashondelivery">
                             
                         </div><!-- End .col-lg-9 -->
                         <aside class="col-lg-3">
@@ -224,12 +232,19 @@
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+
 <script>
     $(document).ready(function () {
         // Add event listener to clear error message on input focus
         $('#addressName, #houseName, #street, #city, #pincode, #mobile').on('input', function () {
             var fieldId = '#validationMessages' + $(this).attr('id').charAt(0).toUpperCase() + $(this).attr('id').slice(1);
             $(fieldId).hide().empty();
+        });
+
+        // Event listener for address selection
+        $('input[name="addressSelection"]').on('change', function () {
+            $('#selectedAddress').val($(this).attr('data-address-id'));
         });
 
         $('#saveAddressBtn').click(function () {

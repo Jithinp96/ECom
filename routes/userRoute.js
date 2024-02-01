@@ -44,5 +44,6 @@ user_route.delete('/removeFromCart/:productId', userAuth.isLogin, cartController
 
 user_route.get('/checkout', userAuth.isLogin, cartController.loadCheckout);
 user_route.post('/api/saveAddress', cartController.checkoutAddAddress);
+user_route.post('/placeOrder', cartController.placeOrder);
 
 module.exports = user_route
