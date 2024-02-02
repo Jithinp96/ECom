@@ -46,4 +46,6 @@ user_route.get('/checkout', userAuth.isLogin, cartController.loadCheckout);
 user_route.post('/api/saveAddress', cartController.checkoutAddAddress);
 user_route.post('/placeOrder', cartController.placeOrder);
 
+user_route.get('/profile', userAuth.isLogin, userController.loadUserProfile);
+
 module.exports = user_route

@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer')
 // const userAuth = require("../middlewares/userAuth")
+const Order = require("../models/orderModel");
 
 const UserOTPVerification = require("../models/userOTPVerification");
 const Products = require("../models/productModel");
@@ -320,6 +321,24 @@ const loadProductDetails = async (req, res) => {
     }
 }
 
+const loadUserProfile = async (req, res) => {
+    try {
+        const userId = req.session.userid;
+        const user = await User.findById(userId);
+        const userAddress = user.address;
+
+        const order = await Order.find({userid: userId}).populate({
+            path: 'products.productid',
+            model: Order,
+            select: 'name price quantity date image'
+        })
+
+        res.render('userprofile', { user, userAddress, order });
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 
 module.exports ={
     loadRegister,
@@ -335,4 +354,5 @@ module.exports ={
     loadAboutUs,
     loadContactUs,
     loadProductDetails,
+    loadUserProfile,
 }
