@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const orderSchema = mongoose.Schema({
     userid: {
         type: mongoose.Schema.ObjectId,
-        ref: 'users',
+        ref: 'User',
         required: true
     },
     products: [{
@@ -30,8 +30,8 @@ const orderSchema = mongoose.Schema({
         },
         orderStatus: {
             type: String,
-            default: 'placed',
-            // enum: ['placed', 'shipped', 'delivered', 'request return', 'returned', 'requested cancellation', 'cancelled']
+            default: 'Placed',
+            // enum: ['Placed', 'Shipped', 'Delivered', 'Return Request', 'Returned', 'Requested Cancellation', 'Cancelled']
         },
         reason:{
             type: String,
@@ -57,12 +57,6 @@ const orderSchema = mongoose.Schema({
     address: {
         type: Object
     },
-
-    // onlinePaymentStatus:{
-    //     type: String,
-    // },onlineTransactionId:{
-    //     type: String,
-    // }
 
 });
 

@@ -15,6 +15,7 @@ user_route.use(bodyParser.urlencoded({extended:true}));
 
 const userController = require("../controllers/userController");
 const cartController = require("../controllers/cartController");
+const orderController = require("../controllers/orderController");
 
 user_route.get('/register',userController.loadRegister);
 user_route.post('/register',userController.insertUser);
@@ -44,6 +45,7 @@ user_route.delete('/removeFromCart/:productId', userAuth.isLogin, cartController
 
 user_route.get('/checkout', userAuth.isLogin, cartController.loadCheckout);
 user_route.post('/api/saveAddress', cartController.checkoutAddAddress);
+
 user_route.post('/placeOrder', cartController.placeOrder);
 
 user_route.get('/profile', userAuth.isLogin, userController.loadUserProfile);

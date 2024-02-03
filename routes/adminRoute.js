@@ -13,6 +13,7 @@ admin_route.use(bodyParser.urlencoded({extended:true}));
 const adminController = require("../controllers/adminController");
 const categoryController = require('../controllers/categoryController');
 const productController = require("../controllers/productController");
+const orderController = require("../controllers/orderController");
 const adminAuth = require("../middlewares/adminAuth");
 
 admin_route.get('/login',adminAuth.isLogout,adminController.loadAdminLogin);
@@ -35,4 +36,6 @@ admin_route.get('/addproduct', adminAuth.isLogin, productController.loadCategory
 admin_route.get('/editProduct', productController.loadEditProduct);
 admin_route.post('/toggleProductStatus/:productId', productController.toggleProductStatus);
 
+admin_route.get('/order', adminAuth.isLogin, orderController.loadAdminOrderList);
+admin_route.post('/updateOrderStatus', orderController.updateOrderStatus);
 module.exports = admin_route;

@@ -240,7 +240,7 @@ const placeOrder = async (req, res) => {
                 price: product.productid.price,
                 quantity: product.quantity,
                 total: product.totalPrice,
-                orderStatus: 'placed',
+                orderStatus: 'Placed',
                 reason: 'N/A',
                 image: product.productid.image
             })));
@@ -280,20 +280,18 @@ const placeOrder = async (req, res) => {
                 mobile: selectedAddressObj.mobile
             },
             date: new Date(),
-            // Add other fields as needed
         });
 
         // Save the order to the database
         await newOrder.save();
 
-        // Optionally, clear the user's cart or perform other actions
+        // Add cart clearing logic here in future
 
-        // Redirect or render success page
-        res.redirect('/home'); // Redirect to a success page
+        res.redirect('/home'); 
     } catch (error) {
         console.error('Error placing order:', error);
-        // Handle errors and redirect to an error page
-        res.redirect('/error'); // Redirect to an error page
+        
+        res.redirect('/error'); 
     }
 };
 

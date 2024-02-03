@@ -1,0 +1,116 @@
+<%-include('../layouts/adminHeader.ejs')%>
+<%-include('../layouts/adminSidebar.ejs')%>
+        <!-- ============================================================== -->
+        <!-- Page wrapper  -->
+        <!-- ============================================================== -->
+        <div class="page-wrapper">
+            <!-- ============================================================== -->
+            <!-- Container fluid  -->
+            <!-- ============================================================== -->
+            <div class="container-fluid">
+                <!-- ============================================================== -->
+                <!-- Start Page Content -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Order Details</h4>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <!-- <th scope="col">ID</th> -->
+                                            <th scope="col">Customer</th>
+                                            <th scope="col">Product</th>
+                                            <th scope="col">Quantity</th>
+                                            <th scope="col">Total Price</th>
+                                            <th scope="col">Date</th>
+                                            <th scope="col">Payment Mode</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (orders && orders.length > 0) { %>
+                                            <% orders.forEach(order => { %>
+                                                <% order.products.forEach((product, index) => { %>
+                                                    <tr>
+                                                        <% if (index === 0) { %>
+                                                            <!-- Display ID and Customer only for the first product in the order -->
+                                                            <!-- <td rowspan="<%= order.products.length %>"><%= index+1 %></td> -->
+                                                            <td rowspan="<%= order.products.length %>"><%= order.userid.fname %></td>
+                                                        <% } %>
+                                                        <td><%= product.name %></td>
+                                                        <td><%= product.quantity %></td>
+                                                        <td>₹<%= product.total %></td>
+                                                        <td><%= order.date.toLocaleDateString() %></td>
+                                                        <td><%= order.paymentMode %></td>
+                                                        <!-- <td><%= product.orderStatus %></td> -->
+                                                        <td>
+                                                            <div class="form-group mb-4">
+                                                                <label class="mr-sm-2" for="orderStatusDropdown_<%= order._id %>"></label>
+                                                                <select class="custom-select mr-sm-2" id="orderStatusDropdown_<%= order._id %>" name="orderStatus">
+                                                                    <option value="placed" <%= order.products[0].orderStatus === 'placed' ? 'selected' : '' %>>Placed</option>
+                                                                    <option value="shipped" <%= order.products[0].orderStatus === 'shipped' ? 'selected' : '' %>>Shipped</option>
+                                                                    <option value="delivered" <%= order.products[0].orderStatus === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                                                                    <option value="returnRequested" <%= order.products[0].orderStatus === 'returnRequested' ? 'selected' : '' %>>Return Requested</option>
+                                                                    <option value="returned" <%= order.products[0].orderStatus === 'returned' ? 'selected' : '' %>>Returned</option>
+                                                                    <option value="requestedCancellation" <%= order.products[0].orderStatus === 'requestedCancellation' ? 'selected' : '' %>>Requested Cancellation</option>
+                                                                    <option value="cancelled" <%= order.products[0].orderStatus === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                                                    
+                                                                </select>
+                                                            </div>
+                                                        </td>
+                                                        
+                                                        <td>
+                                                        
+                                                            <button class="btn btn-primary update-status-btn" data-orderid="<%= order._id %>">Update</button>
+                                                        </td>
+                                                    </tr>
+                                                <% }) %>
+                                            <% }) %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="9">No orders available</td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                // Add click event listener to the "Update" button
+                $('.update-status-btn').on('click', function () {
+                    const orderId = $(this).data('orderid');
+                    const newStatus = $('#orderStatusDropdown_' + orderId).val();
+        
+                    // Send an asynchronous request to update the order status
+                    $.ajax({
+                        url: '/updateOrderStatus', // Replace with your actual update status route
+                        method: 'POST',
+                        data: { orderId, newStatus },
+                        success: function (response) {
+                            // Handle success, e.g., show a success message
+                            console.log('Order status updated successfully');
+                        },
+                        error: function (error) {
+                            // Handle error, e.g., show an error message
+                            console.error('Error updating order status:', error);
+                        }
+                    });
+                });
+            });
+        </script>
+
+<%-include('../layouts/adminFooter.ejs')%>
