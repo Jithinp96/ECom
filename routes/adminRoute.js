@@ -20,6 +20,8 @@ admin_route.get('/login',adminAuth.isLogout,adminController.loadAdminLogin);
 admin_route.get('/',adminAuth.isLogout,adminController.loadAdminLogin);
 admin_route.post('/loginsubmit',adminController.adminVerifyLogin);
 
+// admin_route.get()
+
 admin_route.get('/dashboard', adminAuth.isLogin, adminController.loadDashboard);
 admin_route.get('/userlist', adminAuth.isLogin, adminController.loadUserList);
 admin_route.post('/toggle_user_status/:id', adminController.toggleUserStatus);

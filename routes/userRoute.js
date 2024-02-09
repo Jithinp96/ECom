@@ -23,14 +23,23 @@ user_route.post('/register',userController.insertUser);
 user_route.get('/otp',userController.loadOTP);
 user_route.post('/otp',userController.verifyOTP);
 
+user_route.get('/forgotpassword',userController.loadForgotPassword);
+user_route.post('/send-otp', userController.sendOTP);
+user_route.post('/verify-otp',userController.verifyPasswordResetOTP);
+user_route.get('/resetpassword',userController.loadResetPassword);
+user_route.post('/resetpassword',userController.loadResetPassword);
+user_route.post('/update-password', userController.updatePassword);
+
 user_route.get('/login',userAuth.isLogout,userController.loadLogin);
 // user_route.get('/login',userAuth.isLogin,userController.loadHome);
 user_route.post('/loginsubmit',userController.verifyLogin);
 
 user_route.get('/logout',userController.userLogout);
 
-user_route.get('/aboutus',userController.loadAboutUs);
-user_route.get('/contactus',userController.loadContactUs);
+user_route.get('/aboutus', userAuth.isAuthenticated, userController.loadAboutUs);
+user_route.get('/contactus', userAuth.isAuthenticated, userController.loadContactUs);
+
+
 
 user_route.get('/', userAuth.isAuthenticated, userController.loadHome);
 user_route.get('/home', userAuth.isAuthenticated, userController.loadHome);
@@ -38,16 +47,18 @@ user_route.get('/home', userAuth.isAuthenticated, userController.loadHome);
 user_route.post('/register',userController.insertUser);
 user_route.get('/productdetails/:productId',userController.loadProductDetails);
 
-user_route.get('/cart', userAuth.isLogin, cartController.loadCart);
+user_route.get('/cart', userAuth.isLogin, userAuth.isAuthenticated, cartController.loadCart);
 user_route.post('/addtocart', cartController.addToCart);
 user_route.delete('/removeFromCart/:productId', userAuth.isLogin, cartController.removeFromCart);
+// user_route.post('/checkcart', cartController.checkCartStatus);
 
-
-user_route.get('/checkout', userAuth.isLogin, cartController.loadCheckout);
+user_route.get('/checkout', userAuth.isLogin, userAuth.isAuthenticated, cartController.loadCheckout);
 user_route.post('/api/saveAddress', cartController.checkoutAddAddress);
+user_route.delete('/delete-address/:addressId', userController.deleteAddress);
+user_route.post('/saveNewAddress', userController.addAddress);
 
 user_route.post('/placeOrder', cartController.placeOrder);
 
-user_route.get('/profile', userAuth.isLogin, userController.loadUserProfile);
+user_route.get('/profile', userAuth.isLogin, userAuth.isAuthenticated, userController.loadUserProfile);
 
 module.exports = user_route

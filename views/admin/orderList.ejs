@@ -65,8 +65,9 @@
                                                         </td>
                                                         
                                                         <td>
-                                                        
-                                                            <button class="btn btn-primary update-status-btn" data-orderid="<%= order._id %>">Update</button>
+                                                            <button class="btn btn-primary update-status-btn" data-orderid="<%= order._id %>" id="updateBtn_<%= order._id %>">Update</button>
+
+                                                            <!-- <button class="btn btn-primary update-status-btn" data-orderid="<%= order._id %>">Update</button> -->
                                                         </td>
                                                     </tr>
                                                 <% }) %>
@@ -87,7 +88,9 @@
 
 
 
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        
+        
         <script>
             $(document).ready(function () {
                 // Add click event listener to the "Update" button
@@ -95,6 +98,8 @@
                     const orderId = $(this).data('orderid');
                     const newStatus = $('#orderStatusDropdown_' + orderId).val();
         
+                    console.log('Updating order status:', orderId, newStatus);
+
                     // Send an asynchronous request to update the order status
                     $.ajax({
                         url: '/updateOrderStatus', // Replace with your actual update status route

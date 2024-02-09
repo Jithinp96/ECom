@@ -6,7 +6,9 @@ const nocache = require('nocache');
 const app = express();
 const path = require("path");
 
+app.use(express.json());
 app.use(nocache());
+
 mongoose.connect("mongodb://127.0.0.1:27017/Elegify");
 
 

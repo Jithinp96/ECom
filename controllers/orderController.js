@@ -24,7 +24,7 @@ const updateOrderStatus = async (req, res) => {
 
         // Find and update the order status in the database
         await Order.findByIdAndUpdate(orderId, { 'products.0.orderStatus': newStatus });
-
+        console.log('Received request to update order status:', orderId, newStatus);
         // Send a success response
         res.status(200).json({ message: 'Order status updated successfully' });
     } catch (error) {

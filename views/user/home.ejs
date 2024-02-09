@@ -105,16 +105,61 @@
                     
                 </div><!-- End .products-container -->
             </div><!-- End .container -->
-
-            <!-- <div class="more-container text-center mt-0 mb-7">
-                <a href="category.html" class="btn btn-outline-dark-3 btn-more"><span>more products</span><i class="la la-refresh"></i></a>
-            </div>End .more-container -->
         </main><!-- End .main -->
 
     </div><!-- End .page-wrapper -->
     <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
+    <!-- Pagination -->
+    <!-- <div class="container">
+        <div class="pagination">
+        <% for(let i = 1; i <= totalPages; i++) { %>
+            <a href="?page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+        <% } %>
+        </div>
+    </div> -->
 
+    <div class="container">
+        <div class="pagination justify-content-center">
+          <ul class="pagination">
+            <% if (currentPage > 1) { %>
+              <li class="page-item">
+                <a class="page-link page-link-prev" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                  <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
+                </a>
+              </li>
+            <% } else { %>
+              <li class="page-item disabled">
+                <span class="page-link page-link-prev" tabindex="-1" aria-disabled="true">
+                  <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
+                </span>
+              </li>
+            <% } %>
+      
+            <% for(let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+              </li>
+            <% } %>
+      
+            <li class="page-item-total">of <%= totalPages %></li>
+      
+            <% if (currentPage < totalPages) { %>
+              <li class="page-item">
+                <a class="page-link page-link-next" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                  Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
+                </a>
+              </li>
+            <% } else { %>
+              <li class="page-item disabled">
+                <span class="page-link page-link-next" tabindex="-1" aria-disabled="true">
+                  Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
+                </span>
+              </li>
+            <% } %>
+          </ul>
+        </div>
+      </div>
     
     
 <%-include('../layouts/footbar.ejs')%>

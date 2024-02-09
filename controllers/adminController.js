@@ -39,6 +39,15 @@ const loadDashboard = async (req,res) => {
     
 }
 
+// const adminLogout = async (req, res) => {
+//     try {
+//         req.session.admin = null
+//         res.redirect('/admin');
+        
+//     } catch (error) {
+//         console.log(error.message);
+//     }
+// }
 
 const loadUserList = async (req,res) => {
     try{
@@ -76,4 +85,5 @@ module.exports ={
     loadDashboard,
     loadUserList,
     toggleUserStatus,
+    // adminLogout
 }

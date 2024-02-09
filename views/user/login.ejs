@@ -1,6 +1,24 @@
 <%-include('../layouts/header.ejs')%>
 <%-include('../layouts/navbar.ejs')%>
 
+<style>
+.error-message-container {
+    display: none; /* Initially hide the error message container */
+    border: 1px solid red; /* Light red border */
+    background-color: rgba(255, 166, 166, 0.8); /* Slightly transparent background */
+    padding: 10px;
+    text-align: center; /* Center-align the error message */
+    margin-bottom: 15px;
+    border-radius: 8px; /* Rounded borders */
+}
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+}
+</style>
+
 
 <main class="main">
     <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('assets/images/backgrounds/login-bg.jpg')">
@@ -15,15 +33,22 @@
                     <br>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="signin-2" role="tabpanel" aria-labelledby="signin-tab-2">
+                            <div class="error-message-container" id="error-message-container">
+                                <p class="error-message" id="error-message"><%= locals.message %></p>
+                            </div>
                             <form action="/loginsubmit" method="POST" onsubmit="return validateForm()">
+                                <!-- <p style="color: red;"><%= locals.message %></p> -->
+                                
                                 <div class="form-group">
                                     <label for="singin-email-2">Email Address *</label>
-                                    <input type="text" class="form-control" id="singin-email-2" name="email" required>
+                                    <input type="email" class="form-control" id="singin-email-2" name="email">
+                                    <span id="email-error" class="error-message"></span> <!-- Error message for email -->
                                 </div><!-- End .form-group -->
                                 <br>
                                 <div class="form-group">
                                     <label for="singin-password-2">Password *</label>
-                                    <input type="password" class="form-control" id="singin-password-2" name="password" required>
+                                    <input type="password" class="form-control" id="singin-password-2" name="password">
+                                    <span id="password-error" class="error-message"></span> <!-- Error message for password -->
                                 </div><!-- End .form-group -->
                                 <br>
                                 <div class="form-footer">
@@ -36,7 +61,7 @@
                                         <input type="checkbox" class="custom-control-input" id="signin-remember-2">
                                     </div><!-- End .custom-checkbox -->
                                 
-                                    <!-- <a href="#" class="forgot-link">Forgot Your Password?</a> -->
+                                    <a href="/forgotpassword" class="forgot-link">Forgot Your Password?</a>
                                 </div><!-- End .form-footer -->
                             </form>
                             <p>New here?<a href="/register" class="forgot-link">Register</a></p>
@@ -89,6 +114,67 @@
         font-size: 14px;
     }
 </style>
+
+<script>
+    function validateForm() {
+        var isValid = true;
+
+        // Get the values of email and password fields
+        var email = document.getElementById("singin-email-2").value;
+        var password = document.getElementById("singin-password-2").value;
+        var emailError = document.getElementById("email-error");
+        var passwordError = document.getElementById("password-error");
+
+        // Reset any previous error messages and styling
+        emailError.textContent = "";
+        passwordError.textContent = "";
+        emailError.style.color = "";
+        passwordError.style.color = "";
+
+        // Check if email is empty
+        if (email.trim() === "") {
+            emailError.textContent = "Email cannot be blank.";
+            emailError.style.color = "red";
+            isValid = false;
+        } else {
+            // Check if email is valid
+            if (!validateEmail(email)) {
+                emailError.textContent = "Please enter a valid email address.";
+                emailError.style.color = "red";
+                isValid = false;
+            }
+        }
+
+        // Check if password is empty
+        if (password.trim() === "") {
+            passwordError.textContent = "Password cannot be blank.";
+            passwordError.style.color = "red";
+            isValid = false;
+        }
+
+        return isValid; // Return whether the form submission should proceed or not
+    }
+
+    // Function to validate email address
+    function validateEmail(email) {
+        var re = /\S+@\S+\.\S+/;
+        return re.test(email);
+    }
+
+    function displayErrorMessage(message) {
+        var errorMessageContainer = document.getElementById("error-message-container");
+        var errorMessage = document.getElementById("error-message");
+        
+        errorMessage.textContent = message;
+        errorMessageContainer.style.display = "block"; // Show the error message container
+    }
+
+    function hideErrorMessage() {
+        var errorMessageContainer = document.getElementById("error-message-container");
+        
+        errorMessageContainer.style.display = "none"; // Hide the error message container
+    }
+</script>
 
 <%-include('../layouts/footbar.ejs')%>
 
