@@ -75,8 +75,8 @@ const sendOTPVerificationEmail = async ({email}, res) => {
             port: 465,
             secure: true,
             auth: {
-                user: 'jithinyt07@gmail.com',
-                pass: 'wlxw pbyh qrxj clna'
+                user: 'officialfurnit@gmail.com',
+                pass: 'crzo lqng bteh lnxu'
             }
         })
         const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
@@ -84,7 +84,7 @@ const sendOTPVerificationEmail = async ({email}, res) => {
 
         // mail options
         const mailOptions = {
-            from: 'jithinyt07@gmail.com',
+            from: 'officialfurnit@gmail.com',
             to: email,
             subject: "Verify Your email",
             html: `Your OTP is: ${otp}`
@@ -107,16 +107,6 @@ const sendOTPVerificationEmail = async ({email}, res) => {
         console.log(message.error);
     }
 }
-
-// const loadOTP = async (req, res) => {
-//     try {
-//         const email = request.query.email;
-//         res.render('otpVerification',{email: email})
-//     }
-//     catch(error) {
-//         console.log(error.message);
-//     }
-// }
 
 const loadOTP = async (req, res) => {
     try {
@@ -241,8 +231,8 @@ const sendResetPasswordOTP = async (email) => {
             port: 465,
             secure: true,
             auth: {
-                user: 'jithinyt07@gmail.com',
-                pass: 'wlxw pbyh qrxj clna'
+                user: 'officialfurnit@gmail.com',
+                pass: 'crzo lqng bteh lnxu'
             }
         });
 
@@ -252,7 +242,7 @@ const sendResetPasswordOTP = async (email) => {
 
         // Mail options
         const mailOptions = {
-            from: 'jithinyt07@gmail.com',
+            from: 'officialfurnit@gmail.com',
             to: email,
             subject: 'Reset Your Password',
             html: `Your OTP to reset your password is: <strong>${otp}</strong>. This OTP will expire in 1 minutes.`
@@ -431,16 +421,6 @@ const loadContactUs = async (req, res) => {
     }
 }
 
-// const loadHome = async (req, res) => {
-//     try {
-//         const products = await Products.find({ is_listed: true });
-//         res.render('home',{userAuthenticated: req.session.userid, products })
-//     }
-//     catch(error) {
-//         console.log(error.message);
-//     }
-// }
-
 const ITEMS_PER_PAGE = 4; // Adjust this according to our preference
 
 const loadHome = async (req, res) => {
@@ -460,18 +440,6 @@ const loadHome = async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 }
-
-// const loadProductDetails = async (req, res) => {
-//     try {
-//         const userId=req.session.userid
-//         const productId = req.params.productId;
-//         const product = await Products.findById(productId);
-//         res.render('productDetailsPage',{product,userId})
-//     }
-//     catch(error) {
-//         console.log(error.message);
-//     }
-// }
 
 const loadProductDetails = async (req, res) => {
     try {
@@ -555,6 +523,9 @@ const deleteAddress = async (req, res) => {
     }
 };
 
+
+
+
 module.exports ={
     loadRegister,
     insertUser,
@@ -577,5 +548,6 @@ module.exports ={
     loadProductDetails,
     loadUserProfile,
     addAddress,
-    deleteAddress
+    deleteAddress,
+    
 }

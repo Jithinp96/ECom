@@ -16,6 +16,7 @@ user_route.use(bodyParser.urlencoded({extended:true}));
 const userController = require("../controllers/userController");
 const cartController = require("../controllers/cartController");
 const orderController = require("../controllers/orderController");
+const wishlistController = require("../controllers/wishlistController")
 
 user_route.get('/register',userController.loadRegister);
 user_route.post('/register',userController.insertUser);
@@ -46,6 +47,9 @@ user_route.get('/home', userAuth.isAuthenticated, userController.loadHome);
 
 user_route.post('/register',userController.insertUser);
 user_route.get('/productdetails/:productId',userController.loadProductDetails);
+
+user_route.get('/wishlist', userAuth.isLogin, userAuth.isAuthenticated, wishlistController.loadWishlist);
+user_route.post('/addtowishlist', wishlistController.addToWishlist);
 
 user_route.get('/cart', userAuth.isLogin, userAuth.isAuthenticated, cartController.loadCart);
 user_route.post('/addtocart', cartController.addToCart);

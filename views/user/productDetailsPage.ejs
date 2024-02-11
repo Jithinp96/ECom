@@ -7,17 +7,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Molla - Bootstrap eCommerce Template</title>
+    <title>FurnIt</title>
     <meta name="keywords" content="HTML5 Template">
     <meta name="description" content="Molla - Bootstrap eCommerce Template">
     <meta name="author" content="p-themes">
     <!-- Favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/icons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/icons/furnit-logo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icons/furnit-logo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/icons/furnit-logo.png">
     <link rel="manifest" href="/assets/images/icons/site.html">
-    <link rel="mask-icon" href="/assets/images/icons/safari-pinned-tab.svg" color="#666666">
-    <link rel="shortcut icon" href="/assets/images/icons/favicon.ico">
+    <link rel="mask-icon" href="/assets/images/icons/furnit-logo.png" color="#666666">
+    <link rel="shortcut icon" href="/assets/images/icons/furnit-logo.png">
     <meta name="apple-mobile-web-app-title" content="Molla">
     <meta name="application-name" content="Molla">
     <meta name="msapplication-TileColor" content="#cc9966">
@@ -30,11 +30,12 @@
     <!-- Main CSS File -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/plugins/nouislider/nouislider.css">
+    
 </head>
 
 <body>
     <%-include('../layouts/navbar.ejs')%>
-    <div class="page-wrapper">
+    <!-- <div class="page-wrapper"> -->
         <main class="main">
             <div class="page-content">
                 <div class="container">
@@ -91,19 +92,6 @@
                                         <p><%=product.description%></p>
                                     </div><!-- End .product-content -->
 
-                                    <!-- <div class="details-filter-row details-row-size">
-                                        <label>Color:</label>
-
-                                        <div class="product-nav product-nav-thumbs">
-                                            <a href="#" class="active">
-                                                <img src="/assets/images/products/single/1-thumb.jpg" alt="product desc">
-                                            </a>
-                                            <a href="#">
-                                                <img src="/assets/images/products/single/2-thumb.jpg" alt="product desc">
-                                            </a>
-                                        </div>End .product-nav
-                                    </div>End .details-filter-row -->
-
                                     <div class="details-filter-row details-row-size">
                                         <label for="qty">Qty:</label>
                                         <div class="product-details-quantity">
@@ -112,9 +100,7 @@
                                     </div><!-- End .details-filter-row -->
 
                                     <div class="product-details-action">
-                                        <!-- <a href="#" id="addToCartBtn" class="btn-product btn-cart" onclick="addToCart('<%=product._id%>', '<%=userId%>')">
-                                            <span>Add to Cart</span>
-                                        </a> -->
+                        
                                         <a href="#" id="addToCartBtn" class="btn-product btn-cart">
                                             <span>Add to Cart</span>
                                         </a>
@@ -123,10 +109,12 @@
                                             <span>View Cart</span>
                                         </a>
                                         <div class="details-action-wrapper">
-                                            <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
-                        
+                                            <a href="#" class="btn-product btn-wishlist" title="Wishlist" id="addToWishlistBtn">
+                                                <span>Add to Wishlist</span>
+                                            </a>
                                         </div><!-- End .details-action-wrapper -->
                                     </div><!-- End .product-details-action -->
+                                    <div id="loginMessage"></div>
                                 </div><!-- End .product-details -->
                             </div><!-- End .col-md-6 -->
                         </div><!-- End .row -->
@@ -153,17 +141,6 @@
                                     <h3>Product Information</h3>
 
                                     <p><%=product.description%></p>
-
-                                    <!-- <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus. </p>
-                                    <ul>
-                                        <li>Nunc nec porttitor turpis. In eu risus enim. In vitae mollis elit. </li>
-                                        <li>Vivamus finibus vel mauris ut vehicula.</li>
-                                        <li>Nullam a magna porttitor, dictum risus nec, faucibus sapien.</li>
-                                    </ul>
-
-                
-
-                                    <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus. </p> -->
                                 </div><!-- End .product-desc-content -->
                             </div><!-- .End .tab-pane -->
                             <div class="tab-pane fade" id="product-info-tab" role="tabpanel" aria-labelledby="product-info-link">
@@ -255,249 +232,13 @@
         </main><!-- End .main -->
 
         <%-include('../layouts/footbar.ejs')%>
-    <!-- <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button> -->
-
-
-<!-- <script>
-    document.addEventListener('DOMContentLoaded', () => {
-    const productId = '<%= product._id %>';
-    const userId = '<%= userId %>';
-
-    console.log('Script is running');
-    const addToCartBtn = document.getElementById('addToCartBtn');
-    const viewCartBtn = document.getElementById('viewCartBtn');
-    console.log('addToCartBtn:', addToCartBtn);
-    console.log('viewCartBtn:', viewCartBtn);
-
-    // Function to check if the product is in the cart
-    const checkCartStatus = async () => {
-    try {
-        const response = await fetch('/checkcart', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ productId, userId })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to check cart status');
-        }
-
-        const data = await response.json();
-
-        if (data.isProductInCart) {
-            console.log('Product is in the cart');
-            addToCartBtn.style.display = 'none';
-            viewCartBtn.style.display = 'inline-block';
-        } else {
-            console.log('Product is NOT in the cart');
-            addToCartBtn.style.display = 'inline-block';
-            viewCartBtn.style.display = 'none';
-        }
-        } catch (error) {
-            console.error('Error checking cart status:', error);
-        }
-    };
-
-    // Initial check on page load
-    checkCartStatus();
-
-    // Function to add product to cart
-    const addToCart = async () => {
-        const Quantity = document.getElementById('qty').value;
-        const data = {
-            productId: productId,
-            userId: userId,
-            quantity: Quantity
-        };
-
-        try {
-            const response = await fetch('/addtocart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to add product to cart');
-            }
-
-            const responseData = await response.json();
-            console.log(responseData.message);
-
-            // After adding to cart, update the button text
-            checkCartStatus();
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-        }
-    };
-
-    // Add event listener for the "Add to Cart" button
-    addToCartBtn.addEventListener('click', addToCart);
-});
-
-</script> -->
-    
-<!-- <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const productId = '<%= product._id %>';
-        const userId = '<%= userId %>';
-
-        console.log('Script is running');
-        const addToCartBtn = document.getElementById('addToCartBtn');
-        const viewCartBtn = document.getElementById('viewCartBtn');
-        console.log('addToCartBtn:', addToCartBtn);
-        console.log('viewCartBtn:', viewCartBtn);
-
-        // Function to add product to cart
-        const addToCart = async () => {
-            const Quantity = document.getElementById('qty').value;
-            const data = {
-                productId: productId,
-                userId: userId,
-                quantity: Quantity
-            };
-
-            try {
-                const response = await fetch('/addtocart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to add product to cart');
-                }
-
-                const responseData = await response.json();
-                console.log(responseData.message);
-
-                // After adding to cart, update the button text
-                if (responseData.isProductInCart) {
-                    addToCartBtn.style.display = 'none';
-                    viewCartBtn.style.display = 'inline-block';
-                } else {
-                    addToCartBtn.style.display = 'inline-block';
-                    viewCartBtn.style.display = 'none';
-                }
-            } catch (error) {
-                console.error('Error adding to cart:', error);
-            }
-        };
-
-        // Add event listener for the "Add to Cart" button
-        addToCartBtn.addEventListener('click', addToCart);
-
-        // Initial check on page load
-        addToCartBtn.style.display = 'inline-block'; // Assuming not in the cart initially
-        viewCartBtn.style.display = 'none';
-    });
-</script> -->
-
-<!-- <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const productId = '<%= product._id %>';
-        const userId = '<%= userId %>';
-
-        console.log('Script is running');
-        const addToCartBtn = document.getElementById('addToCartBtn');
-        const viewCartBtn = document.getElementById('viewCartBtn');
-        console.log('addToCartBtn:', addToCartBtn);
-        console.log('viewCartBtn:', viewCartBtn);
-
-        // Function to add product to cart
-        const addToCart = async () => {
-            const Quantity = document.getElementById('qty').value;
-            const data = {
-                productId: productId,
-                userId: userId,
-                quantity: Quantity
-            };
-
-            try {
-                const response = await fetch('/addtocart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to add product to cart');
-                }
-
-                const responseData = await response.json();
-                console.log(responseData.message);
-
-                // After adding to cart, update the button text
-                if (responseData.isProductInCart) {
-                    addToCartBtn.style.display = 'none';
-                    viewCartBtn.style.display = 'inline-block';
-                } else {
-                    addToCartBtn.style.display = 'none';  // Assuming you want to hide the "Add to Cart" button after adding
-                    viewCartBtn.style.display = 'inline-block';
-                }
-            } catch (error) {
-                console.error('Error adding to cart:', error);
-            }
-        };
-
-        // Add event listener for the "Add to Cart" button
-        addToCartBtn.addEventListener('click', addToCart);
-
-        // Initial check on page load
-        checkCartStatus();  // Call the checkCartStatus function to set the initial button display
-    });
-
-    // Function to check cart status and update button display
-    const checkCartStatus = async () => {
-        try {
-            const response = await fetch('/checkcart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ productId, userId })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to check cart status');
-            }
-
-            const data = await response.json();
-
-            if (data.isProductInCart) {
-                console.log('Product is in the cart');
-                addToCartBtn.style.display = 'none';
-                viewCartBtn.style.display = 'inline-block';
-            } else {
-                console.log('Product is NOT in the cart');
-                addToCartBtn.style.display = 'inline-block';
-                viewCartBtn.style.display = 'none';
-            }
-        } catch (error) {
-            console.error('Error checking cart status:', error);
-        }
-    };
-</script> -->
-
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const productId = '<%= product._id %>';
         const userId = '<%= userId %>';
-
-        console.log('Script is running');
         const addToCartBtn = document.getElementById('addToCartBtn');
         const viewCartBtn = document.getElementById('viewCartBtn');
-        console.log('addToCartBtn:', addToCartBtn);
-        console.log('viewCartBtn:', viewCartBtn);
+        
 
         // Function to add product to cart
         const addToCart = async () => {
@@ -522,8 +263,7 @@
                 }
 
                 const responseData = await response.json();
-                console.log(responseData.message);
-
+                
                 // After adding to cart, update the button text
                 if (responseData.isProductInCart) {
                     addToCartBtn.style.display = 'none';
@@ -532,51 +272,44 @@
                     addToCartBtn.style.display = 'none';  // Assuming you want to hide the "Add to Cart" button after adding
                     viewCartBtn.style.display = 'inline-block';
                 }
+                
             } catch (error) {
                 console.error('Error adding to cart:', error);
             }
         };
-
-        // Add event listener for the "Add to Cart" button
-        addToCartBtn.addEventListener('click', addToCart);
-
-        // Initial check on page load
-        checkCartStatus();  // Call the checkCartStatus function to set the initial button display
     });
 
-    // Function to check cart status and update button display
-    const checkCartStatus = async () => {
-        try {
-            const productId = '<%= product._id %>';  // Declare productId within the function scope
-            const userId = '<%= userId %>';
+   
+</script>
 
-            const response = await fetch('/checkcart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ productId, userId })
-            });
+<!-- Add to wishlist -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const addToWishlistBtn = document.getElementById('addToWishlistBtn');
 
-            if (!response.ok) {
-                throw new Error('Failed to check cart status');
+        addToWishlistBtn.addEventListener('click', async () => {
+            try {
+                const productId = '<%= product._id %>';
+                const userId = '<%= userId %>';
+                const response = await fetch('/addtowishlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productId, userId })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to add product to wishlist');
+                }
+
+                const responseData = await response.json();
+                console.log(responseData.message);
+            } catch (error) {
+                console.error('Error adding to wishlist:', error);
             }
-
-            const data = await response.json();
-
-            if (data.isProductInCart) {
-                console.log('Product is in the cart');
-                addToCartBtn.style.display = 'none';
-                viewCartBtn.style.display = 'inline-block';
-            } else {
-                console.log('Product is NOT in the cart');
-                addToCartBtn.style.display = 'inline-block';
-                viewCartBtn.style.display = 'none';
-            }
-        } catch (error) {
-            console.error('Error checking cart status:', error);
-        }
-    };
+        });
+    });
 </script>
 
     <!-- Plugins JS File -->

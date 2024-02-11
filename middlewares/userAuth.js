@@ -1,10 +1,12 @@
+const Product = require("../models/productModel")
+
 const isLogin = async(req, res, next) => {
     try{
         if(req.session.userid){
             next();
         }
         else {
-            res.redirect('/');
+            res.redirect('/login');
         }
     } catch(error) {
         console.log(error.message);
@@ -38,8 +40,9 @@ const isAuthenticated = async (req, res, next) => {
     }
 };
 
+
 module.exports = {
     isLogin,
     isLogout,
-    isAuthenticated
+    isAuthenticated,
 }

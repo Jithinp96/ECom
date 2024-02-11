@@ -1,0 +1,82 @@
+<%-include('../layouts/header.ejs')%>
+<%-include('../layouts/navbar.ejs')%>
+
+<main class="main">
+    <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+        <div class="container">
+            <h1 class="page-title">Wishlist</h1>
+        </div><!-- End .container -->
+    </div><!-- End .page-header -->
+
+    <div class="page-content">
+        <div class="container">
+            <table class="table table-wishlist table-mobile">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Stock Status</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <% if (wishlistProduct && wishlistProduct.length > 0) { %>
+                        <% wishlistProduct.forEach(wishlistItem => { %>
+                            <% wishlistItem.product.forEach(product => { %>
+                                <tr>
+                                    <td class="product-col">
+                                        <div class="product">
+                                            <figure class="product-media">
+                                                <a href="#">
+                                                    <img src="<%= product.productid.image[2] %>" alt="Product image"> <!-- Use the correct path to the image -->
+                                                </a>
+                                            </figure>
+
+                                            <h3 class="product-title">
+                                                <a href="#"><%= product.productid.name %></a>
+                                            </h3><!-- End .product-title -->
+                                        </div><!-- End .product -->
+                                    </td>
+                                    <td class="price-col">$<%= product.productid.price %></td> <!-- Display price -->
+                                    <!-- <td class="stock-col"><span class="in-stock">In stock</span></td> -->
+                                    <td class="stock-col">
+                                        <% if (product.productid.quantity !== undefined) { %>
+                                            <% const quantity = product.productid.quantity; %>
+                                            <%- console.log(wishlistProduct) %>
+                                            <% if (quantity === 0) { %>
+                                                <span class="out-of-stock" style="color: red;">Out of stock</span>
+                                            <% } else if (quantity > 0 && quantity <= 10) { %>
+                                                <span class="low-stock" style="color: orange;">Low stock</span>
+                                            <% } else { %>
+                                                <span class="in-stock" style="color: green;">In stock</span>
+                                            <% } %>
+                                        <% } else { %>
+                                            <span class="unknown-status">Unknown</span>
+                                        <% } %>
+                                    </td>
+                                    <td class="action-col">
+                                        <% if (product.productid.quantity === 0) { %>
+                                            <button class="btn btn-block btn-outline-primary-2" style="pointer-events: none; opacity: 0.5;"><i class="icon-cart-plus"></i>Add to Cart</button>
+                                        <% } else { %>
+                                            <button class="btn btn-block btn-outline-primary-2"><i class="icon-cart-plus"></i>Add to Cart</button>
+                                        <% } %>
+                                    </td>
+                                    <td class="remove-col"><button class="btn-remove"><i class="icon-close"></i></button></td>
+                                </tr>
+                            <% }); %>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5">Your wishlist is empty.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table><!-- End .table table-wishlist -->
+        </div><!-- End .container -->
+    </div><!-- End .page-content -->
+</main><!-- End .main -->
+
+<%-include('../layouts/footbar.ejs')%>
+<%-include('../layouts/footer.ejs')%>
