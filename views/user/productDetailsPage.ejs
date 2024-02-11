@@ -232,14 +232,40 @@
         </main><!-- End .main -->
 
         <%-include('../layouts/footbar.ejs')%>
+    <!-- <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button> -->
+
+
+
+    <!-- Login Warning Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">Login Required</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            You need to log in to perform this action.
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <a href="/login" class="btn btn-primary">Login</a> <!-- Link to your login page -->
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const productId = '<%= product._id %>';
         const userId = '<%= userId %>';
+
         const addToCartBtn = document.getElementById('addToCartBtn');
         const viewCartBtn = document.getElementById('viewCartBtn');
-        
-
+    
         // Function to add product to cart
         const addToCart = async () => {
             const Quantity = document.getElementById('qty').value;
@@ -263,7 +289,6 @@
                 }
 
                 const responseData = await response.json();
-                
                 // After adding to cart, update the button text
                 if (responseData.isProductInCart) {
                     addToCartBtn.style.display = 'none';
@@ -277,9 +302,57 @@
                 console.error('Error adding to cart:', error);
             }
         };
+
+        // Add event listener for the "Add to Cart" button
+        addToCartBtn.addEventListener('click', () => {
+            // Check if the session is available
+            const isLoggedIn = '<%= userId !== "" %>';
+            if (isLoggedIn) {
+                // If user is logged in, proceed with adding to cart
+                addToCart();
+            } else {
+                // If user is not logged in, show the login modal
+                $('#loginModal').modal('show');
+            }
+        });
+
+        // Initial check on page load
+        checkCartStatus();  // Call the checkCartStatus function to set the initial button display
     });
 
-   
+    // Function to check cart status and update button display
+    const checkCartStatus = async () => {
+        try {
+            const productId = '<%= product._id %>';  // Declare productId within the function scope
+            const userId = '<%= userId %>';
+
+            const response = await fetch('/checkcart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId, userId })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to check cart status');
+            }
+
+            const data = await response.json();
+
+            if (data.isProductInCart) {
+                console.log('Product is in the cart');
+                addToCartBtn.style.display = 'none';
+                viewCartBtn.style.display = 'inline-block';
+            } else {
+                console.log('Product is NOT in the cart');
+                addToCartBtn.style.display = 'inline-block';
+                viewCartBtn.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error checking cart status:', error);
+        }
+    };
 </script>
 
 <!-- Add to wishlist -->

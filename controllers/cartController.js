@@ -143,6 +143,34 @@ const addToCart = async (req, res) => {
     }
 };
 
+
+// const checkCartStatus = async (req, res) => {
+//     try {
+//         const { productId, userId } = req.body;
+
+//         // Check if productId is a valid ObjectId
+//         if (!mongoose.Types.ObjectId.isValid(productId)) {
+//             return res.status(400).json({ error: 'Invalid product ID' });
+//         }
+
+//         // Find the user's cart
+//         const userCart = await Cart.findOne({ userid: userId });
+
+//         if (!userCart) {
+//             return res.status(200).json({ isProductInCart: false });
+//         }
+
+//         // Check if the product exists in the cart
+//         const isProductInCart = userCart.product.some(product => String(product.productid) === productId);
+
+//         res.status(200).json({ isProductInCart });
+//     } catch (error) {
+//         console.error('Error checking cart status:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// };
+
+
 const loadCheckout = async(req, res) => {
     try {
         let userId = req.session.userid;
@@ -314,6 +342,7 @@ const placeOrder = async (req, res) => {
 module.exports = {
     loadCart,
     addToCart,
+    // checkCartStatus,
     loadCheckout,
     removeFromCart,
     checkoutAddAddress,
