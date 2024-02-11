@@ -12,8 +12,6 @@ const loadWishlist = async (req, res) => {
             model: Product, // Use the actual Product model
             select: 'name price quantity image',
         });
-
-        console.log("Wishlist Product: ", wishlistProduct);
         res.render('wishlist', {wishlistProduct})
     } catch (error) {
         console.log(error);
@@ -22,13 +20,8 @@ const loadWishlist = async (req, res) => {
 
 const addToWishlist = async (req, res) => {
     try {
-
-        console.log(req.body);
-
         const { productId, userId } = req.body;
 
-        console.log(productId);
-        console.log(userId);
         // Check if the product already exists in the wishlist
         const existingProduct = await Wishlist.findOne({ userid: userId, 'product.productid': productId });
 

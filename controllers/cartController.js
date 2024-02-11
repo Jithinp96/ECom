@@ -11,10 +11,6 @@ const loadCart = async (req, res) => {
             model: Product, // Use the actual Product model
             select: 'name price image',
         });
-        // console.log("Cart Product:", cartProduct);
-
-        // res.render('cart', { cartProduct });
-
         // Calculate the sum of total prices for the current user's cart
         const grandTotal = cartProduct.reduce((acc, cartItem) => {
             return acc + cartItem.product.reduce((acc, product) => {
@@ -28,63 +24,6 @@ const loadCart = async (req, res) => {
         console.log(error);
     }
 };
-
-// const addToCart = async (req, res) => {
-//     try {
-//         const { productId, userId, quantity } = req.body;
-
-//         // Find the cart for the user
-//         const userCart = await Cart.findOne({ userid: userId });
-
-//         // Find the product in the cart
-//         const existingProduct = userCart.product.find(product => String(product.productid) === productId);
-
-//         // Find the product details
-//         const product = await Product.findOne({ _id: productId });
-
-//         if (!userCart) {
-//             // If the user doesn't have a cart, create a new one
-//             const cart = new Cart({
-//                 userid: userId,
-//                 product: [
-//                     {
-//                         productid: product._id,
-//                         quantity: quantity,
-//                         totalPrice: quantity * product.price,
-//                         image: product.image[0],
-//                     },
-//                 ],
-//             });
-
-//             await cart.save();
-
-//             res.status(200).json({ message: 'Product added to cart successfully', isProductInCart: false });
-//         } else if (existingProduct) {
-//             // If the product already exists in the cart, update the quantity
-//             existingProduct.quantity += parseInt(quantity);
-//             existingProduct.totalPrice = existingProduct.quantity * product.price;
-
-//             await userCart.save();
-
-//             res.status(200).json({ message: 'Product added to cart successfully', isProductInCart: true });
-//         } else {
-//             // If the product doesn't exist in the cart, add a new entry
-//             userCart.product.push({
-//                 productid: product._id,
-//                 quantity: quantity,
-//                 totalPrice: quantity * product.price,
-//                 image: product.image[0],
-//             });
-
-//             await userCart.save();
-
-//             res.status(200).json({ message: 'Product added to cart successfully', isProductInCart: false });
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-// };
 
 const addToCart = async (req, res) => {
     try {
@@ -338,6 +277,7 @@ const placeOrder = async (req, res) => {
         res.redirect('/error'); 
     }
 };
+
 
 module.exports = {
     loadCart,

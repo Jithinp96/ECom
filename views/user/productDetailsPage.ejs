@@ -87,6 +87,20 @@
                                     <div class="product-price">
                                         ₹<%=product.price%>
                                     </div><!-- End .product-price -->
+                                    <div class="stock-col">
+                                        <% if (product.quantity !== undefined) { %>
+                                            <% const quantity = product.quantity; %>
+                                            <% if (quantity === 0) { %>
+                                                <strong><span class="out-of-stock" style="color: red;">Out of stock</span></strong>
+                                            <% } else if (quantity > 0 && quantity <= 10) { %>
+                                                <strong><span class="low-stock" style="color: orange;">Low stock</span></strong>
+                                            <% } else { %>
+                                                <strong><span class="in-stock" style="color: rgb(88, 198, 88);">In stock</span></strong>
+                                            <% } %>
+                                        <% } else { %>
+                                            <strong><span class="unknown-status">Unknown</span></strong>
+                                        <% } %>
+                                    </div>
 
                                     <div class="product-content">
                                         <p><%=product.description%></p>
@@ -100,14 +114,20 @@
                                     </div><!-- End .details-filter-row -->
 
                                     <div class="product-details-action">
-                        
-                                        <a href="#" id="addToCartBtn" class="btn-product btn-cart">
+                                        <a href="#" id="addToCartBtn" class="btn-product btn-cart" <% if (product.quantity === 0) { %>disabled style="pointer-events: none; opacity: 0.5;"<% } %>>
+                                            <span>Add to Cart</span>
+                                        </a>
+                                        
+                                        <a href="/cart" id="viewCartBtn" class="btn-product btn-cart" style="display: none; text-align: center;" >
+                                            <span>View Cart</span>
+                                        </a>
+                                        <!-- <a href="#" id="addToCartBtn" class="btn-product btn-cart">
                                             <span>Add to Cart</span>
                                         </a>
             
-                                        <a href="/cart" id="viewCartBtn" class="btn-product btn-cart" style="display: none;">
+                                        <a href="/cart" id="viewCartBtn" class="btn-product btn-cart" style="display: none; text-align: center;" >
                                             <span>View Cart</span>
-                                        </a>
+                                        </a> -->
                                         <div class="details-action-wrapper">
                                             <a href="#" class="btn-product btn-wishlist" title="Wishlist" id="addToWishlistBtn">
                                                 <span>Add to Wishlist</span>
@@ -260,99 +280,99 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const productId = '<%= product._id %>';
-        const userId = '<%= userId %>';
+    const productId = '<%= product._id %>';
+    const userId = '<%= userId %>';
 
-        const addToCartBtn = document.getElementById('addToCartBtn');
-        const viewCartBtn = document.getElementById('viewCartBtn');
-    
-        // Function to add product to cart
-        const addToCart = async () => {
-            const Quantity = document.getElementById('qty').value;
-            const data = {
-                productId: productId,
-                userId: userId,
-                quantity: Quantity
-            };
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    const viewCartBtn = document.getElementById('viewCartBtn');
+    const addToCartText = document.getElementById('addToCartText'); // Add this line to get the span element
 
-            try {
-                const response = await fetch('/addtocart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to add product to cart');
-                }
-
-                const responseData = await response.json();
-                // After adding to cart, update the button text
-                if (responseData.isProductInCart) {
-                    addToCartBtn.style.display = 'none';
-                    viewCartBtn.style.display = 'inline-block';
-                } else {
-                    addToCartBtn.style.display = 'none';  // Assuming you want to hide the "Add to Cart" button after adding
-                    viewCartBtn.style.display = 'inline-block';
-                }
-                
-            } catch (error) {
-                console.error('Error adding to cart:', error);
-            }
+    // Function to add product to cart
+    const addToCart = async () => {
+        const Quantity = document.getElementById('qty').value;
+        const data = {
+            productId: productId,
+            userId: userId,
+            quantity: Quantity
         };
 
-        // Add event listener for the "Add to Cart" button
-        addToCartBtn.addEventListener('click', () => {
-            // Check if the session is available
-            const isLoggedIn = '<%= userId !== "" %>';
-            if (isLoggedIn) {
-                // If user is logged in, proceed with adding to cart
-                addToCart();
-            } else {
-                // If user is not logged in, show the login modal
-                $('#loginModal').modal('show');
-            }
-        });
-
-        // Initial check on page load
-        checkCartStatus();  // Call the checkCartStatus function to set the initial button display
-    });
-
-    // Function to check cart status and update button display
-    const checkCartStatus = async () => {
         try {
-            const productId = '<%= product._id %>';  // Declare productId within the function scope
-            const userId = '<%= userId %>';
-
-            const response = await fetch('/checkcart', {
+            const response = await fetch('/addtocart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ productId, userId })
+                body: JSON.stringify(data)
             });
 
             if (!response.ok) {
-                throw new Error('Failed to check cart status');
+                throw new Error('Failed to add product to cart');
             }
 
-            const data = await response.json();
-
-            if (data.isProductInCart) {
-                console.log('Product is in the cart');
+            const responseData = await response.json();
+            // After adding to cart, update the button text
+            if (responseData.isProductInCart) {
                 addToCartBtn.style.display = 'none';
                 viewCartBtn.style.display = 'inline-block';
             } else {
-                console.log('Product is NOT in the cart');
-                addToCartBtn.style.display = 'inline-block';
-                viewCartBtn.style.display = 'none';
+                addToCartBtn.style.display = 'none';  // Assuming you want to hide the "Add to Cart" button after adding
+                viewCartBtn.style.display = 'inline-block';
             }
+            
         } catch (error) {
-            console.error('Error checking cart status:', error);
+            console.error('Error adding to cart:', error);
         }
     };
+
+    // Add event listener for the "Add to Cart" button
+    addToCartBtn.addEventListener('click', () => {
+        // Check if the session is available
+        const isLoggedIn = '<%= userId !== "" %>';
+        if (isLoggedIn) {
+            // If user is logged in, proceed with adding to cart
+            addToCart();
+        } else {
+            // If user is not logged in, show the login modal
+            $('#loginModal').modal('show');
+        }
+    });
+
+    // Initial check on page load
+    checkCartStatus();  // Call the checkCartStatus function to set the initial button display
+});
+
+// Function to check cart status and update button display
+const checkCartStatus = async () => {
+    try {
+        const productId = '<%= product._id %>';  // Declare productId within the function scope
+        const userId = '<%= userId %>';
+        const response = await fetch('/checkcart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId, userId })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to check cart status');
+        }
+
+        const data = await response.json();
+
+        if (data.isProductInCart) {
+            console.log('Product is in the cart');
+            addToCartBtn.style.display = 'none';
+            viewCartBtn.style.display = 'inline-block';
+        } else {
+            console.log('Product is NOT in the cart');
+            addToCartBtn.style.display = 'inline-block';
+            viewCartBtn.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error checking cart status:', error);
+    }
+};
 </script>
 
 <!-- Add to wishlist -->
@@ -377,7 +397,7 @@
                 }
 
                 const responseData = await response.json();
-                console.log(responseData.message);
+                // console.log(responseData.message);
             } catch (error) {
                 console.error('Error adding to wishlist:', error);
             }

@@ -434,7 +434,11 @@ const loadHome = async (req, res) => {
       .skip((page - 1) * ITEMS_PER_PAGE)
       .limit(ITEMS_PER_PAGE);
 
-    res.render('home', { userAuthenticated: req.session.userid, products, currentPage: page, totalPages });
+      // Access cart and wishlist counts from res.locals
+    const cartCount = res.locals.cartCount;
+    const wishlistCount = res.locals.wishlistCount;
+
+    res.render('home', { userAuthenticated: req.session.userid, products, currentPage: page, totalPages, cartCount, wishlistCount });
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Internal Server Error');

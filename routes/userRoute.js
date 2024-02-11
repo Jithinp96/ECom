@@ -5,6 +5,7 @@ user_route.set('view engine','ejs');
 user_route.set('views','./views/user');
 
 const userAuth = require("../middlewares/userAuth");
+const navbarMiddleware = require('../middlewares/navbarMiddleware');
 
 const bodyParser = require('body-parser');
 user_route.use(bodyParser.json());
@@ -37,21 +38,22 @@ user_route.post('/loginsubmit',userController.verifyLogin);
 
 user_route.get('/logout',userController.userLogout);
 
-user_route.get('/aboutus', userAuth.isAuthenticated, userController.loadAboutUs);
-user_route.get('/contactus', userAuth.isAuthenticated, userController.loadContactUs);
+user_route.get('/aboutus', userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userController.loadAboutUs);
+user_route.get('/contactus', userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userController.loadContactUs);
 
+user_route.get('/', userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userController.loadHome);
+user_route.get('/home', userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userController.loadHome);
 
-
-user_route.get('/', userAuth.isAuthenticated, userController.loadHome);
-user_route.get('/home', userAuth.isAuthenticated, userController.loadHome);
+// user_route.get('/', userAuth.isAuthenticated, userController.loadHome);
+// user_route.get('/home', userAuth.isAuthenticated, userController.loadHome);
 
 user_route.post('/register',userController.insertUser);
-user_route.get('/productdetails/:productId',userController.loadProductDetails);
+user_route.get('/productdetails/:productId', navbarMiddleware.fetchCartAndWishlistCounts, userController.loadProductDetails);
 
-user_route.get('/wishlist', userAuth.isLogin, userAuth.isAuthenticated, wishlistController.loadWishlist);
+user_route.get('/wishlist', userAuth.isLogin, userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, wishlistController.loadWishlist);
 user_route.post('/addtowishlist', wishlistController.addToWishlist);
 
-user_route.get('/cart', userAuth.isLogin, userAuth.isAuthenticated, cartController.loadCart);
+user_route.get('/cart', userAuth.isLogin, userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, cartController.loadCart);
 user_route.post('/addtocart', cartController.addToCart);
 user_route.delete('/removeFromCart/:productId', userAuth.isLogin, cartController.removeFromCart);
 // user_route.post('/checkcart', cartController.checkCartStatus);
@@ -63,6 +65,6 @@ user_route.post('/saveNewAddress', userController.addAddress);
 
 user_route.post('/placeOrder', cartController.placeOrder);
 
-user_route.get('/profile', userAuth.isLogin, userAuth.isAuthenticated, userController.loadUserProfile);
+user_route.get('/profile', userAuth.isLogin, userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userController.loadUserProfile);
 
 module.exports = user_route

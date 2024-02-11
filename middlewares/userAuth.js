@@ -1,5 +1,3 @@
-const Product = require("../models/productModel")
-
 const isLogin = async(req, res, next) => {
     try{
         if(req.session.userid){
