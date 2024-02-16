@@ -1,0 +1,94 @@
+<%-include('../layouts/header.ejs')%>
+<%-include('../layouts/navbar.ejs')%>
+
+<div class="container mt-5 mb-5">
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="invoice p-5">
+                    <h5>Your Order Confirmed!</h5>
+                    <span class="font-weight-bold d-block mt-4">Hello <%= user.fname %>,</span>
+                    <span>Your order has been confirmed and we will notify you once the order is shipped!</span>
+                    <div class="payment border-top mt-3 mb-3 border-bottom table-responsive">
+                        <table class="table table-borderless"> 
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="py-2">
+                                            <span class="d-block text-muted">Order Date</span>
+                                            <span><%= order.date.toDateString() %></span>                                              
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <div class="py-2">
+                                            <span class="d-block text-muted">Order ID</span>
+                                            <span><%= order.orderId %></span>                                                
+                                        </div>
+                                    </td>
+                                    
+                                    <td>
+                                        <div class="py-2">
+                                            <span class="d-block text-muted">Payment</span>
+                                            <span><%= order.paymentMode %></span>                                                
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="py-2">
+                                            <span class="d-block text-muted">Shipping Address</span>
+                                            <span><%= order.address.housename %>, <%= order.address.street %>, <br><%= order.address.city %></span>        
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="product border-bottom table-responsive">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <% order.products.forEach(function(product) { %>
+                                    <tr>
+                                        <td width="20%">
+                                            <img src="<%= product.image %>" width="90">
+                                        </td>
+                                        <td width="60%">
+                                            <span class="font-weight-bold"><%= product.name %></span>
+                                            <div class="product-qty">
+                                                <span class="d-block">Quantity: <%= product.quantity %></span>                               
+                                            </div>
+                                        </td>
+                                        <td width="20%">
+                                            <div class="text-right">
+                                                <span class="font-weight-bold">₹<%= product.price %></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                            
+                        </table>
+                        
+
+
+                    </div>
+
+                    <div>
+                        <p>We will be sending a shipping confirmation email when the item is shipped successfully!</p>
+                        <br><br>
+                        <p class="font-weight-bold mb-0">Thanks for shopping with us!</p>
+                        <span>FurnIt Team</span>
+                    </div>
+
+                    <div class="d-flex justify-content-center footer p-3">
+                        <a href="/home" class="btn btn-outline-primary-2 btn-sm btn-order mr-2">Home</a>
+                        <a href="#" class="btn btn-outline-primary-2 btn-sm btn-order ml-2">Your Orders</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%-include('../layouts/footbar.ejs')%>
+<%-include('../layouts/footer.ejs')%>

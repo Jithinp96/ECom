@@ -32,22 +32,13 @@
                         <label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
                     </form>
                 </div>End .checkout-discount -->
-                <form action="/placeOrder" method="POST">
+                <form action="/placeorder" method="POST">
                     <div class="row">
                         
                         <div class="col-lg-9">
                             <br>
-                            <!-- <div class="container" style="display: flex; justify-content: left;">
-                                <h5>Select Address</h5>
-                                <button type="button" class="btn btn-success" data-toggle="modal" 
-                                data-target="#signup-modal">Add Address</button>
-                            </div> -->
                             <div class="container-fluid" style="display: flex; justify-content: space-between;">
                                 <h5>Select Address</h5>
-                                <!-- <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newaddress-modal">
-                                    Add New Address
-                                </button> -->
-
                                 <button type="button" class="btn btn-success custom-small-button" data-toggle="modal" data-target="#newaddress-modal">
                                     Add New Address
                                 </button>
@@ -58,11 +49,6 @@
                                     <% userAddresses.forEach((address, index) => { %>
                                         <div class="address-card" style="width: 80rem;">
                                             <div class="card-body" style="display: flex; align-items: center;">
-                                                <!-- <ul class="selection-list" style="margin-right: 1rem;">
-                                                    <li class="<%= index === 0 ? 'selected' : '' %>">
-                                                        <input type="radio" id="addressSelection<%= index %>" name="addressSelection" <%= index === 0 ? 'checked' : '' %>>
-                                                    </li>
-                                                </ul> -->
                                                 <ul class="selection-list" style="margin-right: 1rem;">
                                                     <li class="<%= index === 0 ? 'selected' : '' %>">
                                                         <input type="radio" id="addressSelection<%= index %>" name="addressSelection" data-address-id="<%= address._id %>" <%= index === 0 ? 'checked' : '' %>>
@@ -123,40 +109,27 @@
                                     </tbody>
                                 </table><!-- End .table table-summary -->
 
-                                <div class="accordion-summary" id="accordion-payment">
-                                    <!-- <div class="card">
-                                        <div class="card-header" id="heading-1">
-                                            <h2 class="card-title">
-                                                <a role="button" data-toggle="collapse" href="#collapse-1" aria-expanded="true" aria-controls="collapse-1">
-                                                    Direct bank transfer
-                                                </a>
-                                            </h2>
-                                        </div>End .card-header
-                                        <div id="collapse-1" class="collapse show" aria-labelledby="heading-1" data-parent="#accordion-payment">
-                                            <div class="card-body">
-                                                Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
-                                            </div>End .card-body
-                                        </div>End .collapse
-                                    </div>End .card -->
+                                <ul class="selection-list">
+                                    <li>
+                                        <input type="radio" id="wallet" name="paymentMethod" value="wallet">
+                                        <label for="wallet"> Wallet</label>
+                                    </li>
+                                    <li>
+                                        <input type="radio" id="razorpay" name="paymentMethod" value="razorpay">
+                                        <label for="razorpay"> Razor Pay</label>
+                                    </li>
+                                    <li>
+                                        <input type="radio" id="cod" name="paymentMethod" value="cod">
+                                        <label for="cod"> Cash on Delivery</label>
+                                    </li>
+                                </ul>
+                                
+                                <!-- Warning message div -->
+                                <div id="warningMessage" style="display: none;"></div>
 
+                                <!-- Button to trigger checkout -->
+                                <button type="submit"  class="btn btn-outline-primary-2 btn-order btn-block" >
                                     
-
-                                    <div class="card">
-                                        <div class="card-header" id="heading-3">
-                                            <h2 class="card-title">
-                                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
-                                                    Cash on delivery
-                                                </a>
-                                            </h2>
-                                        </div><!-- End .card-header -->
-                                        <div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
-                                            <div class="card-body">Cash on delivery is a way of buying things online without paying in advance. You only pay with cash when you get the item delivered to your door. 
-                                            </div><!-- End .card-body -->
-                                        </div><!-- End .collapse -->
-                                    </div><!-- End .card -->
-                                </div><!-- End .accordion -->
-
-                                <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
                                     <span class="btn-text">Place Order</span>
                                     <span class="btn-hover-text">Proceed to Checkout</span>
                                 </button>
@@ -232,7 +205,179 @@
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<!-- Include the SweetAlert2 CSS file for styling -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
 
+<!-- Include the SweetAlert2 JavaScript file for functionality -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+
+<!-- Payment tab -->
+<script>
+    let grandTotal = '<%= grandTotal %>';
+    document.querySelector("button[type='submit']").addEventListener("click", async function(event) {
+        console.log("Submit button clicked");
+        event.preventDefault(); // Prevent the default behavior of form submission
+
+        // Check if any payment method is selected
+        let radioButton = document.querySelector('input[name="paymentMethod"]:checked');
+        console.log(radioButton);
+        if (radioButton) {
+            let paymentMethod = radioButton.value;
+            console.log("Selected payment method:", paymentMethod);
+
+            // Proceed with the selected payment method
+            if (paymentMethod === "razorpay") {
+                // Razorpay checkout logic
+                console.log("Razorpay selected");
+
+                // Replace with your actual Razorpay options
+                var options = {
+                    "key": "rzp_test_OsHOhbbPFG3LF6",
+                    "amount": grandTotal * 100, // Amount in paise
+                    "currency": "INR",
+                    "name": "FurnIt",
+                    "description": "Test Transaction",
+                    "image": "assets/images/logo.png",
+                    "handler": function(response) {
+                        // Make a fetch request to the /placeOrder endpoint after successful payment
+                        fetch("/placeorder", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                selectedAddress: document.getElementById("selectedAddress").value,
+                                paymentMethod: paymentMethod,
+                                paymentId: response.razorpay_payment_id // Include the Razorpay payment ID in the request body
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error("Failed to place order");
+                            }
+                            // Redirect to the order confirmation page
+                            
+                            window.location.href = `/orderconfirmation/${hashedOrderId}`;
+                        })
+                        .catch(error => {
+                            console.error("Error placing order:", error);
+                            // Show an error warning message
+                            document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                            document.getElementById("warningMessage").style.color = "red"; // Set color to red
+                            document.getElementById("warningMessage").style.display = "block";
+                        });
+                    },
+                    "prefill": {
+                        "name": "Customer Name",
+                        "email": "customer@example.com",
+                        "contact": "9999999999"
+                    },
+                    "theme": {
+                        "color": "#CC9966"
+                    }
+                };
+                var rzp = new Razorpay(options);
+                rzp.open();
+            } else if (paymentMethod === "cod") {
+                // Implement Cash on Delivery logic here
+                console.log("Cash on Delivery selected");
+
+                // Generate a unique payment ID (UUID)
+                const paymentId = generatePaymentId();
+
+                try {
+                    // Make a single fetch request to the /placeOrder endpoint
+                    const response = await fetch("/placeorder", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            selectedAddress: document.getElementById("selectedAddress").value,
+                            paymentMethod: paymentMethod,
+                            paymentId: paymentId
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to place order");
+                    }
+
+                    // Extract the response data 
+                    const responseData = await response.json();
+                    console.log("responseData: ", responseData);
+
+                    if (responseData.success) {
+                        let hashedOrderId = responseData.hashedOrderId
+                        // Redirect to the order confirmation page with the hashed order ID
+                        window.location.href = `/orderconfirmation/${hashedOrderId}`;
+                    } else {
+                        // Show an error warning message
+                        document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                        document.getElementById("warningMessage").style.color = "red"; // Set color to red
+                        document.getElementById("warningMessage").style.display = "block";
+                    }
+                } catch (error) {
+                    console.error("Error placing order:", error);
+                    // Show an error warning message
+                    document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                    document.getElementById("warningMessage").style.color = "red"; // Set color to red
+                    document.getElementById("warningMessage").style.display = "block";
+                }
+            } else if (paymentMethod === "wallet") {
+                // Implement Wallet payment logic here
+                console.log("Wallet selected");
+
+                // Generate a unique payment ID (UUID)
+                const paymentId = generatePaymentId();
+
+                try {
+                    // Make a single fetch request to the /placeOrder endpoint
+                    const response = await fetch("/placeorder", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            selectedAddress: document.getElementById("selectedAddress").value,
+                            paymentMethod: paymentMethod,
+                            paymentId: paymentId // Include the generated payment ID
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error("Failed to place order");
+                    }
+                    // Redirect to the order confirmation page
+                    window.location.href = `/orderconfirmation/${hashedOrderId}`;
+
+                } catch (error) {
+                    console.error("Error placing order:", error);
+                    // Show an error warning message
+                    document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                    document.getElementById("warningMessage").style.color = "red"; // Set color to red
+                    document.getElementById("warningMessage").style.display = "block";
+                }
+            }
+        } else {
+            // Show a warning message if no payment method is selected
+            document.getElementById("warningMessage").textContent = "Please select a payment method.";
+            document.getElementById("warningMessage").style.color = "red"; // Set color to red
+            document.getElementById("warningMessage").style.display = "block";
+        }
+    });
+    // Function to generate a unique payment ID (UUID)
+    function generatePaymentId() {
+
+        // Generate a UUID (v4)
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+</script>
 
 <script>
     $(document).ready(function () {
@@ -340,7 +485,6 @@
         }
     });
 </script>
-
 
 <%-include('../layouts/footbar.ejs')%>
 <%-include('../layouts/footer.ejs')%>

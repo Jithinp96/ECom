@@ -231,8 +231,8 @@ const sendResetPasswordOTP = async (email) => {
             port: 465,
             secure: true,
             auth: {
-                user: 'officialfurnit@gmail.com',
-                pass: 'crzo lqng bteh lnxu'
+                user: 'jithinyt07@gmail.com',
+                pass: 'vwmr jmcp crkt ydpf'
             }
         });
 
@@ -242,7 +242,7 @@ const sendResetPasswordOTP = async (email) => {
 
         // Mail options
         const mailOptions = {
-            from: 'officialfurnit@gmail.com',
+            from: 'jithinyt07@gmail.com',
             to: email,
             subject: 'Reset Your Password',
             html: `Your OTP to reset your password is: <strong>${otp}</strong>. This OTP will expire in 1 minutes.`
@@ -474,11 +474,11 @@ const loadUserProfile = async (req, res) => {
         const user = await User.findById(userId);
         const userAddress = user.address;
 
-        const order = await Order.find({userid: userId}).populate({
-            path: 'products.productid',
+        const order = await Order.find({userId: userId}).populate({
+            path: 'products.productId',
             model: Order,
             select: 'name price quantity date image'
-        })
+        });
 
         res.render('userprofile', { user, userAddress, order });
     } catch (error) {
@@ -527,7 +527,41 @@ const deleteAddress = async (req, res) => {
     }
 };
 
+// Express Route to Fetch Address Details by ID
+const loadEditAddress = async (req, res) => {
+    try {
+        const userId = req.session.userid; // Assuming you have user authentication and the user ID is available in the request
+        const addressId = req.params.id;
+        const user = await User.findById(userId); // Fetch the user document
+        const address = user.address.id(addressId); // Get the specific address by its ID
+        res.json(address); // Send the address details as JSON response
+    } catch (error) {
+        console.error('Error fetching address details:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
 
+const updateAddress = async (req, res) => {
+    try {
+        const userId = req.session.userid; // Assuming you have user authentication and the user ID is available in the request
+        const addressId = req.params.id;
+        const updatedAddress = req.body; // Updated address details sent in the request body
+        const user = await User.findById(userId); // Fetch the user document
+        const address = user.address.id(addressId); // Get the specific address by its ID
+        // Update the address fields
+        address.name = updatedAddress.name;
+        address.housename = updatedAddress.housename;
+        address.street = updatedAddress.street;
+        address.city = updatedAddress.city;
+        address.pin = updatedAddress.pin;
+        address.mobile = updatedAddress.mobile;
+        await user.save(); // Save the updated user document
+        res.json({ success: true }); // Send success response
+    } catch (error) {
+        console.error('Error updating address:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
 
 
 module.exports ={
@@ -553,5 +587,6 @@ module.exports ={
     loadUserProfile,
     addAddress,
     deleteAddress,
-    
+    loadEditAddress,
+    updateAddress,
 }

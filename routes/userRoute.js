@@ -44,14 +44,12 @@ user_route.get('/contactus', userAuth.isAuthenticated, navbarMiddleware.fetchCar
 user_route.get('/', userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userController.loadHome);
 user_route.get('/home', userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userController.loadHome);
 
-// user_route.get('/', userAuth.isAuthenticated, userController.loadHome);
-// user_route.get('/home', userAuth.isAuthenticated, userController.loadHome);
-
 user_route.post('/register',userController.insertUser);
 user_route.get('/productdetails/:productId', navbarMiddleware.fetchCartAndWishlistCounts, userController.loadProductDetails);
 
 user_route.get('/wishlist', userAuth.isLogin, userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, wishlistController.loadWishlist);
 user_route.post('/addtowishlist', wishlistController.addToWishlist);
+user_route.delete('/removeFromWishlist/:productId', userAuth.isLogin, wishlistController.removeFromWishlist);
 
 user_route.get('/cart', userAuth.isLogin, userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, cartController.loadCart);
 user_route.post('/addtocart', cartController.addToCart);
@@ -64,7 +62,11 @@ user_route.delete('/delete-address/:addressId', userController.deleteAddress);
 user_route.post('/saveNewAddress', userController.addAddress);
 
 user_route.post('/placeOrder', cartController.placeOrder);
+user_route.get('/orderconfirmation/:Id', cartController.loadOrderConfirmation);
 
 user_route.get('/profile', userAuth.isLogin, userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userController.loadUserProfile);
+user_route.get('/user/address/:id', userController.loadEditAddress);
+user_route.put('/user/address/:id',userController.updateAddress);
 
-module.exports = user_route
+
+module.exports = user_route;

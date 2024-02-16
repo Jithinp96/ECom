@@ -1,63 +1,79 @@
 const mongoose = require("mongoose");
 
 const orderSchema = mongoose.Schema({
-    userid: {
-        type: mongoose.Schema.ObjectId,
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
     products: [{
-        productid: {
+        productId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Product',
-
         },
         name: {
             type: String,
-
+            required: true
         },
         price: {
             type: Number,
-
+            required: true
         },
         quantity: {
             type: Number,
-
+            required: true
         },
         total: {
             type: Number,
-
+            required: true
         },
         orderStatus: {
             type: String,
             default: 'Placed',
-            // enum: ['Placed', 'Shipped', 'Delivered', 'Return Request', 'Returned', 'Requested Cancellation', 'Cancelled']
         },
         reason:{
             type: String,
-             default:"N/A",
-            required: true,
-           
+            default: "N/A",
         },
         image:{
             type:String
         }
     }],
-
     paymentMode: {
         type: String,
-
+        required: true
     },
+    paymentId: {
+        type: String,
+        required: true // Add required validation as per your requirement
+    },
+    orderId: {
+        type:String,
+        required:true
+    },
+    hashedOrderId: {
+        type:String,
+        required:true
+    },
+
     subtotal: {
-        type: Number
+        type: Number,
+        required: true
     },
     date: {
-        type: Date
+        type: Date,
+        default: Date.now
     },
     address: {
-        type: Object
-    },
-
+        name: String,
+        housename: String,
+        street: String,
+        city: String,
+        state: String,
+        pin: String,
+        mobile: String,
+    }
 });
 
-module.exports = mongoose.model('Order',orderSchema);
+
+module.exports = mongoose.model('Order', orderSchema);

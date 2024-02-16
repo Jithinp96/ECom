@@ -78,7 +78,7 @@
                                                                 <p>
                                                                     <strong>Date Placed:</strong> <%= orderItem.date.toLocaleDateString() %><br>
                                                                     <strong>Status:</strong> <%= orderItem.products[0].orderStatus %><br>
-                                                                    <strong>Payment Mode:</strong> <%= orderItem.products[0].paymentMode %>
+                                                                    <strong>Payment Mode:</strong> <%= orderItem.products.paymentMode %>
                                                                 </p>
                                                             </div>
                                 
@@ -133,6 +133,7 @@
                                 
                                                         <!-- Delete button with confirmation -->
                                                         <button class="btn btn-danger" onclick="confirmDeleteAddress('<%= address._id %>')">Delete</button>
+                                                        <button class="btn btn-primary" onclick="editAddress('<%= address._id %>')">Edit</button>
                                                     </div><!-- End .card-body -->
                                                 </div><!-- End .card-dashboard -->
                                             </div><!-- End .col-lg-6 -->
@@ -187,7 +188,7 @@
     </div><!-- End .page-content -->
 </main><!-- End .main -->
 
-
+<!-- ADD NEW ADDRESS MODAL -->
 <div class="modal fade" id="newaddress-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -235,11 +236,60 @@
                     </div>
                 </form>
             </div>
-            <!-- <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" id="saveAddressBtn" class="btn btn-primary">Save Address</button>
-            </div> -->
             
+        </div>
+    </div>
+</div>
+
+<!-- EDIT ADDRESS MODAL -->
+<div class="modal fade" id="editaddress-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editAddressForm">
+                    <input type="hidden" id="editAddressId">
+                    <div class="container-fluid form-group">
+                        <label for="inputName">Name</label>
+                        <input type="text" class="form-control" id="editAddressName" placeholder="Enter your name">
+                        <div id="editValidationMessagesName" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">House Name</label>
+                        <input type="text" class="form-control" id="editHouseName" placeholder="Enter your house name">
+                        <div id="editValidationMessagesHouse" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">Street</label>
+                        <input type="text" class="form-control" id="editStreet" placeholder="Enter your street name">
+                        <div id="editValidationMessagesStreet" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">City</label>
+                        <input type="text" class="form-control" id="editCity" placeholder="Enter your city name">
+                        <div id="editValidationMessagesCity" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">Pincode</label>
+                        <input type="text" class="form-control" id="editPincode" placeholder="Enter your pincode">
+                        <div id="editValidationMessagesPincode" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">Mobile</label>
+                        <input type="text" class="form-control" id="editMobile" placeholder="Enter your mobile number">
+                        <div id="editValidationMessagesMobile" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="updateAddressBtn" class="btn btn-primary">Update Address</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -250,6 +300,137 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
+<script>
+    // JavaScript function to populate the edit address modal and handle form submission
+    function editAddress(addressId) {
+        // Fetch the address details using AJAX
+        $.ajax({
+            url: `/user/address/${addressId}`, // Endpoint to fetch address details by ID
+            method: 'GET',
+            success: function(response) {
+                // Populate the edit address modal fields with the fetched data
+                $('#editAddressName').val(response.name);
+                $('#editHouseName').val(response.housename);
+                $('#editStreet').val(response.street);
+                $('#editCity').val(response.city);
+                $('#editPincode').val(response.pin);
+                $('#editMobile').val(response.mobile);
+
+                // Set the address ID in a hidden field for submission
+                $('#editAddressId').val(addressId);
+
+                // Show the edit address modal
+                $('#editaddress-modal').modal('show');
+            },
+            error: function(error) {
+                console.error('Error fetching address details:', error);
+            }
+        });
+    }
+
+    // JavaScript function to handle form submission for updating address
+    $('#updateAddressBtn').click(function() {
+        // Retrieve updated address details from the modal fields
+        var addressId = $('#editAddressId').val();
+        var updatedName = $('#editAddressName').val().trim();
+        var updatedHouseName = $('#editHouseName').val().trim();
+        var updatedStreet = $('#editStreet').val().trim();
+        var updatedCity = $('#editCity').val().trim();
+        var updatedPincode = $('#editPincode').val().trim();
+        var updatedMobile = $('#editMobile').val().trim();
+
+        // Define a flag to track validation status
+         var isValid = true;
+
+        // Validate the input fields
+        if (!updatedName) {
+            $('#editValidationMessagesName').html('Please enter your name.').show();
+            isValid = false;
+        } else {
+            $('#editValidationMessagesName').hide();
+        }
+
+        if (!updatedHouseName) {
+            $('#editValidationMessagesHouse').html('Please enter your house name.').show();
+            isValid = false;
+        } else {
+            $('#editValidationMessagesHouse').hide();
+        }
+
+        if (!updatedStreet) {
+            $('#editValidationMessagesStreet').html('Please enter your street name.').show();
+            isValid = false;
+        } else {
+            $('#editValidationMessagesStreet').hide();
+        }
+
+        if (!updatedCity) {
+            $('#editValidationMessagesCity').html('Please enter your city name.').show();
+            isValid = false;
+        } else {
+            $('#editValidationMessagesCity').hide();
+        }
+
+        if (!updatedPincode) {
+            $('#editValidationMessagesPincode').html('Please enter your pincode.').show();
+            isValid = false;
+        } else if (!/^\d{6}$/.test(updatedPincode)) {
+            $('#editValidationMessagesPincode').html('Pincode should be exactly 6 digits.').show();
+            isValid = false;
+        } else {
+            $('#editValidationMessagesPincode').hide();
+        }
+
+        if (!updatedMobile) {
+            $('#editValidationMessagesMobile').html('Please enter your mobile number.').show();
+            isValid = false;
+        } else if (!/^\d{10}$/.test(updatedMobile)) {
+            $('#editValidationMessagesMobile').html('Mobile number should be exactly 10 digits.').show();
+            isValid = false;
+        } else {
+            $('#editValidationMessagesMobile').hide();
+        }
+
+        // If any field is invalid, prevent form submission
+        if (!isValid) {
+            return;
+        }
+
+
+
+        // Create an object with the updated address details
+        var updatedAddress = {
+            name: updatedName,
+            housename: updatedHouseName,
+            street: updatedStreet,
+            city: updatedCity,
+            pin: updatedPincode,
+            mobile: updatedMobile
+        };
+
+        // Send the updated address details to the server using AJAX for updating
+        $.ajax({
+            url: `/user/address/${addressId}`, // Endpoint to update address details by ID
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(updatedAddress),
+            success: function(response) {
+                // Handle the success response
+                console.log('Address updated successfully:', response);
+
+                // Reload the page or update the UI as needed
+                location.reload();
+            },
+            error: function(error) {
+                // Handle the error response
+                console.error('Error updating address:', error);
+            }
+        });
+
+        // Close the edit modal after submitting the form
+        $('#editaddress-modal').modal('hide');
+    });
+</script>
 
 <script>
     $(document).ready(function () {
@@ -395,6 +576,8 @@
         }
     }
 </script>
+
+
 
 <%-include('../layouts/footbar.ejs')%>
 <%-include('../layouts/footer.ejs')%>

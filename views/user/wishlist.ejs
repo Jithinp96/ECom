@@ -63,7 +63,12 @@
                                             <button class="btn btn-block btn-outline-primary-2"><i class="icon-cart-plus"></i>Add to Cart</button>
                                         <% } %>
                                     </td>
-                                    <td class="remove-col"><button class="btn-remove"><i class="icon-close"></i></button></td>
+                                    
+                                    <td class="remove-col">
+                                        <button class="btn-remove" onclick="removeProduct('<%= product.productid._id %>')">
+                                            <i class="icon-close"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                             <% }); %>
                         <% }); %>
@@ -77,6 +82,35 @@
         </div><!-- End .container -->
     </div><!-- End .page-content -->
 </main><!-- End .main -->
+
+
+<!-- To remove item from wishlist -->
+<script>
+    function removeProduct(productId) {
+        // Send a DELETE request to the server to remove the product
+        fetch(`/removeFromWishlist/${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Handle success, you can update the UI as needed
+            console.log(data);
+            // Optionally, you can reload the wishlist page or update the UI without a page reload
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
 
 <%-include('../layouts/footbar.ejs')%>
 <%-include('../layouts/footer.ejs')%>
