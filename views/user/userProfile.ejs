@@ -50,62 +50,40 @@
                             <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
                                 <div class="row mt-4">
                                     <% if (order && order.length > 0) { %>
-                                        <% order.forEach(orderItem => { %>
-                                            <div class="col-12">
-                                                <div class="card card-dashboard mb-3" onclick="toggleOrderDetails('<%= orderItem._id %>')">
-                                                    <div class="card-body">
-                                                        <div class="row">
-                                                            <% orderItem.products.forEach(product => { %>
-                                                                <div class="col-md-4">
-                                                                    <img src="<%= product.image %>" alt="Product Image" class="img-fluid mb-3" style="max-width: 100px;">
-                                                                </div>
-                                                                <div class="col-md-8">
-                                                                    <div class="product-info">
-                                                                        <p><%= product.name %></p>
-                                                                        <p>Quantity: <%= orderItem.products[0].quantity %> Price: ₹<%= product.price %></p>
+                                        <!-- <a href="/od/<%= order.orderid %>"> Link to the product details page -->
+                                            <% order.forEach(orderItem => { %>
+                                                <div class="col-12">
+                                                    <div class="card card-dashboard mb-3" onclick="toggleOrderDetails('<%= orderItem._id %>')">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <% orderItem.products.forEach(product => { %>
+                                                                    <div class="col-md-4">
+                                                                        <img src="<%= product.image %>" alt="Product Image" class="img-fluid mb-3" style="max-width: 100px;">
                                                                     </div>
-                                                                    <!-- Additional product details can be added here -->
-                                                                </div>
-                                                            <% }) %>
-                                                        </div><!-- End .row -->
-                                                    </div><!-- End .card-body -->
-                                
-                                                    <!-- Updated layout for order details -->
-                                                    <div id="orderDetails<%= orderItem._id %>" class="order-details" style="display: none;">
-                                                        <div class="row">
-                                                            <!-- Left side: Date and Status -->
-                                                            <div class="col-md-6">
-                                                                <p>
-                                                                    <strong>Date Placed:</strong> <%= orderItem.date.toLocaleDateString() %><br>
-                                                                    <strong>Status:</strong> <%= orderItem.products[0].orderStatus %><br>
-                                                                    <strong>Payment Mode:</strong> <%= orderItem.products.paymentMode %>
-                                                                </p>
-                                                            </div>
-                                
-                                                            <!-- Right side: Address -->
-                                                            <div class="col-md-6">
-                                                                <p>
-                                                                    <strong>Address:</strong><br>
-                                                                    <%= orderItem.address.name %><br>
-                                                                    <%= orderItem.address.housename %>, 
-                                                                    <%= orderItem.address.street %>, 
-                                                                    <%= orderItem.address.city %> - 
-                                                                    <%= orderItem.address.pin %><br>
-                                                                    Mobile: <%= orderItem.address.mobile %>
-                                                                </p>
-                                                            </div>
-                                                        </div><!-- End .row -->
-                                                    </div>
-                                                </div><!-- End .card-dashboard -->
-                                            </div><!-- End .col-12 -->
-                                        <% }) %>
+                                                                    <div class="col-md-8">
+                                                                        <div class="product-info">
+                                                                            <p><%= product.name %></p>
+                                                                            <p>Quantity: <%= orderItem.products[0].quantity %> Price: ₹<%= product.price %></p>
+                                                                        </div>
+                                                                        <!-- Additional product details can be added here -->
+                                                                    </div>
+                                                                <% }) %>
+                                                            </div><!-- End .row -->
+                                                            <a class="btn btn-primary" href="/orderdetails/<%= orderItem._id%>">View Details</a>
+                                                        </div><!-- End .card-body -->
+                                                        
+                                                    </div><!-- End .card-dashboard -->
+                                                </div><!-- End .col-12 -->
+                                            <% }) %>
+                                        <!-- </a> -->
+                                        
                                     <% } else { %>
                                         <div class="col-12">
                                             <p>No orders have been made yet.</p>
                                         </div>
                                     <% } %>
                                 </div><!-- End .row -->
-                                <a href="category.html" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
+                                <a href="/home" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
                             </div><!-- .End .tab-pane -->
 
                             <div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
@@ -579,5 +557,3 @@
 
 
 
-<%-include('../layouts/footbar.ejs')%>
-<%-include('../layouts/footer.ejs')%>

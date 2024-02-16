@@ -232,7 +232,7 @@ const placeOrder = async (req, res) => {
                 quantity: product.quantity,
                 total: product.totalPrice,
                 orderStatus: 'Placed',
-                image: product.productid.image[0],  
+                image: product.productid.image[2],  
             }
             )));
         }, []);
@@ -256,15 +256,16 @@ const placeOrder = async (req, res) => {
             return res.redirect('/error');
         }
 
-        // console.log("userId: ", userId);
-        // console.log(("user: ", user));
-        
-
         const subtotal = products.reduce((acc, product) => acc + product.total, 0);
+        
+        // Calculate estimated delivery date
+        const shippingTimeMs = 7 * 24 * 60 * 60 * 1000;
+        const estimatedDeliveryDate = new Date(Date.now() + shippingTimeMs);
+        // console.log("estimatedDeliveryDate: ", estimatedDeliveryDate);
 
         // Generate a unique order ID
         const orderId = generateOrderId();
-        // Hash the order ID
+        // Hash the order ID for passing through URL
         const hashedOrderId = generateHash(orderId);
 
         const orderData = {
@@ -276,6 +277,7 @@ const placeOrder = async (req, res) => {
             paymentId: paymentId,
             subtotal: subtotal,
             date: new Date(),
+            edd: estimatedDeliveryDate,
             address:{
                 name:selectedAddressObj.name,
                 housename:selectedAddressObj.housename,
@@ -292,6 +294,28 @@ const placeOrder = async (req, res) => {
 
         // Clear the user's cart after placing the order
         // await Cart.deleteOne({ userid: userId });
+        // Clear the user's cart after placing the order
+        await Cart.findOneAndDelete({ userid: req.session.userid });
+        
+
+        //Reduce the quantity of products in the  products stock db
+
+        for(const product of products){
+            try {
+                const productInStock = await Product.findById(product.productid);
+                if(productInStock){
+                    //Subtract the ordered quantity from the available quantity
+                    productInStock.quantity -= product.quantity;
+                    await productInStock.save();
+                } else {
+                    console.error(`Product with ID ${product.productid} not found in the stock database`);
+                }
+            } catch (error) {
+                console.error('Error updating product stock:', error);
+                // Handle the error gracefully, perhaps by sending an appropriate response to the client
+                return res.status(500).json({ success: false, message: 'An error occurred while updating product stock.' });
+            }
+        }
 
         res.status(200).json({ success: true, hashedOrderId });
     } catch (error) {
@@ -369,11 +393,11 @@ const generateRazorpay = (orderid, adjustedAmount) => {
 const loadOrderConfirmation = async (req, res) => {
     try {
         const hashedOrderId = req.params.Id;
-        console.log("req.params.id: ", req.params.Id);
-        console.log("hashedOrderId: ", hashedOrderId);
+        // console.log("req.params.id: ", req.params.Id);
+        // console.log("hashedOrderId: ", hashedOrderId);
         // Fetching order details from the database using the hashed order ID
         const order = await Order.findOne({ hashedOrderId:hashedOrderId });
-        console.log("order: ", order);
+        // console.log("order: ", order);
 
         const user = await User.findById(order.userId);
         // console.log("user: ", user);

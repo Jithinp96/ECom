@@ -9,7 +9,7 @@
                     <h5>Your Order Confirmed!</h5>
                     <span class="font-weight-bold d-block mt-4">Hello <%= user.fname %>,</span>
                     <span>Your order has been confirmed and we will notify you once the order is shipped!</span>
-                    <div class="payment border-top mt-3 mb-3 border-bottom table-responsive">
+                    <div class="payment border-top mt-3 mb-3  table-responsive">
                         <table class="table table-borderless"> 
                             <tbody>
                                 <tr>
@@ -43,15 +43,19 @@
                             </tbody>
                         </table>
                     </div>
-
-                    <div class="product border-bottom table-responsive">
+                    <div class="d-block text-muted">
+                        <strong>Delivery Date: 
+                            <span style="color: green;"><%= order.edd.toDateString() %></span>
+                        </strong>
+                    </div>
+                    <div class="product table-responsive">
                         <table class="table table-borderless">
                             <tbody>
                                 <% order.products.forEach(function(product) { %>
                                     <tr>
-                                        <td width="20%">
+                                        <!-- <td width="20%">
                                             <img src="<%= product.image %>" width="90">
-                                        </td>
+                                        </td> -->
                                         <td width="60%">
                                             <span class="font-weight-bold"><%= product.name %></span>
                                             <div class="product-qty">

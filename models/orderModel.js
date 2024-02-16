@@ -39,6 +39,9 @@ const orderSchema = mongoose.Schema({
             type:String
         }
     }],
+    edd: {
+        type: Date,
+    },
     paymentMode: {
         type: String,
         required: true

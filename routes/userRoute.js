@@ -18,6 +18,7 @@ const userController = require("../controllers/userController");
 const cartController = require("../controllers/cartController");
 const orderController = require("../controllers/orderController");
 const wishlistController = require("../controllers/wishlistController")
+const userProfileController = require("../controllers/userProfileController")
 
 user_route.get('/register',userController.loadRegister);
 user_route.post('/register',userController.insertUser);
@@ -58,15 +59,15 @@ user_route.delete('/removeFromCart/:productId', userAuth.isLogin, cartController
 
 user_route.get('/checkout', userAuth.isLogin, userAuth.isAuthenticated, cartController.loadCheckout);
 user_route.post('/api/saveAddress', cartController.checkoutAddAddress);
-user_route.delete('/delete-address/:addressId', userController.deleteAddress);
-user_route.post('/saveNewAddress', userController.addAddress);
+user_route.delete('/delete-address/:addressId', userProfileController.deleteAddress);
+user_route.post('/saveNewAddress', userProfileController.addAddress);
 
 user_route.post('/placeOrder', cartController.placeOrder);
 user_route.get('/orderconfirmation/:Id', cartController.loadOrderConfirmation);
 
-user_route.get('/profile', userAuth.isLogin, userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userController.loadUserProfile);
-user_route.get('/user/address/:id', userController.loadEditAddress);
-user_route.put('/user/address/:id',userController.updateAddress);
-
+user_route.get('/profile', userAuth.isLogin, userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userProfileController.loadUserProfile);
+user_route.get('/user/address/:id', userProfileController.loadEditAddress);
+user_route.put('/user/address/:id', userProfileController.updateAddress);
+user_route.get('/orderdetails/:Id', userProfileController.loadOrderDetails);
 
 module.exports = user_route;
