@@ -9,7 +9,7 @@ const Cart = require("../models/cartModel");
 const loadAdminOrderList = async (req, res) => {
     try {
         // Fetch orders from the database
-        const orders = await Order.find().populate('userid', 'fname');
+        const orders = await Order.find().populate('userId', 'fname');
     
         // Render the 'orderlist' view and pass the orders as a variable
         res.render('orderlist', { orders });
@@ -24,15 +24,16 @@ const updateOrderStatus = async (req, res) => {
 
         // Find and update the order status in the database
         await Order.findByIdAndUpdate(orderId, { 'products.0.orderStatus': newStatus });
-        console.log('Received request to update order status:', orderId, newStatus);
+
         // Send a success response
         res.status(200).json({ message: 'Order status updated successfully' });
     } catch (error) {
         // Handle errors and send an error response
         console.error('Error updating order status:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
+
 
 module.exports = {
     loadAdminOrderList,

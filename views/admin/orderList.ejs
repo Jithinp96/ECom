@@ -40,7 +40,7 @@
                                                         <% if (index === 0) { %>
                                                             <!-- Display ID and Customer only for the first product in the order -->
                                                             <!-- <td rowspan="<%= order.products.length %>"><%= index+1 %></td> -->
-                                                            <td rowspan="<%= order.products.length %>"><%= order.userid.fname %></td>
+                                                            <td rowspan="<%= order.products.length %>"><%= order.userId.fname %></td>
                                                         <% } %>
                                                         <td><%= product.name %></td>
                                                         <td><%= product.quantity %></td>
@@ -50,24 +50,20 @@
                                                         <!-- <td><%= product.orderStatus %></td> -->
                                                         <td>
                                                             <div class="form-group mb-4">
-                                                                <label class="mr-sm-2" for="orderStatusDropdown_<%= order._id %>"></label>
                                                                 <select class="custom-select mr-sm-2" id="orderStatusDropdown_<%= order._id %>" name="orderStatus">
-                                                                    <option value="placed" <%= order.products[0].orderStatus === 'placed' ? 'selected' : '' %>>Placed</option>
-                                                                    <option value="shipped" <%= order.products[0].orderStatus === 'shipped' ? 'selected' : '' %>>Shipped</option>
-                                                                    <option value="delivered" <%= order.products[0].orderStatus === 'delivered' ? 'selected' : '' %>>Delivered</option>
-                                                                    <option value="returnRequested" <%= order.products[0].orderStatus === 'returnRequested' ? 'selected' : '' %>>Return Requested</option>
-                                                                    <option value="returned" <%= order.products[0].orderStatus === 'returned' ? 'selected' : '' %>>Returned</option>
-                                                                    <option value="requestedCancellation" <%= order.products[0].orderStatus === 'requestedCancellation' ? 'selected' : '' %>>Requested Cancellation</option>
-                                                                    <option value="cancelled" <%= order.products[0].orderStatus === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
-                                                                    
+                                                                    <!-- Options for order status dropdown -->
+                                                                    <option value="Placed" <%= product.orderStatus === 'Placed' ? 'selected' : '' %>>Placed</option>
+                                                                    <option value="Shipped" <%= product.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                                                    <option value="Delivered" <%= product.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                                                    <option value="ReturnRequested" <%= product.orderStatus === 'ReturnRequested' ? 'selected' : '' %>>Return Requested</option>
+                                                                    <option value="Returned" <%= product.orderStatus === 'Returned' ? 'selected' : '' %>>Returned</option>
+                                                                
+                                                                    <option value="Cancelled" <%= product.orderStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
                                                                 </select>
                                                             </div>
                                                         </td>
-                                                        
                                                         <td>
-                                                            <button class="btn btn-primary update-status-btn" data-orderid="<%= order._id %>" id="updateBtn_<%= order._id %>">Update</button>
-
-                                                            <!-- <button class="btn btn-primary update-status-btn" data-orderid="<%= order._id %>">Update</button> -->
+                                                            <button class="btn btn-primary update-status-btn" data-orderid="<%= order.id %>" id="updateBtn<%= order._id %>">Update</button>
                                                         </td>
                                                     </tr>
                                                 <% }) %>
@@ -86,36 +82,107 @@
             </div>
         </div>
 
+<!-- Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to update the order status?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="confirmUpdateBtn">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        
-        
-        <script>
-            $(document).ready(function () {
-                // Add click event listener to the "Update" button
-                $('.update-status-btn').on('click', function () {
-                    const orderId = $(this).data('orderid');
-                    const newStatus = $('#orderStatusDropdown_' + orderId).val();
-        
-                    console.log('Updating order status:', orderId, newStatus);
 
-                    // Send an asynchronous request to update the order status
-                    $.ajax({
-                        url: '/updateOrderStatus', // Replace with your actual update status route
-                        method: 'POST',
-                        data: { orderId, newStatus },
-                        success: function (response) {
-                            // Handle success, e.g., show a success message
-                            console.log('Order status updated successfully');
-                        },
-                        error: function (error) {
-                            // Handle error, e.g., show an error message
-                            console.error('Error updating order status:', error);
-                        }
-                    });
-                });
+<script>
+    $(document).ready(function () {
+        // Attach a click event to the "Update" button
+        $('.update-status-btn').on('click', function () {
+            const orderId = $(this).data('orderid');
+            const newStatus = $('#orderStatusDropdown_' + orderId).val();
+
+            // Set the orderId and newStatus as data attributes of the modal
+            $('#confirmationModal').data('orderid', orderId);
+            $('#confirmationModal').data('newstatus', newStatus);
+
+            // Show the confirmation modal
+            $('#confirmationModal').modal('show');
+        });
+
+        // Attach a click event to the "Update" button inside the modal
+        $('#confirmUpdateBtn').on('click', function () {
+            const orderId = $('#confirmationModal').data('orderid');
+            const newStatus = $('#confirmationModal').data('newstatus');
+
+            // Make an AJAX request to update the order status
+            $.ajax({
+                url: '/admin/toggleOrderStatus', // Adjust the URL based on your actual route
+                method: 'POST',
+                data: {
+                    orderId: orderId,
+                    newStatus: newStatus
+                },
+                success: function (data) {
+                    // Handle success response (if needed)
+                    console.log(data.message);
+                    // Close the modal
+                    $('#confirmationModal').modal('hide');
+                    // Optionally show another modal or message indicating success
+                },
+                error: function (error) {
+                    // Handle error response (if needed)
+                    console.error('Error updating order status:', error.responseJSON.error);
+                    alert('Error updating order status. Please try again.');
+                    // Close the modal
+                    $('#confirmationModal').modal('hide');
+                }
             });
-        </script>
+        });
+    });
+</script>
+
+        
+        
+<!-- <script>
+    $(document).ready(function () {
+        // Attach a click event to the "Update" button
+        $('.update-status-btn').on('click', function () {
+            const orderId = $(this).data('orderid');
+            const newStatus = $('#orderStatusDropdown_' + orderId).val();
+
+            // Make an AJAX request to update the order status
+            $.ajax({
+                url: '/admin/toggleOrderStatus', // Adjust the URL based on your actual route
+                method: 'POST',
+                data: {
+                    orderId: orderId,
+                    newStatus: newStatus
+                },
+                success: function (data) {
+                    // Handle success response (if needed)
+                    console.log(data.message);
+                },
+                error: function (error) {
+                    // Handle error response (if needed)
+                    console.error('Error updating order status:', error.responseJSON.error);
+                }
+            });
+        });
+    });
+</script> -->
 
 <%-include('../layouts/adminFooter.ejs')%>

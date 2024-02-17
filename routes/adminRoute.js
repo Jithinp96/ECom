@@ -20,7 +20,6 @@ admin_route.get('/login',adminAuth.isLogout,adminController.loadAdminLogin);
 admin_route.get('/',adminAuth.isLogout,adminController.loadAdminLogin);
 admin_route.post('/loginsubmit',adminController.adminVerifyLogin);
 
-// admin_route.get()
 
 admin_route.get('/dashboard', adminAuth.isLogin, adminController.loadDashboard);
 admin_route.get('/userlist', adminAuth.isLogin, adminController.loadUserList);
@@ -39,5 +38,7 @@ admin_route.get('/editProduct', productController.loadEditProduct);
 admin_route.post('/toggleProductStatus/:productId', productController.toggleProductStatus);
 
 admin_route.get('/order', adminAuth.isLogin, orderController.loadAdminOrderList);
-admin_route.post('/updateOrderStatus', orderController.updateOrderStatus);
+admin_route.post('/toggleOrderStatus', orderController.updateOrderStatus);
+
+
 module.exports = admin_route;
