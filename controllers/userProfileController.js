@@ -120,6 +120,35 @@ const loadOrderDetails = async(req, res) => {
         }
     }
 
+const orderCancel = async (req, res) => {
+    const { orderId, productId } = req.params;
+    const { reason } = req.body; // Get the reason from the request body
+
+    try {
+        // Find the order by orderId and productId
+        const order = await Order.findOneAndUpdate(
+            { _id: orderId, 'products._id': productId },
+            { 
+                $set: { 
+                    'products.$.orderStatus': 'Cancelled', 
+                    'products.$.reason': reason // Update the reason field
+                } 
+            },
+            { new: true }
+        );
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order or product not found' });
+        }
+
+        res.json({ message: 'Item cancelled successfully', order });
+    } catch (error) {
+        console.error('Error cancelling item:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+
 module.exports = {
     loadUserProfile,
     addAddress,
@@ -127,4 +156,5 @@ module.exports = {
     loadEditAddress,
     updateAddress,
     loadOrderDetails,
+    orderCancel,
 }

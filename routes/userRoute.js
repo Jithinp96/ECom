@@ -69,5 +69,6 @@ user_route.get('/profile', userAuth.isLogin, userAuth.isAuthenticated, navbarMid
 user_route.get('/user/address/:id', userProfileController.loadEditAddress);
 user_route.put('/user/address/:id', userProfileController.updateAddress);
 user_route.get('/orderdetails/:Id', userProfileController.loadOrderDetails);
+user_route.put('/orderdetails/:orderId/products/:productId/cancel', userProfileController.orderCancel);
 
 module.exports = user_route;

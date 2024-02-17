@@ -74,8 +74,25 @@ a {
                                         <div class="flex-lg-grow-1 ms-3">
                                             <h6 class="small mb-1"><a href="#" class="text-reset"><strong><%= product.name %></strong></a></h6>
                                             <span class="small">Quantity: <%= product.quantity %></span>
-                                            <span class="badge rounded-pill bg-info"><%= product.orderStatus %></span><br>
-                                            <a href="#" class="cancel-link" data-index="<%= index %>">Cancel Item</a>
+                                            <span class="badge rounded-pill text-white 
+                                                <% switch (product.orderStatus) { 
+                                                    case 'Placed': %>bg-info<% break; 
+                                                    case 'Cancelled': %>bg-danger<% break; 
+                                                    case 'Delivered': %>bg-success<% break; 
+                                                    case 'Returned': %>bg-warning<% break; 
+                                                    default: %>bg-secondary<% break; 
+                                                } %>">
+                                                <%= product.orderStatus %>
+                                            </span>
+                                            <br>
+                                            <a href="#" class="cancel-link" 
+                                                data-product-id="<%= product._id %>" 
+                                                data-index="<%= index %>" 
+                                                <% if(product.orderStatus !== 'Placed' && product.orderStatus !== 'Shipped') { %> style="display: none;" <% } %>
+                                            >
+                                                Cancel Item
+                                            </a>
+
                                         </div>
                                     </div>
                                 </td>
@@ -84,7 +101,6 @@ a {
                             </tr>
                         <% }) %>
                     </tbody>
-                </table>
                     <tfoot>
                     <tr>
                         <td colspan="2">Subtotal</td>
@@ -167,31 +183,88 @@ a {
     </div>
 </div>
 
+<!-- Confirmation Modal -->
+<div class="modal fade" id="cancelConfirmationModal" tabindex="-1" aria-labelledby="cancelConfirmationModalLabel" aria-hidden="true">
+    <!-- Modal content -->
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelConfirmationModalLabel">Confirm Cancellation</h5>
+            </div>
+            <div class="modal-body">
+                <!-- Form for cancellation reason -->
+                <form id="cancelReasonForm">
+                    <div class="container-fluid mb-3 p-4">
+                        <label for="reason" class="form-label">Reason for Cancellation:</label>
+                        <select class="form-select" id="reason" name="reason" required>
+                            <!-- Options for cancellation reasons -->
+                            <option value="">Select a reason</option>
+                            <option value="Item no longer needed">Item no longer needed</option>
+                            <option value="Found a better price elsewhere">Found a better price elsewhere</option>
+                            <option value="Changed my mind">Changed my mind</option>
+                            <option value="Delivery date is too long">Delivery date is too long</option>
+                            <!-- Add more options as needed -->
+                        </select>
+                    </div>
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-end">
+                        <!-- Close button -->
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Close</button>
+                        <!-- Confirm Cancellation button -->
+                        <button type="submit" class="btn btn-primary">Confirm Cancellation</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Cancel Item -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Add event listener for cancel link click
         document.querySelectorAll('.cancel-link').forEach(function (link) {
-            link.addEventListener('click', function (event) {
-                event.preventDefault();
-                var index = this.getAttribute('data-index');
-                cancelItem(index);
-            });
+            // Check if the status is not already "Cancelled"
+            if (link.getAttribute('data-status') !== 'Cancelled') {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    var orderId = '<%= order._id %>';
+                    var productId = this.getAttribute('data-product-id');
+                    // Show the cancellation modal
+                    $('#cancelConfirmationModal').modal('show'); 
+                    // Add submit event listener for the cancellation form
+                    $('#cancelReasonForm').off('submit').on('submit', function (event) {
+                        event.preventDefault();
+                        // Get the reason selected from the dropdown
+                        var reason = $('#reason').val();
+                        // Call the cancelItem function with orderId, productId, and reason
+                        cancelItem(orderId, productId, reason);
+                    });
+                });
+            }
         });
 
-        function cancelItem(index) {
-            // Send an AJAX request to the server to update the status of the item
-            // Assuming you have an endpoint like '/cancelItem' to handle this
-            fetch('/cancelItem', {
-                method: 'POST',
+        // Function to send cancellation request to backend
+        function cancelItem(orderId, productId, reason) {
+            // Send a PUT request to cancel the item
+            fetch(`/orderdetails/${orderId}/products/${productId}/cancel`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ index: index }),
+                body: JSON.stringify({ reason: reason }), // Include reason in the request body
             })
-            .then(response => response.json())
-            .then(data => {
-                // Update the UI to reflect the changed status
-                document.getElementById('product' + index).querySelector('.badge').textContent = 'cancelled';
+            .then(response => {
+                if (response.ok) {
+                    // Update the UI to reflect the changed status
+                    var productRow = document.getElementById(`product${productId}`);
+                    productRow.querySelector('.badge').textContent = 'Cancelled';
+                    productRow.querySelector('.cancel-link').remove(); // Remove the cancel link
+                    $('#cancelConfirmationModal').modal('hide'); // Hide the modal
+                    location.reload(); // Reload the page
+                } else {
+                    throw new Error('Failed to cancel item');
+                }
             })
             .catch(error => console.error('Error:', error));
         }
