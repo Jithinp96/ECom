@@ -41,7 +41,11 @@
                             </div>
                             <form action="/loginsubmit" method="POST" onsubmit="return validateForm()">
                                 <!-- <p style="color: red;"><%= locals.message %></p> -->
-                                
+                                <% if (messages.error) { %>
+                                    <div class="alert alert-danger">
+                                        <%= messages.error %>
+                                    </div>
+                                <%}%>
                                 <div class="form-group">
                                     <label for="singin-email-2">Email Address *</label>
                                     <input type="email" class="form-control" id="singin-email-2" name="email">

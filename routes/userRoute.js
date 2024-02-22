@@ -6,6 +6,7 @@ user_route.set('views','./views/user');
 
 const userAuth = require("../middlewares/userAuth");
 const navbarMiddleware = require('../middlewares/navbarMiddleware');
+const walletMiddleware = require("../middlewares/walletMiddleware")
 
 const bodyParser = require('body-parser');
 user_route.use(bodyParser.json());
@@ -21,17 +22,16 @@ const wishlistController = require("../controllers/wishlistController")
 const userProfileController = require("../controllers/userProfileController")
 
 user_route.get('/register',userController.loadRegister);
-user_route.post('/register',userController.insertUser);
+user_route.post('/register',userController.insertUser, walletMiddleware.createWalletForUser);
 
 user_route.get('/otp',userController.loadOTP);
 user_route.post('/otp',userController.verifyOTP);
+user_route.get('/resend-otp', userController.resendOTP);
 
-user_route.get('/forgotpassword',userController.loadForgotPassword);
-user_route.post('/send-otp', userController.sendOTP);
-user_route.post('/verify-otp',userController.verifyPasswordResetOTP);
-user_route.get('/resetpassword',userController.loadResetPassword);
-user_route.post('/resetpassword',userController.loadResetPassword);
-user_route.post('/update-password', userController.updatePassword);
+user_route.get('/forgotpassword', userAuth.isLogout, userController.loadForgotPassword);
+user_route.post('/forgot-password-submit', userController.submitForgotPassword);
+user_route.get('/resetpassword/:token', userController.loadResetPassword);
+user_route.post('/reset-password-submit', userController.submitResetPassword);
 
 user_route.get('/login',userAuth.isLogout,userController.loadLogin);
 // user_route.get('/login',userAuth.isLogin,userController.loadHome);
@@ -70,5 +70,7 @@ user_route.get('/user/address/:id', userProfileController.loadEditAddress);
 user_route.put('/user/address/:id', userProfileController.updateAddress);
 user_route.get('/orderdetails/:Id', userProfileController.loadOrderDetails);
 user_route.put('/orderdetails/:orderId/products/:productId/cancel', userProfileController.orderCancel);
+
+user_route.put(`/orderdetails/:orderId/products/:productId/return`, userProfileController.orderReturnRequest);
 
 module.exports = user_route;

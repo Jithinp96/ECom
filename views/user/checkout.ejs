@@ -1,4 +1,4 @@
-<%-include('../layouts/header.ejs')%>
+    <%-include('../layouts/header.ejs')%>
 <%-include('../layouts/navbar.ejs')%>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10"></link>
@@ -216,6 +216,7 @@
 <!-- Payment tab -->
 <script>
     let grandTotal = '<%= grandTotal %>';
+    console.log("grandTotal: ", grandTotal);
     document.querySelector("button[type='submit']").addEventListener("click", async function(event) {
         console.log("Submit button clicked");
         event.preventDefault(); // Prevent the default behavior of form submission
@@ -257,9 +258,22 @@
                             if (!response.ok) {
                                 throw new Error("Failed to place order");
                             }
-                            // Redirect to the order confirmation page
-                            
-                            window.location.href = `/orderconfirmation/${hashedOrderId}`;
+                            // Extract the response data 
+                            return response.json();
+                        })
+                        .then(responseData => {
+                            if (responseData.success) {
+                                console.log("Inside .then responseData");
+                                let hashedOrderId = responseData.hashedOrderId;
+                                console.log("hashedOrderId: ", hashedOrderId);
+                                // Redirect to the order confirmation page with the hashed order ID
+                                window.location.href = `/orderconfirmation/${hashedOrderId}`;
+                            } else {
+                                // Show an error warning message
+                                document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                                document.getElementById("warningMessage").style.color = "red"; // Set color to red
+                                document.getElementById("warningMessage").style.display = "block";
+                            }
                         })
                         .catch(error => {
                             console.error("Error placing order:", error);
@@ -280,7 +294,9 @@
                 };
                 var rzp = new Razorpay(options);
                 rzp.open();
-            } else if (paymentMethod === "cod") {
+            }
+
+            else if (paymentMethod === "cod") {
                 // Implement Cash on Delivery logic here
                 console.log("Cash on Delivery selected");
 

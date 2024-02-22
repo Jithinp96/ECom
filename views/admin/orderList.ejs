@@ -55,7 +55,7 @@
                                                                     <option value="Placed" <%= product.orderStatus === 'Placed' ? 'selected' : '' %>>Placed</option>
                                                                     <option value="Shipped" <%= product.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
                                                                     <option value="Delivered" <%= product.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                                                    <option value="ReturnRequested" <%= product.orderStatus === 'ReturnRequested' ? 'selected' : '' %>>Return Requested</option>
+                                                                    <option value="Return Requested" <%= product.orderStatus === 'Return Requested' ? 'selected' : '' %>>Return Requested</option>
                                                                     <option value="Returned" <%= product.orderStatus === 'Returned' ? 'selected' : '' %>>Returned</option>
                                                                 
                                                                     <option value="Cancelled" <%= product.orderStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
@@ -63,7 +63,8 @@
                                                             </div>
                                                         </td>
                                                         <td>
-                                                            <button class="btn btn-primary update-status-btn" data-orderid="<%= order.id %>" id="updateBtn<%= order._id %>">Update</button>
+                                                            <!-- <button class="btn btn-primary update-status-btn" data-orderid="<%= order.id %>" id="updateBtn<%= order._id %>">Update</button> -->
+                                                            <button class="btn btn-primary update-status-btn" data-orderid="<%= order.id %>" data-productid="<%= product._id %>" id="updateBtn<%= order._id %>">Update</button>
                                                         </td>
                                                     </tr>
                                                 <% }) %>
@@ -113,10 +114,15 @@
         // Attach a click event to the "Update" button
         $('.update-status-btn').on('click', function () {
             const orderId = $(this).data('orderid');
+            const productId = $(this).data('productid');
             const newStatus = $('#orderStatusDropdown_' + orderId).val();
+            console.log(newStatus);
+            console.log("productId:", productId);
+
 
             // Set the orderId and newStatus as data attributes of the modal
             $('#confirmationModal').data('orderid', orderId);
+            $('#confirmationModal').data('productid', productId);
             $('#confirmationModal').data('newstatus', newStatus);
 
             // Show the confirmation modal
@@ -126,6 +132,7 @@
         // Attach a click event to the "Update" button inside the modal
         $('#confirmUpdateBtn').on('click', function () {
             const orderId = $('#confirmationModal').data('orderid');
+            const productId = $('#confirmationModal').data('productid');
             const newStatus = $('#confirmationModal').data('newstatus');
 
             // Make an AJAX request to update the order status
@@ -134,6 +141,7 @@
                 method: 'POST',
                 data: {
                     orderId: orderId,
+                    productId: productId,
                     newStatus: newStatus
                 },
                 success: function (data) {
@@ -155,34 +163,5 @@
     });
 </script>
 
-        
-        
-<!-- <script>
-    $(document).ready(function () {
-        // Attach a click event to the "Update" button
-        $('.update-status-btn').on('click', function () {
-            const orderId = $(this).data('orderid');
-            const newStatus = $('#orderStatusDropdown_' + orderId).val();
-
-            // Make an AJAX request to update the order status
-            $.ajax({
-                url: '/admin/toggleOrderStatus', // Adjust the URL based on your actual route
-                method: 'POST',
-                data: {
-                    orderId: orderId,
-                    newStatus: newStatus
-                },
-                success: function (data) {
-                    // Handle success response (if needed)
-                    console.log(data.message);
-                },
-                error: function (error) {
-                    // Handle error response (if needed)
-                    console.error('Error updating order status:', error.responseJSON.error);
-                }
-            });
-        });
-    });
-</script> -->
 
 <%-include('../layouts/adminFooter.ejs')%>

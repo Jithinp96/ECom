@@ -1,0 +1,86 @@
+<%-include('../layouts/adminHeader.ejs')%>
+<%-include('../layouts/adminSidebar.ejs')%>
+
+<div class="page-wrapper">
+    <br>
+    <div class="container" style="display: flex; justify-content: right;">
+        <a href="/admin/addcoupon" class="btn btn-success">Add Coupon</a>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Coupon List</h4>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">No</th>
+                                    <th scope="col">Coupon Name</th>
+                                    <th scope="col">Coupon Code</th>
+                                    <th scope="col">Discount Percentage</th>
+                                    <th scope="col">Min Amount</th>
+                                    <th scope="col">Coupon Description</th>
+                                    <th scope="col">Expiry Date</th>
+                                    <th scope="col">Edit</th>
+                                    <th scope="col">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% coupons.forEach(function(coupon, index) { %>
+                                    <tr>
+                                        <th scope="row"><%= index + 1 %></th>
+                                        <td><%= coupon.couponName %></td>
+                                        <td><%= coupon.couponCode %></td>
+                                        <td><%= coupon.discountPercentage %>%</td>
+                                        <td>₹<%= coupon.minAmount %></td>
+                                        <td><%= coupon.couponDescription %></td>
+                                        <td><%= coupon.expiryDate.toDateString() %></td>
+                                        <td><a href="/editCoupon/<%= coupon._id %>">Edit</a></td>
+                                        <td>
+                                            <button class="btn btn-danger delete-btn" data-coupon-id="<%= coupon._id %>" >Delete</button>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Delete -->
+
+<script>
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const couponId = btn.getAttribute('data-coupon-id');
+            try {
+                const response = await fetch(`/admin/deletecoupon/${couponId}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    // Coupon deleted successfully, you may want to update the UI or reload the page
+                    window.location.reload(); // Reload the page to reflect changes
+                } else {
+                    // Handle errors if any
+                    console.error('Failed to delete coupon:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Failed to delete coupon:', error.message);
+            }
+        });
+    });
+   
+</script>
+
+
+<%-include('../layouts/adminFooter.ejs')%>

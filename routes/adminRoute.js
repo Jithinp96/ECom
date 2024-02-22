@@ -15,13 +15,15 @@ const categoryController = require('../controllers/categoryController');
 const productController = require("../controllers/productController");
 const orderController = require("../controllers/orderController");
 const adminAuth = require("../middlewares/adminAuth");
+const adminDashboardController = require("../controllers/adminDashboardController");
+const couponController = require("../controllers/couponController");
 
 admin_route.get('/login',adminAuth.isLogout,adminController.loadAdminLogin);
 admin_route.get('/',adminAuth.isLogout,adminController.loadAdminLogin);
 admin_route.post('/loginsubmit',adminController.adminVerifyLogin);
 
 
-admin_route.get('/dashboard', adminAuth.isLogin, adminController.loadDashboard);
+admin_route.get('/dashboard', adminAuth.isLogin, adminDashboardController.loadDashboard);
 admin_route.get('/userlist', adminAuth.isLogin, adminController.loadUserList);
 admin_route.post('/toggle_user_status/:id', adminController.toggleUserStatus);
 
@@ -40,5 +42,14 @@ admin_route.post('/toggleProductStatus/:productId', productController.toggleProd
 admin_route.get('/order', adminAuth.isLogin, orderController.loadAdminOrderList);
 admin_route.post('/toggleOrderStatus', orderController.updateOrderStatus);
 
+
+admin_route.get('/salesreport', adminDashboardController.loadSalesReport);
+admin_route.post('/salesreport', adminDashboardController.generateSalesReport);
+
+
+admin_route.get('/coupon', couponController.loadCouponPage);
+admin_route.get('/addcoupon', couponController.loadAddCoupon);
+admin_route.post('/submitCoupon', couponController.addCoupon);
+admin_route.delete('/deletecoupon/:id', couponController.deleteCoupon);
 
 module.exports = admin_route;

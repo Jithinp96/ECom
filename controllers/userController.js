@@ -3,8 +3,10 @@ const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer')
 // const userAuth = require("../middlewares/userAuth")
 const Order = require("../models/orderModel");
+const Wallet = require('../models/walletModel');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
+const Token = require("../models/tokenModel")
 
 const UserOTPVerification = require("../models/userOTPVerification");
 const Products = require("../models/productModel");
@@ -40,7 +42,7 @@ const insertUser = async (req, res) => {
         else{
             const spassword = await securePassword(req.body.password);
             
-            const user = User({
+            const newUser = User({
                 email: req.body.email,
                 fname: req.body.fname,
                 lname: req.body.lname,
@@ -51,24 +53,26 @@ const insertUser = async (req, res) => {
                 is_verified: 0,
             });
 
-            await user.save();
-            sendOTPVerificationEmail(user, res);
-            // if(userData){
-            //     res.redirect('./login')
-            // }
-            // else{
-            //     res.render('registration', {message: "Your registration has been failed...!!!"});
-            // }
+            // Save the new user to the database
+            await newUser.save();
+
+            // Create a wallet for the new user
+            const newWallet = new Wallet({ user: newUser._id });
+            await newWallet.save();
+
+            // Send OTP verification email
+            sendOTPVerificationEmail(newUser, res);
         }
     } catch(error){
-        console.log(error.message);
+        console.log(error);
+        return res.status(500).send({ error: 'Internal server error.' });
     }
 }
 
 
 const sendOTPVerificationEmail = async ({email}, res) => {
     try {
-        // console.log("Hello");
+        console.log("Indide theOTP email send fn");
         let transporter = nodemailer.createTransport({
             service:'gmail',
             host:'smtp.gmail.com',
@@ -104,20 +108,22 @@ const sendOTPVerificationEmail = async ({email}, res) => {
         res.redirect(`/otp?email=${email}`);
     
     } catch (error) {
-        console.log(message.error);
+        console.log(error);
     }
 }
 
 const loadOTP = async (req, res) => {
     try {
+        console.log("Inside Load OTP page");
         const email = req.query.email;
-        res.render('OTPVerification', {email: email});
+        res.render('OTPVerification', { email: email});
 
     } catch (error) {
         console.log(error);
 
     }
 }
+
 
 const verifyOTP = async (req, res) => {
     try {
@@ -127,8 +133,7 @@ const verifyOTP = async (req, res) => {
         // console.log('userVerification:', userVerification);
 
         if (! userVerification) {
-            // req.flash('error', 'OTP expired');
-            res.redirect('/login')
+            res.render('OTPVerification', {email, errorMessage:"OTP Expired. Please resend OTP and try again...!!!"})
             return;
         }
 
@@ -170,16 +175,16 @@ const verifyOTP = async (req, res) => {
                     console.log("user blocked from this site");
 
 
-                    // req.flash('error', 'you are blocked from this contact with admin');
+                    req.flash('error', 'you are blocked from this contact with admin');
                     res.redirect('/login')
 
                 }
 
             }
         } else {
-            // req.flash('error', 'otp is incorrect you have to verifey again login to get otp');
-            res.redirect('/login')
-
+            // req.flash('error', 'OTP is incorrect. Please login to reverify OTP again...!!!');
+            // res.redirect('/login')
+            res.render('OTPVerification', {email, errorMessage:"Invalid OTP. Please try again...!!!"})
         }
 
     } catch (error) {
@@ -188,42 +193,60 @@ const verifyOTP = async (req, res) => {
 };
 
 
-// /////////////////////// resend otp
-// const resendOtp = async (req, res) => {
-//     try {
-
-//         const userEmail = req.query.email;
-//         await userOTPVerification.deleteMany({email: userEmail});
-//         console.log(userOTPVerification)
-//         console.log("User Email:", userEmail);
-//         if (userEmail) {
-//             sendOTPVerificationEmail({
-//                 email: userEmail
-//             }, res);
-//         } else {
-
-//             console.log("User email not provided in the query");
-
-//         }
-
-//     } catch (error) {
-//         console.log(error);
-
-//     }
-// }
-
-
-const loadForgotPassword = async (req, res) => {
+/////////////////////// resend otp
+const resendOTP = async (req, res) => {
     try {
-        res.render('forgotpassword');
+
+        const userEmail = req.query.email;
+        await UserOTPVerification.deleteMany({email: userEmail});
+        console.log(UserOTPVerification)
+        console.log("User Email:", userEmail);
+        if (userEmail) {
+            sendOTPVerificationEmail({
+                email: userEmail
+            }, res);
+        } else {
+
+            console.log("User email not provided in the query");
+
+        }
+
     } catch (error) {
         console.log(error);
+
     }
 }
 
-const sendResetPasswordOTP = async (email) => {
+
+const loadForgotPassword = async (req,res)=>{
     try {
-        
+        res.render('forgotpassword')
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const submitForgotPassword = async (req, res) => {
+    try {
+        const email = req.body.email;
+        //console.log(email);
+        const userData = await User.findOne({ email: email });
+        if (!userData || !userData.is_verified) {
+            req.flash('error', 'Invalid email or not verified.');
+            return res.redirect('/forgotpassword');
+        }
+
+        // Generate a token
+        const token = crypto.randomBytes(20).toString('hex');
+        console.log("userData._id,:", userData._id);
+        console.log("Generated TOken: ", token);
+        // Save the token in the database
+        const tokenData = new Token({
+            Token: token,
+            userId: userData._id,
+        });
+        console.log("Generated tokenData:", tokenData);
+        await tokenData.save();
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -231,121 +254,98 @@ const sendResetPasswordOTP = async (email) => {
             port: 465,
             secure: true,
             auth: {
-                user: 'jithinyt07@gmail.com',
-                pass: 'vwmr jmcp crkt ydpf'
+                user: 'officialfurnit@gmail.com',
+                pass: 'crzo lqng bteh lnxu'
             }
-        });
+        })
 
-        // Generate a random OTP
-        const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
-        console.log(otp);
-
-        // Mail options
+        // Send the reset password email with the token link
+        const resetLink = `http://localhost:4000/resetpassword/${token}`
         const mailOptions = {
-            from: 'jithinyt07@gmail.com',
+            from: 'officialfurnit@gmail.com',
             to: email,
-            subject: 'Reset Your Password',
-            html: `Your OTP to reset your password is: <strong>${otp}</strong>. This OTP will expire in 1 minutes.`
+            subject: 'Reset Password',
+            html: `Click <a href="${resetLink}">here</a> to reset your password.`,
         };
 
-        // Hash the OTP for security
-        const hashedOTP = await bcrypt.hash(otp, 10);
-
-        // Save hashed OTP in the database
-        const newOTPVerification = new UserOTPVerification({ email: email, otp: hashedOTP });
-        await newOTPVerification.save();
-
-        // Send email
         await transporter.sendMail(mailOptions);
 
-        console.log('Reset password OTP sent successfully.');
+        // Redirect to the reset password page with the token
+        res.redirect('/login');
     } catch (error) {
-        console.error('Error sending reset password OTP:', error);
-        throw error;
+        console.log(error.message);
     }
-};
+}
 
-const sendOTP = async (req, res) => {
+const loadResetPassword = async (req,res)=>{
+
     try {
-        const { email } = req.body;
-        // Check if the email exists in the User schema
-        const user = await User.findOne({ email : email });
-        // console.log("User details found: "+ user);
-        if (!user) {
-             // If the email address is not registered, render the forgot password page with a message
-             return res.status(400).send('Email address not registered');
-            }
-        else{
-            await sendResetPasswordOTP(email);
-            res.sendStatus(200);
+        const token = req.params.token;
+        console.log("token from params: ", token);
+        const tokenData = await Token.findOne({ Token: token });
+        console.log("Database log: ", Token.find());
+        console.log("tokenData: ", tokenData);
+        if (!tokenData) {
+            console.log("Inside Not token data");
+            req.flash('error', 'Invalid or expired token.');
+            return res.redirect('/forgotpassword');
         }
+
+        // Pass the token to the reset password page
+        res.render('resetpassword',{token});
+    } catch (error) {
+        console.log(error.message);
+    }
+
+}
+
+const submitResetPassword = async (req,res)=>{
+    try {
+        const token = req.body.token;
+        console.log("token: ", token);
+        const newPassword = req.body.newPassword;
+        console.log("newPassword", newPassword);
+        const confirmPassword = req.body.confirmPassword;
+        console.log("confirmPassword", confirmPassword);
+
+        // Find the user associated with the token
+        const tokenData = await Token.findOne({ Token: token });
+        console.log("tokenData", tokenData);
+
+        if (!tokenData) {
+            console.log("Inside not tokendata");
+            req.flash('error', 'Invalid or expired token.');
+            return res.redirect('/forgotpassword');
+        }
+
+        // Check if the passwords match
+        if (newPassword !== confirmPassword) {
+            req.flash('error', 'Passwords do not match.');
+            return res.redirect(`/resetpassword/${token}`);
+        }
+
+        // Hash the new password
+        const passwordHash = await bcrypt.hash(newPassword, 10);
+
+        // Update the user's password
+        const user = await User.findById(tokenData.userId);
+        user.password = passwordHash;
+        await user.save();
+
+        // Remove the token from the database
+        await Token.deleteOne({ Token: token });
         
+        // Set success flash message
+        req.flash('success', 'Password reset successfully.');
+
+
+        res.redirect('/login');
     } catch (error) {
-        console.error('Error sending reset password OTP:', error);
-        res.status(500).send('Failed to send OTP');
-    }
-};
-
-const verifyPasswordResetOTP = async (req, res) => {
-    try {
-        const { email, otp } = req.body;
-        console.log(email, otp);
-        // Retrieve hashed OTP from the database based on the user's email
-        const otpVerification = await UserOTPVerification.findOne({ email });
-
-        if (!otpVerification) {
-            return res.status(400).json({ error: 'OTP verification failed' });
-        }
-
-        // Compare the hashed OTP stored in the database with the hashed OTP entered by the user
-        const isMatch = await bcrypt.compare(otp, otpVerification.otp);
-
-        if (isMatch) {
-            console.log('OTP verified successfully from userController');
-            // OTP is verified successfully, redirect to reset password page
-            res.redirect('/resetpassword');
-        } else {
-            // OTP verification failed, send error message
-            res.status(400).json({ error: 'OTP verification failed' });
-        }
-    } catch (error) {
-        console.error('Error verifying OTP:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-};
-
-const loadResetPassword = async(req, res) => {
-    try {
-        res.render('resetpassword');
-    } catch (error) {
-        console.log(error);
+        console.log(error.message);
     }
 }
 
 
-const updatePassword = async (req, res) => {
-    try {
-        console.log("Inside updatePassword controller");
-        
-        const { email } = req.query; // Extract email from query parameters
-        const { newPassword } = req.body; // Extract newPassword from request body
-        
-        console.log("Email from query: " + email);
-        console.log("New password: " + newPassword);
-
-        // Update the user's password in the database
-        const user = await User.findOneAndUpdate({ email }, { password: newPassword });
-        
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-
-        res.sendStatus(200);
-    } catch (error) {
-        console.error('Error updating password:', error);
-        res.status(500).send('Failed to update password');
-    }
-};
 
 const verifyLogin = async(req, res) => {
     try{
@@ -358,22 +358,37 @@ const verifyLogin = async(req, res) => {
         if(userData){
             const passwordMatch = await bcrypt.compare(password, userData.password);
             
-            if(passwordMatch && !userData.is_blocked){
-                if(!userData.is_verified){
-                    res.render('login',{message:"Email is not verified...!!!"});
+            if(passwordMatch){
+                if(!userData.is_blocked){
+                    if(!userData.is_verified){
+                        console.log("Non verified user reverifying");
+                        sendOTPVerificationEmail(userData, res);
+                        // res.render('login', {message:"Your email is not verified...!!!"});
+                    }
+                    else{
+                        req.session.userid = userData._id;
+                        res.redirect('/');
+                    }
                 }
                 else{
-                    req.session.userid = userData._id;
-                    res.redirect('/');
+                    req.flash('error', 'Your account is temporarily suspended...!!!')
+                    res.redirect('/login');
+                    console.log("User Blocked");
                 }
                 
             }
             else {
-                res.render('login',{message:"Email or Password is Incorrect...!!!"});
+                // res.render('login',{message:"Email or Password is Incorrect...!!!"});
+                req.flash('error', 'Email or Password is Incorrect...!!!')
+                res.redirect('/login');
+                console.log("Wrong Password");
             }
         }
         else{
-            res.render('login',{message:"Email or Password is Incorrect...!!!"});
+            // res.render('login',{message:"Email or Password is Incorrect...!!!"});
+            req.flash('error', 'Email or Password is Incorrect...!!!')
+            res.redirect('/login');
+            console.log("Wrong Email");
         }
 
     } catch (error) {
@@ -396,7 +411,7 @@ const userLogout = async (req, res) => {
 
 const loadLogin = async (req, res) => {
     try {
-        res.render('login')
+        res.render('login', { message: "" })
     }
     catch(error) {
         console.log(error.message);
@@ -476,15 +491,16 @@ module.exports ={
     insertUser,
     loadOTP,
     sendOTPVerificationEmail,
-    // resendOtp,
+    resendOTP,
     verifyOTP,
-    loadForgotPassword,
-    sendResetPasswordOTP,
-    sendOTP,
-    verifyPasswordResetOTP,
-    loadResetPassword,
-    updatePassword,
     verifyLogin,
+
+    loadForgotPassword,
+    submitForgotPassword,
+    loadResetPassword,
+    submitResetPassword,
+
+
     userLogout,
     loadLogin,
     loadHome,

@@ -118,6 +118,9 @@
                                         <i class="bx bxs-check-shield"></i>
                                     </header> -->
                                     <h4>Enter OTP Code</h4>
+                                    <% if(locals.errorMessage) { %>
+                                        <p style="color: red;"><%=errorMessage %></p>
+                                    <% } %>
                                     <form action="/otp" method="POST">
                                         <div class="input-field">
                                             <input name="digit1" type="text" pattern="\d" required   />
@@ -126,7 +129,9 @@
                                             <input name="digit4" type="text" pattern="\d" required disabled />
                                             <input type="text" value="<%=email%>"  name="email" hidden>
                                         </div>
-                                        <a href="#">Resend OTP</a>
+                                        <p id="timer">Time remaining: <span id="countdown">60</span> seconds</p>
+
+                                        <a href="/resend-otp?email=<%= email %>">Resend OTP</a>
                                         <button type="submit">Verify OTP</button>
                                     </form>
                                 </div>
@@ -140,6 +145,29 @@
     </div><!-- End .login-page section-bg -->
 </main><!-- End .main -->
 
+
+<script>
+    // Countdown timer logic
+    const countdownElement = document.getElementById('countdown');
+    let countdownValue = 60;
+
+    function updateCountdown() {
+        countdownElement.textContent = countdownValue;
+        countdownValue--;
+
+        if (countdownValue < 0) {
+            // Disable or hide the Resend OTP link after the countdown reaches 0
+            document.querySelector('a[href="/resend-otp"]').style.display = 'none';
+        } else {
+            setTimeout(updateCountdown, 1000);
+        }
+    }
+
+    // Start the countdown when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        updateCountdown();
+    });
+</script>
 
 
 <script>
@@ -190,6 +218,8 @@
 
     window.addEventListener("load", () => inputs[0].focus());
 </script>
+
+
 
 <%-include('../layouts/footbar.ejs')%>
 <%-include('../layouts/footer.ejs')%>

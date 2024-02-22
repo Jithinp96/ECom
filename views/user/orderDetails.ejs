@@ -92,6 +92,14 @@ a {
                                             >
                                                 Cancel Item
                                             </a>
+                                            
+                                            <a href="#" class="return-link" 
+                                                data-product-id="<%= product._id %>" 
+                                                data-index="<%= index %>" 
+                                                <% if(product.orderStatus !== 'Delivered') { %> style="display: none;" <% } %>
+                                                onclick="openReturnModal(this)">
+                                                Return Item
+                                            </a>
 
                                         </div>
                                     </div>
@@ -122,24 +130,7 @@ a {
                 </table>
                 </div>
             </div>
-            <!-- Payment -->
-            <!-- <div class="card mb-4">
-                <div class="card-body">
-                    <div class="row p-5">
-                        <div class="col-lg-8">
-                            <h3 class="h6">Payment Method</h3>
-                            <% if (order.paymentMode === 'cod') { %>
-                                <p>Payment Method: <strong>Cash On Delivery</strong><br>
-                            <% } else if (order.paymentMode === 'razorpay') { %>
-                                <p>Payment Method: <strong>RazorPay</strong><br>
-                            <% } else if (order.paymentMode === 'wallet') { %>
-                                <p>Payment Method: <strong>Wallet</strong><br>
-                            <% } %>      
-                            Payment ID: <%= order.paymentId %></p>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
+            
         </div>
         <div class="col-lg-4">
           <!-- Customer Notes -->
@@ -183,7 +174,7 @@ a {
     </div>
 </div>
 
-<!-- Confirmation Modal -->
+<!--Cancel Confirmation Modal -->
 <div class="modal fade" id="cancelConfirmationModal" tabindex="-1" aria-labelledby="cancelConfirmationModalLabel" aria-hidden="true">
     <!-- Modal content -->
     <div class="modal-dialog modal-dialog-centered">
@@ -219,6 +210,96 @@ a {
     </div>
 </div>
 
+
+<!-- Modal -->
+<div class="modal fade" id="returnModal" tabindex="-1" role="dialog" aria-labelledby="returnModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="returnModalLabel">Select Reason for Return</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Add your form elements for selecting the reason for return here -->
+          <form>
+            <div class="form-group">
+              <label for="returnReason">Reason</label>
+              <select class="form-control" id="returnReason">
+                <option>Select Reason</option>
+                <option>Defective Product</option>
+                <option>Wrong Item Received</option>
+                <option>Changed Mind</option>
+                <!-- Add more options as needed -->
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" onclick="submitReturn()">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function openReturnModal(link) {
+      let productId = link.getAttribute('data-product-id');
+      let index = link.getAttribute('data-index');
+      let modal = document.getElementById('returnModal');
+      modal.setAttribute('data-product-id', productId);
+      modal.setAttribute('data-index', index);
+      $('#returnModal').modal('show');
+    }
+  
+    function submitReturn() {
+        let productId = document.getElementById('returnModal').getAttribute('data-product-id');
+        let index = document.getElementById('returnModal').getAttribute('data-index');
+        let reason = document.getElementById('returnReason').value;
+        let orderId = '<%= order._id %>';
+
+        console.log("productId: ", productId);
+        console.log("index: ", index);
+        console.log("reason: ", reason);
+        console.log("orderId :", orderId);
+
+        // Prepare data object
+        let data = {
+            productId: productId,
+            index: index,
+            reason: reason,
+            orderId: orderId,
+        };
+
+        // Fetch request to send data to backend
+        fetch(`/orderdetails/${orderId}/products/${productId}/return`, {
+            method: 'PUT',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+            throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Data sent successfully:', data);
+            // Optionally, perform any additional actions after successful submission
+            // Close modal after submission if needed
+            $('#returnModal').modal('hide');
+        })
+        .catch(error => {
+            console.error('There was a problem with your fetch operation:', error);
+            // Handle error appropriately, e.g., display an error message to the user
+        });
+        }
+  </script>
+
 <!-- Cancel Item -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -228,21 +309,22 @@ a {
             if (link.getAttribute('data-status') !== 'Cancelled') {
                 link.addEventListener('click', function (event) {
                     event.preventDefault();
-                    var orderId = '<%= order._id %>';
-                    var productId = this.getAttribute('data-product-id');
+                    let orderId = '<%= order._id %>';
+                    let productId = this.getAttribute('data-product-id');
                     // Show the cancellation modal
                     $('#cancelConfirmationModal').modal('show'); 
                     // Add submit event listener for the cancellation form
                     $('#cancelReasonForm').off('submit').on('submit', function (event) {
                         event.preventDefault();
                         // Get the reason selected from the dropdown
-                        var reason = $('#reason').val();
+                        let reason = $('#reason').val();
                         // Call the cancelItem function with orderId, productId, and reason
                         cancelItem(orderId, productId, reason);
                     });
                 });
             }
         });
+        
 
         // Function to send cancellation request to backend
         function cancelItem(orderId, productId, reason) {
@@ -257,7 +339,7 @@ a {
             .then(response => {
                 if (response.ok) {
                     // Update the UI to reflect the changed status
-                    var productRow = document.getElementById(`product${productId}`);
+                    let productRow = document.getElementById(`product${productId}`);
                     productRow.querySelector('.badge').textContent = 'Cancelled';
                     productRow.querySelector('.cancel-link').remove(); // Remove the cancel link
                     $('#cancelConfirmationModal').modal('hide'); // Hide the modal

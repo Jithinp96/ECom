@@ -1,22 +1,24 @@
 const User = require('../models/userModel');
 const Products = require("../models/productModel");
 const Order = require("../models/orderModel");
+const Wallet = require("../models/walletModel");
 
 const loadUserProfile = async (req, res) => {
     try {
         const userId = req.session.userid;
         const user = await User.findById(userId);
         const userAddress = user.address;
-
+        const wallet = await Wallet.findOne({ user: userId });
         const order = await Order.find({userId: userId}).populate({
             path: 'products.productId',
             model: Order,
             select: 'name price quantity date image'
         });
 
-        res.render('userprofile', { user, userAddress, order });
+        res.render('userprofile', { user, userAddress, order, wallet });
     } catch (error) {
         console.log(error);
+        res.status(500).send('Internal Server Error');
     }
 }
 
@@ -128,11 +130,11 @@ const orderCancel = async (req, res) => {
         // Find the order by orderId and productId
         const order = await Order.findOneAndUpdate(
             { _id: orderId, 'products._id': productId },
-            { 
-                $set: { 
-                    'products.$.orderStatus': 'Cancelled', 
+            {
+                $set: {
+                    'products.$.orderStatus': 'Cancelled',
                     'products.$.reason': reason // Update the reason field
-                } 
+                }
             },
             { new: true }
         );
@@ -141,12 +143,90 @@ const orderCancel = async (req, res) => {
             return res.status(404).json({ message: 'Order or product not found' });
         }
 
+        // Check the payment method of the order
+        if (order.paymentMode === 'razorpay' || order.paymentMode === 'wallet') {
+            // Fetch user's wallet details
+            const wallet = await Wallet.findOne({ user: order.userId });
+
+            let cancelledAmount = 0;
+
+            // Iterate over each product in the order
+            order.products.forEach((product) => {
+                // If the product is cancelled, add its total amount to the cancelledAmount
+                if (product.orderStatus === 'Cancelled') {
+                    cancelledAmount += product.total;
+                }
+            });
+            // console.log("order.subtotal: ", order.subtotal);
+            // console.log("cancelledAmount: ", cancelledAmount);
+            // Deduct cancelled product total from order's subtotal
+            order.subtotal -= cancelledAmount;
+            await order.save();
+
+            // console.log("order.subtotal -= cancelledAmount: ", order.subtotal);
+
+            // Add the cancelled order amount to the wallet balance
+            wallet.balance += cancelledAmount;
+        
+            // Save the updated wallet balance and transaction history
+            wallet.walletHistory.push({
+                amount: cancelledAmount,
+                type: 'Credit',
+                reason: 'Order cancellation refund',
+                orderId: orderId, // Assuming you want to associate the transaction with the cancelled order
+                orderId2: order.orderId,
+                date: new Date()
+            });
+
+            // Save the wallet changes
+            await wallet.save();
+        }
+
         res.json({ message: 'Item cancelled successfully', order });
     } catch (error) {
         console.error('Error cancelling item:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
+};
+
+const orderReturnRequest = async (req, res) => {
+
+    console.log("Inside return request controller");
+
+    const orderId = req.params.orderId;
+
+    const productId = req.params.productId;
+
+    const { index, reason } = req.body;
+
+    try {
+        // Find the order by orderId and productId
+        const order = await Order.findOneAndUpdate(
+            { 
+                _id: orderId,
+                'products._id': productId
+            },
+            {
+                $set: {
+                    'products.$.reason': reason,
+                    'products.$.orderStatus': 'Return Requested'
+                }
+            },
+            { new: true }
+        );
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order or Product not found' });
+        }
+
+        res.status(200).json({ message: 'Return requested successfully', order: order });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
 }
+    
+    
 
 
 module.exports = {
@@ -157,4 +237,5 @@ module.exports = {
     updateAddress,
     loadOrderDetails,
     orderCancel,
+    orderReturnRequest,
 }
