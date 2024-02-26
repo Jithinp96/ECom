@@ -65,14 +65,14 @@ const toggleCategoryStatus = async (req, res) => {
 
 const editCategory = async (req, res) => {
     try {
-        // Find the category by ID
+        
         const category = await Categories.findById(req.body.id);
 
         if (!category) {
             return res.status(404).send({ success: false, message: 'Category not found' });
         }
 
-        // Check if the new category name is already in the database
+        
         const newName = req.body.name;
         const existingCategory = await Categories.findOne({ name: newName });
 
@@ -80,7 +80,7 @@ const editCategory = async (req, res) => {
             return res.status(400).send({ success: false, message: 'Category name already exists' });
         }
 
-        // Update the category name
+       
         category.name = newName;
         await category.save();
 

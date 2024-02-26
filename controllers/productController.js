@@ -78,15 +78,93 @@ const toggleProductStatus = async (req, res) => {
 };
 
 
+// const loadEditProduct = async (req, res) => {
+//     try {
+//         const category = await Category.find();
+//         res.render('editProduct', { categories: category });
+//     } catch (error) {
+//         console.error('Error in loadEditProduct controller:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// };
+
+
 const loadEditProduct = async (req, res) => {
     try {
+        const productId = req.params.id;
+        // console.log('Product ID:', productId);
+
         const category = await Category.find();
-        res.render('editProduct', { categories: category });
+        const product = await Products.findById(productId);
+
+        if (!product) {
+            //console.log('Product not found');
+            return res.status(404).send('Product not found');
+        }
+
+        //console.log('Found product:', product);
+
+        res.render('editProduct', { categories: category, product: product });
     } catch (error) {
         console.error('Error in loadEditProduct controller:', error);
         res.status(500).send('Internal Server Error');
     }
-};
+}
+
+
+
+// const editProduct = async (req, res) => {
+//     try {
+//         const productId = req.params.id;
+//         const { name, price, quantity, category, description } = req.body;
+
+//         const images = req.files.map(file => file.filename);
+
+//         // Update the existing product with the new information
+//         await Products.findByIdAndUpdate(productId, {
+//             name: name,
+//             price: price,
+//             quantity: quantity,
+//             category: category,
+//             description: description,
+//             image: images
+//         });
+
+//         res.redirect('/admin/product'); // Redirect to a suitable route after successful submission
+//     } catch (error) {
+//         console.log(error.message);
+//         req.flash('err', 'Error editing product. Please try again');
+//     }
+// }
+
+const editProduct = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const { name, price, quantity, category, description } = req.body;
+
+        // Check if images are included in the form data
+        const images = req.files ? req.files.map(file => file.filename) : [];
+
+        // Get the existing product
+        const existingProduct = await Products.findById(productId);
+
+        // Update the existing product with the new information
+        await Products.findByIdAndUpdate(productId, {
+            name: name,
+            price: price,
+            quantity: quantity,
+            category: category,
+            description: description,
+            // Use the existing images if not provided in the form data
+            image: images.length > 0 ? images : existingProduct.image
+        });
+
+        res.redirect('/admin/product'); // Redirect to a suitable route after successful submission
+    } catch (error) {
+        console.log(error.message);
+        req.flash('err', 'Error editing product. Please try again');
+    }
+}
 
 
 
@@ -96,4 +174,5 @@ module.exports = {
     addProduct,
     loadEditProduct,
     toggleProductStatus,
+    editProduct,
 }

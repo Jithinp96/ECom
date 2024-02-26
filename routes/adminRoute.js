@@ -36,8 +36,11 @@ admin_route.post('/edit-category/:categoryId', categoryController.editCategory);
 admin_route.get('/product', adminAuth.isLogin, productController.loadProductList);
 admin_route.post('/submitProduct',upload.array('image', 4), productController.addProduct);
 admin_route.get('/addproduct', adminAuth.isLogin, productController.loadCategory);
-admin_route.get('/editProduct', productController.loadEditProduct);
+
 admin_route.post('/toggleProductStatus/:productId', productController.toggleProductStatus);
+admin_route.get('/editproduct/:id', adminAuth.isLogin, productController.loadEditProduct);
+admin_route.post('/submitEditProduct/:id', upload.array('image', 4), productController.editProduct);
+
 
 admin_route.get('/order', adminAuth.isLogin, orderController.loadAdminOrderList);
 admin_route.post('/toggleOrderStatus', orderController.updateOrderStatus);
