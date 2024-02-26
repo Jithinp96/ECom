@@ -20,6 +20,7 @@ const cartController = require("../controllers/cartController");
 const orderController = require("../controllers/orderController");
 const wishlistController = require("../controllers/wishlistController")
 const userProfileController = require("../controllers/userProfileController")
+const couponController = require("../controllers/couponController");
 
 user_route.get('/register',userController.loadRegister);
 user_route.post('/register',userController.insertUser, walletMiddleware.createWalletForUser);
@@ -61,6 +62,7 @@ user_route.get('/checkout', userAuth.isLogin, userAuth.isAuthenticated, cartCont
 user_route.post('/api/saveAddress', cartController.checkoutAddAddress);
 user_route.delete('/delete-address/:addressId', userProfileController.deleteAddress);
 user_route.post('/saveNewAddress', userProfileController.addAddress);
+user_route.post('/applycouponcode', couponController.applyCoupon);
 
 user_route.post('/placeOrder', cartController.placeOrder);
 user_route.get('/orderconfirmation/:Id', cartController.loadOrderConfirmation);
@@ -72,5 +74,7 @@ user_route.get('/orderdetails/:Id', userProfileController.loadOrderDetails);
 user_route.put('/orderdetails/:orderId/products/:productId/cancel', userProfileController.orderCancel);
 
 user_route.put(`/orderdetails/:orderId/products/:productId/return`, userProfileController.orderReturnRequest);
+
+
 
 module.exports = user_route;

@@ -18,11 +18,11 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th scope="col">No</th>
-                                    <th scope="col">Coupon Name</th>
                                     <th scope="col">Coupon Code</th>
-                                    <th scope="col">Discount Percentage</th>
+                                    <th scope="col">Discount</th>
                                     <th scope="col">Min Amount</th>
                                     <th scope="col">Coupon Description</th>
+                                    <th scope="col">Start Date</th>
                                     <th scope="col">Expiry Date</th>
                                     <th scope="col">Edit</th>
                                     <th scope="col">Delete</th>
@@ -32,12 +32,12 @@
                                 <% coupons.forEach(function(coupon, index) { %>
                                     <tr>
                                         <th scope="row"><%= index + 1 %></th>
-                                        <td><%= coupon.couponName %></td>
                                         <td><%= coupon.couponCode %></td>
-                                        <td><%= coupon.discountPercentage %>%</td>
-                                        <td>₹<%= coupon.minAmount %></td>
+                                        <td>₹<%= coupon.discountAmount %></td>
+                                        <td>₹<%= coupon.minOrderAmount %></td>
                                         <td><%= coupon.couponDescription %></td>
-                                        <td><%= coupon.expiryDate.toDateString() %></td>
+                                        <td><%= coupon.startDate %></td>
+                                        <td><%= coupon.expiryDate %></td>
                                         <td><a href="/editCoupon/<%= coupon._id %>">Edit</a></td>
                                         <td>
                                             <button class="btn btn-danger delete-btn" data-coupon-id="<%= coupon._id %>" >Delete</button>

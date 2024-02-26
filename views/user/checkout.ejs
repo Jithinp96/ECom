@@ -26,12 +26,18 @@
     <div class="page-content">
         <div class="checkout">
             <div class="container">
-                <!-- <div class="checkout-discount">
-                    <form action="#">
-                        <input type="text" class="form-control" required id="checkout-discount-input">
-                        <label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
+                <div class="cart_discount mb-4 col-lg-5 p-3 bg-light rounded">
+                    <h6 class="text-uppercase mb-3 text-primary">Discount codes</h6>
+                    <form class="position-relative">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="couponCode" placeholder="Enter coupon code" aria-label="Enter coupon code" aria-describedby="couponButtons">
+                            <div class="input-group-append" id="couponButtons">
+                                <button type="button" onclick="applyCode(event)" class="btn btn-primary mb-2 ml-4" id="applyCouponBtn">Apply</button>
+                                <button type="button" onclick="removeCoupon()" class="btn btn-danger d-none mb-2 ml-4" id="removeCouponBtn">Remove Coupon</button>
+                            </div>
+                        </div>
                     </form>
-                </div>End .checkout-discount -->
+                </div>
                 <form action="/placeorder" method="POST">
                     <div class="row">
                         
@@ -76,7 +82,7 @@
                         <aside class="col-lg-3">
                             <div class="summary">
                                 <h3 class="summary-title">Your Order</h3><!-- End .summary-title -->
-
+                        
                                 <table class="table table-summary">
                                     <thead>
                                         <tr>
@@ -84,31 +90,40 @@
                                             <th>Total</th>
                                         </tr>
                                     </thead>
-
+                        
                                     <tbody>
                                         <% if (checkoutProduct && checkoutProduct.length > 0) { %>
-                                            <% checkoutProduct.forEach(checkoutItem => { %>
-                                                <% checkoutItem.product.forEach(product => { %>
-                                                    <tr>
-                                                        <td><a href="#"><%= product.productid.name %></a></td>
-                                                        <td>₹<%= product.productid.price %></td>
-                                                    </tr>
-                                                <% }); %>
+                                            <% checkoutProduct.forEach(product => { %>
+                                                <tr>
+                                                    <td><a href="#"><%= product.productid.name %></a></td>
+                                                    <td>₹<%= product.totalPrice %></td> <!-- Display total price -->
+                                                </tr>
                                             <% }); %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="2">No products in the checkout.</td>
+                                            </tr>
                                         <% } %>  
                                     
                                         <tr>
                                             <td>Shipping:</td>
                                             <td>Free shipping</td>
                                         </tr>
-                                        <tr class="summary-total">
-                                            <td>Total:</td>
-                                            <td>₹<%= grandTotal %></td>
-                                        </tr><!-- End .summary-total -->
-                                                    
+                                        <tr>
+                                            <td>Subtotal:</td>
+                                            <td>₹<%= subTotal %></td> <!-- Display subtotal -->
+                                        </tr>
+                                        <tr>
+                                            <td>Discount:</td>
+                                            <td>-₹<%= discount %></td> <!-- Display discount -->
+                                        </tr>
+                                        <tr>
+                                            <td>Grand Total:</td>
+                                            <td>₹<%= grandTotal %></td> <!-- Display grand total -->
+                                        </tr>
                                     </tbody>
                                 </table><!-- End .table table-summary -->
-
+                        
                                 <ul class="selection-list">
                                     <li>
                                         <input type="radio" id="wallet" name="paymentMethod" value="wallet">
@@ -126,15 +141,15 @@
                                 
                                 <!-- Warning message div -->
                                 <div id="warningMessage" style="display: none;"></div>
-
+                        
                                 <!-- Button to trigger checkout -->
-                                <button type="submit"  class="btn btn-outline-primary-2 btn-order btn-block" >
-                                    
+                                <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block" >
                                     <span class="btn-text">Place Order</span>
                                     <span class="btn-hover-text">Proceed to Checkout</span>
                                 </button>
                             </div><!-- End .summary -->
                         </aside><!-- End .col-lg-3 -->
+                        
                     </div><!-- End .row -->
                 </form>
             </div><!-- End .container -->
@@ -212,6 +227,82 @@
 
 <!-- Include the SweetAlert2 JavaScript file for functionality -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+
+<!-- Apply Coupon -->
+<script>
+
+    // applying couponCode
+    function applyCode() {
+    event.preventDefault();
+    const couponCode = $('#couponCode').val();
+    console.log(couponCode);
+    $.ajax({
+        url: '/applycouponcode',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ couponCode: couponCode }),
+        success: function (response) {
+            if (response.used) {
+                Swalfire(response.message);
+            } else if (response.success) {
+                // Update the total price element with the new total price
+                $('#updatedTotalPrice').text(`Total: ₹${response.totalPrice}`).show();
+                SuccessSwal(response.message);
+            } else if (response.limit) {
+                Swalfire(response.message);
+            } else if (response.expired) {
+                Swalfire(response.message);
+            } else if(response.CodeErr){
+                Swalfire(response.message);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+        // Handle errors
+        console.error('Error:', errorThrown);
+        // You can also display an error message to the user if needed
+        }
+    });
+    }
+
+    function Swalfire(text) {
+    Swal.fire({
+        position: 'center',
+        icon: 'error',
+        title: `${text}`,
+        showConfirmButton: false,
+        timer: 1700,
+    })
+    }
+
+    function SuccessSwal(text){
+    Swal.fire({
+        position: 'center',
+        icon: 'success',
+        title: `${text}`,
+        showConfirmButton: false,
+        timer: 1700,
+    })
+    }
+
+    // Show the "Remove Coupon" button
+    document.getElementById("removeCouponBtn").classList.remove("d-none");
+
+    // Hide the "Apply Coupon" button
+    document.getElementById("applyCouponBtn").classList.add("d-none");
+
+
+    function removeCoupon() {
+    // Assuming you have logic here to remove the applied coupon
+
+    // Hide the "Remove Coupon" button
+    document.getElementById("removeCouponBtn").classList.add("d-none");
+
+    // Show the "Apply Coupon" button
+    document.getElementById("applyCouponBtn").classList.remove("d-none");
+}
+</script>
+
+
 
 <!-- Payment tab -->
 <script>

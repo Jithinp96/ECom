@@ -105,26 +105,26 @@ a {
                                     </div>
                                 </td>
                                 <td><%= product.color %></td>
-                                <td class="text-end">₹<%= product.price %></td>
+                                <td class="text-end">₹<%= product.price-product.offerDiscount %></td>
                             </tr>
                         <% }) %>
                     </tbody>
                     <tfoot>
                     <tr>
                         <td colspan="2">Subtotal</td>
-                        <td class="text-end">₹<%=order.subtotal %></td>
+                        <td class="text-end">₹<%=order.subTotal %></td>
                     </tr>
                     <tr>
                         <td colspan="2">Shipping</td>
                         <td class="text-end">₹00.00</td>
                     </tr>
-                    <!-- <tr>
-                        <td colspan="2">Discount (Code: NEWYEAR)</td>
-                        <td class="text-danger text-end">-$10.00</td>
-                    </tr> -->
+                    <tr>
+                        <td colspan="2">Coupon Discount</td>
+                        <td class="text-danger text-end">-₹<%=order.couponDiscount %></td>
+                    </tr>
                     <tr class="fw-bold">
                         <td colspan="2">GRAND TOTAL</td>
-                        <td class="text-end">₹<%=order.subtotal %></td>
+                        <td class="text-end">₹<%=order.grandTotal %></td>
                     </tr>
                     </tfoot>
                 </table>

@@ -2,6 +2,8 @@ const Cart = require("../models/cartModel");
 const Product = require('../models/productModel');
 const User = require("../models/userModel");
 const Order = require("../models/orderModel");
+const Coupon = require("../models/couponModel");
+
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
@@ -20,37 +22,63 @@ function generateHash(data) {
 }  
 
 
+// const loadCart = async (req, res) => {
+//     try {
+//         let userId = req.session.userid;
+//         const cartProduct = await Cart.find({ userid: userId }).populate({
+//             path: "product.productid",
+//             model: Product, // Use the actual Product model
+//             select: 'name price image',
+//         });
+//         // Calculate the sum of total prices for the current user's cart
+//         const grandTotal = cartProduct.reduce((acc, cartItem) => {
+//             return acc + cartItem.product.reduce((acc, product) => {
+//                 return acc + product.totalPrice;
+//             }, 0);
+//         }, 0);
+
+//         res.render('cart', { cartProduct, grandTotal });
+
+//     } catch (error) {
+//         console.log(error);
+//     }
+// };
+
 const loadCart = async (req, res) => {
     try {
         let userId = req.session.userid;
-        const cartProduct = await Cart.find({ userid: userId }).populate({
+        const cart = await Cart.findOne({ userid: userId }).populate({
             path: "product.productid",
-            model: Product, // Use the actual Product model
+            model: Product, 
             select: 'name price image',
         });
-        // Calculate the sum of total prices for the current user's cart
-        const grandTotal = cartProduct.reduce((acc, cartItem) => {
-            return acc + cartItem.product.reduce((acc, product) => {
-                return acc + product.totalPrice;
-            }, 0);
-        }, 0);
+        // console.log("cart: ", cart);
 
-        res.render('cart', { cartProduct, grandTotal });
+        
+        if (!cart) {
+            return res.render('cart', { cartProduct: [], subtotal: 0 });
+        }
+
+        const subtotal = cart.subTotal;
+        const offerDiscount = cart.offerDiscount;
+
+        res.render('cart', { cartProduct: cart.product, subtotal, offerDiscount });
 
     } catch (error) {
         console.log(error);
     }
 };
 
+
 const addToCart = async (req, res) => {
     try {
         const { productId, userId, quantity } = req.body;
 
-        // Find the cart for the user
+        
         let userCart = await Cart.findOne({ userid: userId });
 
         if (!userCart) {
-            // If the user doesn't have a cart, create a new one
+           
             const product = await Product.findById(productId);
             const cart = new Cart({
                 userid: userId,
@@ -64,24 +92,27 @@ const addToCart = async (req, res) => {
                 ],
             });
 
+            cart.subTotal = cart.product.reduce((acc, cur) => acc + cur.totalPrice, 0);
+            cart.grandTotal = cart.subTotal - cart.offerDiscount - cart.couponDiscount;
+
             await cart.save();
 
             res.status(200).json({ message: 'Product added to cart successfully', isProductInCart: false });
-            return; // Exit the function early
+            return; 
         }
 
-        // Find the product in the cart
+        
         const existingProduct = userCart.product.find(product => String(product.productid) === productId);
 
-        // Find the product details
+        
         const product = await Product.findById(productId);
 
         if (existingProduct) {
-            // If the product already exists in the cart, update the quantity
+            
             existingProduct.quantity += parseInt(quantity);
             existingProduct.totalPrice = existingProduct.quantity * product.price;
         } else {
-            // If the product doesn't exist in the cart, add a new entry
+            
             userCart.product.push({
                 productid: product._id,
                 quantity: quantity,
@@ -89,6 +120,8 @@ const addToCart = async (req, res) => {
                 image: product.image[0],
             });
         }
+        userCart.subTotal = userCart.product.reduce((acc, cur) => acc + cur.totalPrice, 0);
+        userCart.grandTotal = userCart.subTotal - userCart.offerDiscount - userCart.couponDiscount;
 
         await userCart.save();
 
@@ -126,51 +159,89 @@ const addToCart = async (req, res) => {
 // };
 
 
-const loadCheckout = async(req, res) => {
+// const loadCheckout = async(req, res) => {
+//     try {
+//         let userId = req.session.userid;
+
+//         // Fetch user addresses
+//         const user = await User.findById(userId);
+//         const userAddresses = user.address;
+
+//         // Fetch cart products
+//         const checkoutProduct = await Cart.find({ userid: userId }).populate({
+//             path: "product.productid",
+//             model: Product, // Use the actual Product model
+//             select: 'name price',
+//         });
+//         // res.render('checkout', {checkoutProduct});
+
+//         // Calculate grand total
+//         const grandTotal = checkoutProduct.reduce((acc, checkoutItem) => {
+//             return acc + checkoutItem.product.reduce((acc, product) => {
+//                 return acc + product.totalPrice;
+//             }, 0);
+//         }, 0);
+
+//         console.log(grandTotal);
+
+//         res.render('checkout', { checkoutProduct, grandTotal, userAddresses });
+
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
+
+const loadCheckout = async (req, res) => {
     try {
         let userId = req.session.userid;
 
-        // Fetch user addresses
+        
         const user = await User.findById(userId);
         const userAddresses = user.address;
 
-        // Fetch cart products
-        const checkoutProduct = await Cart.find({ userid: userId }).populate({
+        
+        const cart = await Cart.findOne({ userid: userId }).populate({
             path: "product.productid",
-            model: Product, // Use the actual Product model
+            model: Product, 
             select: 'name price',
         });
-        // res.render('checkout', {checkoutProduct});
 
-        // Calculate grand total
-        const grandTotal = checkoutProduct.reduce((acc, checkoutItem) => {
-            return acc + checkoutItem.product.reduce((acc, product) => {
-                return acc + product.totalPrice;
-            }, 0);
-        }, 0);
+        
+        
+        if (!cart) {
+            req.flash('error', 'Unable to proceed as your cart is empty.');
+            res.redirect('/cart');
+        }
+        else{
+            const subTotal = cart.subTotal;
+            const discount = cart.offerDiscount+cart.couponDiscount;
+            const grandTotal = cart. grandTotal;
 
-        console.log(grandTotal);
-
-        res.render('checkout', { checkoutProduct, grandTotal, userAddresses });
+            res.render('checkout', { 
+                checkoutProduct: cart.product, userAddresses, subTotal, discount, grandTotal 
+            });
+        }
+        
 
     } catch (error) {
         console.log(error);
     }
-}
+};
 
 const removeFromCart = async (req, res) => {
+    console.log("Inside the remove controller");
     try {
         const userId = req.session.userid;
         const productIdToRemove = req.params.productId;
 
-        // Find the cart for the user
+        
         const userCart = await Cart.findOne({ userid: userId });
 
         if (userCart) {
-            // Remove the product from the product array
+            
             userCart.product = userCart.product.filter(product => String(product.productid) !== productIdToRemove);
             
-            // Save the updated cart
+            
             await userCart.save();
 
             res.status(200).json({ message: 'Product removed from cart successfully' });
@@ -187,7 +258,7 @@ const checkoutAddAddress = async(req, res) => {
     try {
         const user = await User.findById(req.session.userid)
 
-        // Add the address details to the user's address array
+        
         user.address.push({
             name: req.body.name,
             housename: req.body.housename,
@@ -197,7 +268,7 @@ const checkoutAddAddress = async(req, res) => {
             mobile: req.body.mobile
         });
 
-        // Save the user with the new address to MongoDB
+        
         const savedUser = await user.save();
 
         res.status(200).json({ message: 'Address saved successfully', user: savedUser });
@@ -214,11 +285,23 @@ const placeOrder = async (req, res) => {
         const selectedAddress = req.body.selectedAddress;
         const paymentId = req.body.paymentId;
         const cartId = req.session.userid;
-        // const cart = await Cart.findOne({ userid: cartId });
+
+        const cart = await Cart.findOne({ userid: cartId });
+        if (!cart) {
+            console.error('Cart not found for user:', userId);
+            return res.redirect('/error'); 
+        }
+        console.log("cart: ", cart);
+
+        const { offerDiscount, couponDiscount, subTotal, grandTotal } = cart;
+        console.log("subTotal", subTotal);
+        console.log("offerDiscount", offerDiscount);
+        console.log("couponDiscount", couponDiscount);
+        console.log("grandTotal", grandTotal);
 
         const checkoutProduct = await Cart.find({ userid: req.session.userid }).populate({
             path: "product.productid",
-            model: Product, // Use the actual Product model
+            model: Product, 
             select: 'name price image', 
         });
 
@@ -229,6 +312,7 @@ const placeOrder = async (req, res) => {
                 productid: product.productid._id,
                 name: product.productid.name,
                 price: product.productid.price,
+                offerDiscount: product.productid.offerDiscount,
                 quantity: product.quantity,
                 total: product.totalPrice,
                 orderStatus: 'Placed',
@@ -239,11 +323,11 @@ const placeOrder = async (req, res) => {
 
         // console.log("products: ", products);
 
-        // Find the user by ID and retrieve the selected address
+        
         const user = await User.findById(req.session.userid).lean();
 
         if (!user) {
-            // Handle the case where the user is not found
+            
             console.error('User not found');
             return res.redirect('/error');
         }
@@ -251,21 +335,21 @@ const placeOrder = async (req, res) => {
         const selectedAddressObj = user.address.find(address => address._id.toString() === selectedAddress);
 
         if (!selectedAddressObj) {
-            // Handle the case where the selected address is not found
+            
             console.error('Selected address not found');
             return res.redirect('/error');
         }
 
-        const subtotal = products.reduce((acc, product) => acc + product.total, 0);
+        // const subtotal = products.reduce((acc, product) => acc + product.total, 0);
         
-        // Calculate estimated delivery date
+        
         const shippingTimeMs = 7 * 24 * 60 * 60 * 1000;
         const estimatedDeliveryDate = new Date(Date.now() + shippingTimeMs);
         // console.log("estimatedDeliveryDate: ", estimatedDeliveryDate);
 
-        // Generate a unique order ID
+        
         const orderId = generateOrderId();
-        // Hash the order ID for passing through URL
+        
         const hashedOrderId = generateHash(orderId);
 
         const orderData = {
@@ -275,7 +359,10 @@ const placeOrder = async (req, res) => {
             products: products,
             paymentMode: paymentMethod,
             paymentId: paymentId,
-            subtotal: subtotal,
+            subTotal: subTotal,
+            offerDiscount: offerDiscount,
+            couponDiscount: couponDiscount,
+            grandTotal: grandTotal,
             date: new Date(),
             edd: estimatedDeliveryDate,
             address:{
@@ -290,21 +377,21 @@ const placeOrder = async (req, res) => {
         };
 
         const orderInstance = new Order(orderData);
-        await orderInstance.save(); // Save the order to the database
+        await orderInstance.save(); 
 
-        // Clear the user's cart after placing the order
+        
         // await Cart.deleteOne({ userid: userId });
-        // Clear the user's cart after placing the order
+       
         await Cart.findOneAndDelete({ userid: req.session.userid });
         
 
-        //Reduce the quantity of products in the  products stock db
+        
 
         for(const product of products){
             try {
                 const productInStock = await Product.findById(product.productid);
                 if(productInStock){
-                    //Subtract the ordered quantity from the available quantity
+                    
                     productInStock.quantity -= product.quantity;
                     await productInStock.save();
                 } else {
@@ -312,7 +399,7 @@ const placeOrder = async (req, res) => {
                 }
             } catch (error) {
                 console.error('Error updating product stock:', error);
-                // Handle the error gracefully, perhaps by sending an appropriate response to the client
+                
                 return res.status(500).json({ success: false, message: 'An error occurred while updating product stock.' });
             }
         }
@@ -324,7 +411,7 @@ const placeOrder = async (req, res) => {
     }
 }
 
-// Function to generate a unique order ID (OD + timestamp + random number)
+
 function generateOrderId() {
     const timestamp = Date.now().toString(); // Get the current timestamp in milliseconds
     const randomDigits = Math.floor(Math.random() * 1000000).toString().padStart(6, '0'); // Generate a random 6-digit number
@@ -382,9 +469,9 @@ const generateRazorpay = (orderid, adjustedAmount) => {
         instance.orders.create(options, function (err, order) {
             if (err) {
                 console.error("Error generating Razorpay order:", err);
-                reject(err); // Reject the promise with the error object
+                reject(err); 
             } else {
-                resolve(order); // Resolve the promise with the order object
+                resolve(order); 
             }
         });
     });
@@ -395,7 +482,7 @@ const loadOrderConfirmation = async (req, res) => {
         const hashedOrderId = req.params.Id;
         // console.log("req.params.id: ", req.params.Id);
         // console.log("hashedOrderId: ", hashedOrderId);
-        // Fetching order details from the database using the hashed order ID
+        
         const order = await Order.findOne({ hashedOrderId:hashedOrderId });
         // console.log("order: ", order);
 
@@ -410,6 +497,7 @@ const loadOrderConfirmation = async (req, res) => {
         res.status(500).render('error', { message: 'Internal server error' });
     }
 }
+
 
 module.exports = {
     loadCart,

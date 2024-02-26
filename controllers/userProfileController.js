@@ -26,7 +26,7 @@ const addAddress = async(req, res) => {
     try {
         const user = await User.findById(req.session.userid)
 
-        // Add the address details to the user's address array
+        
         user.address.push({
             name: req.body.name,
             housename: req.body.housename,
@@ -36,7 +36,7 @@ const addAddress = async(req, res) => {
             mobile: req.body.mobile
         });
 
-        // Save the user with the new address to MongoDB
+        
         const savedUser = await user.save();
 
         res.status(200).json({ message: 'Address saved successfully', user: savedUser });
@@ -51,7 +51,7 @@ const deleteAddress = async (req, res) => {
         const userId = req.session.userid;
         const addressId = req.params.addressId;
 
-        // Find the user and remove the specified address
+        
         const user = await User.findById(userId);
         user.address.pull({ _id: addressId });
         await user.save();
@@ -63,14 +63,14 @@ const deleteAddress = async (req, res) => {
     }
 };
 
-// Express Route to Fetch Address Details by ID
+
 const loadEditAddress = async (req, res) => {
     try {
-        const userId = req.session.userid; // Assuming you have user authentication and the user ID is available in the request
+        const userId = req.session.userid; 
         const addressId = req.params.id;
-        const user = await User.findById(userId); // Fetch the user document
-        const address = user.address.id(addressId); // Get the specific address by its ID
-        res.json(address); // Send the address details as JSON response
+        const user = await User.findById(userId); 
+        const address = user.address.id(addressId); 
+        res.json(address); 
     } catch (error) {
         console.error('Error fetching address details:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -79,20 +79,20 @@ const loadEditAddress = async (req, res) => {
 
 const updateAddress = async (req, res) => {
     try {
-        const userId = req.session.userid; // Assuming you have user authentication and the user ID is available in the request
+        const userId = req.session.userid; 
         const addressId = req.params.id;
-        const updatedAddress = req.body; // Updated address details sent in the request body
-        const user = await User.findById(userId); // Fetch the user document
-        const address = user.address.id(addressId); // Get the specific address by its ID
-        // Update the address fields
+        const updatedAddress = req.body; 
+        const user = await User.findById(userId); 
+        const address = user.address.id(addressId); 
+       
         address.name = updatedAddress.name;
         address.housename = updatedAddress.housename;
         address.street = updatedAddress.street;
         address.city = updatedAddress.city;
         address.pin = updatedAddress.pin;
         address.mobile = updatedAddress.mobile;
-        await user.save(); // Save the updated user document
-        res.json({ success: true }); // Send success response
+        await user.save(); 
+        res.json({ success: true }); 
     } catch (error) {
         console.error('Error updating address:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -103,18 +103,18 @@ const loadOrderDetails = async(req, res) => {
     try {
         const userId = req.session.userid;
         const orderId = req.params.Id;
-        // Query the Order model to find the order with the given orderId
+
         const order = await Order.findOne({ _id: orderId, userId: userId }).populate({
             path: 'products.productId',
             model: Products,
-            select: 'name price quantity' // Select the fields you need from the Product model
+            select: 'name price quantity' 
         });
         if (!order) {
-            // Handle case where order is not found
+            
             return res.status(404).send('Order not found');
         }
 
-        // Render the 'orderdetails' view and pass the order data to it
+        
         res.render('orderdetails', { order });
         } catch (error) {
             console.log(error);
@@ -124,16 +124,16 @@ const loadOrderDetails = async(req, res) => {
 
 const orderCancel = async (req, res) => {
     const { orderId, productId } = req.params;
-    const { reason } = req.body; // Get the reason from the request body
+    const { reason } = req.body; 
 
     try {
-        // Find the order by orderId and productId
+        
         const order = await Order.findOneAndUpdate(
             { _id: orderId, 'products._id': productId },
             {
                 $set: {
                     'products.$.orderStatus': 'Cancelled',
-                    'products.$.reason': reason // Update the reason field
+                    'products.$.reason': reason 
                 }
             },
             { new: true }
@@ -143,42 +143,42 @@ const orderCancel = async (req, res) => {
             return res.status(404).json({ message: 'Order or product not found' });
         }
 
-        // Check the payment method of the order
+        
         if (order.paymentMode === 'razorpay' || order.paymentMode === 'wallet') {
-            // Fetch user's wallet details
+            
             const wallet = await Wallet.findOne({ user: order.userId });
 
             let cancelledAmount = 0;
 
-            // Iterate over each product in the order
+            
             order.products.forEach((product) => {
-                // If the product is cancelled, add its total amount to the cancelledAmount
+                
                 if (product.orderStatus === 'Cancelled') {
                     cancelledAmount += product.total;
                 }
             });
             // console.log("order.subtotal: ", order.subtotal);
             // console.log("cancelledAmount: ", cancelledAmount);
-            // Deduct cancelled product total from order's subtotal
+            
             order.subtotal -= cancelledAmount;
             await order.save();
 
             // console.log("order.subtotal -= cancelledAmount: ", order.subtotal);
 
-            // Add the cancelled order amount to the wallet balance
+            
             wallet.balance += cancelledAmount;
         
-            // Save the updated wallet balance and transaction history
+            
             wallet.walletHistory.push({
                 amount: cancelledAmount,
                 type: 'Credit',
                 reason: 'Order cancellation refund',
-                orderId: orderId, // Assuming you want to associate the transaction with the cancelled order
+                orderId: orderId, 
                 orderId2: order.orderId,
                 date: new Date()
             });
 
-            // Save the wallet changes
+            
             await wallet.save();
         }
 
@@ -200,7 +200,7 @@ const orderReturnRequest = async (req, res) => {
     const { index, reason } = req.body;
 
     try {
-        // Find the order by orderId and productId
+        
         const order = await Order.findOneAndUpdate(
             { 
                 _id: orderId,
