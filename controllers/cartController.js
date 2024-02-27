@@ -3,6 +3,7 @@ const Product = require('../models/productModel');
 const User = require("../models/userModel");
 const Order = require("../models/orderModel");
 const Coupon = require("../models/couponModel");
+const Wallet = require("../models/walletModel");
 
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
@@ -199,7 +200,8 @@ const loadCheckout = async (req, res) => {
         const user = await User.findById(userId);
         const userAddresses = user.address;
 
-        
+        const wallet = await Wallet.findOne({ user: userId })
+
         const cart = await Cart.findOne({ userid: userId }).populate({
             path: "product.productid",
             model: Product, 
@@ -214,12 +216,15 @@ const loadCheckout = async (req, res) => {
         }
         else{
             const subTotal = cart.subTotal;
+            const couponDiscount = cart.couponDiscount
             const discount = cart.offerDiscount+cart.couponDiscount;
-            const grandTotal = cart. grandTotal;
+            const grandTotal = cart.grandTotal;
+            const walletBalance = wallet.balance;
 
             res.render('checkout', { 
-                checkoutProduct: cart.product, userAddresses, subTotal, discount, grandTotal 
-            });
+                checkoutProduct: cart.product, userAddresses, couponDiscount, subTotal, discount, grandTotal, 
+                walletBalance: walletBalance 
+            },);
         }
         
 
@@ -278,6 +283,133 @@ const checkoutAddAddress = async(req, res) => {
     }
 }
 
+// const placeOrder = async (req, res) => {
+//     try {
+//         const userId = req.session.userid;
+//         const paymentMethod = req.body.paymentMethod;
+//         const selectedAddress = req.body.selectedAddress;
+//         const paymentId = req.body.paymentId;
+//         const cartId = req.session.userid;
+
+//         const cart = await Cart.findOne({ userid: cartId });
+//         if (!cart) {
+//             console.error('Cart not found for user:', userId);
+//             return res.redirect('/error'); 
+//         }
+//         console.log("cart: ", cart);
+
+//         const { offerDiscount, couponDiscount, subTotal, grandTotal } = cart;
+    
+//         const checkoutProduct = await Cart.find({ userid: req.session.userid }).populate({
+//             path: "product.productid",
+//             model: Product, 
+//             select: 'name price image', 
+//         });
+
+//         // console.log("checkoutProduct: ", checkoutProduct);
+
+//         const products = checkoutProduct.reduce((acc, checkoutItem) => {
+//             return acc.concat(checkoutItem.product.map((product, index) => ({
+//                 productid: product.productid._id,
+//                 name: product.productid.name,
+//                 price: product.productid.price,
+//                 offerDiscount: product.productid.offerDiscount,
+//                 quantity: product.quantity,
+//                 total: product.totalPrice,
+//                 orderStatus: 'Placed',
+//                 image: product.productid.image[2],  
+//             }
+//             )));
+//         }, []);
+
+//         // console.log("products: ", products);
+
+        
+//         const user = await User.findById(req.session.userid).lean();
+
+//         if (!user) {
+            
+//             console.error('User not found');
+//             return res.redirect('/error');
+//         }
+
+//         const selectedAddressObj = user.address.find(address => address._id.toString() === selectedAddress);
+
+//         if (!selectedAddressObj) {
+            
+//             console.error('Selected address not found');
+//             return res.redirect('/error');
+//         }
+
+//         // const subtotal = products.reduce((acc, product) => acc + product.total, 0);
+        
+        
+//         const shippingTimeMs = 7 * 24 * 60 * 60 * 1000;
+//         const estimatedDeliveryDate = new Date(Date.now() + shippingTimeMs);
+//         // console.log("estimatedDeliveryDate: ", estimatedDeliveryDate);
+
+        
+//         const orderId = generateOrderId();
+        
+//         const hashedOrderId = generateHash(orderId);
+
+//         const orderData = {
+//             hashedOrderId: hashedOrderId,
+//             orderId: orderId,
+//             userId: userId,
+//             products: products,
+//             paymentMode: paymentMethod,
+//             paymentId: paymentId,
+//             subTotal: subTotal,
+//             offerDiscount: offerDiscount,
+//             couponDiscount: couponDiscount,
+//             grandTotal: grandTotal,
+//             date: new Date(),
+//             edd: estimatedDeliveryDate,
+//             address:{
+//                 name:selectedAddressObj.name,
+//                 housename:selectedAddressObj.housename,
+//                 street:selectedAddressObj.street,
+//                 city:selectedAddressObj.city,
+//                 pin:selectedAddressObj.pin,
+//                 mobile:selectedAddressObj.mobile
+//             },
+    
+//         };
+
+//         const orderInstance = new Order(orderData);
+//         await orderInstance.save(); 
+       
+//         await Cart.findOneAndDelete({ userid: req.session.userid });
+        
+
+        
+
+//         for(const product of products){
+//             try {
+//                 const productInStock = await Product.findById(product.productid);
+//                 if(productInStock){
+                    
+//                     productInStock.quantity -= product.quantity;
+//                     await productInStock.save();
+//                 } else {
+//                     console.error(`Product with ID ${product.productid} not found in the stock database`);
+//                 }
+//             } catch (error) {
+//                 console.error('Error updating product stock:', error);
+                
+//                 return res.status(500).json({ success: false, message: 'An error occurred while updating product stock.' });
+//             }
+//         }
+
+//         res.status(200).json({ success: true, hashedOrderId });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.status(500).json({ success: false, message: 'An error occurred while processing the order or updating product stock.' });
+//     }
+// }
+
+
 const placeOrder = async (req, res) => {
     try {
         const userId = req.session.userid;
@@ -289,23 +421,76 @@ const placeOrder = async (req, res) => {
         const cart = await Cart.findOne({ userid: cartId });
         if (!cart) {
             console.error('Cart not found for user:', userId);
-            return res.redirect('/error'); 
+            return res.redirect('/error');
         }
-        console.log("cart: ", cart);
 
         const { offerDiscount, couponDiscount, subTotal, grandTotal } = cart;
-        console.log("subTotal", subTotal);
-        console.log("offerDiscount", offerDiscount);
-        console.log("couponDiscount", couponDiscount);
-        console.log("grandTotal", grandTotal);
+        // console.log("offerDiscount: ", offerDiscount);
+        // console.log("couponDiscount: ", couponDiscount);
+        // console.log("subTotal: ", subTotal);
+        // console.log("grandTotal: ", grandTotal);
 
+        let paymentStatus;
+        let paymentMessage;
+        const generatedOrderId = generateOrderId();
+
+        
+        switch (paymentMethod) {
+            case 'wallet':
+                console.log("Wallet selected");
+    
+                
+                try {
+                    const wallet = await Wallet.findOne({ user: userId });
+                    // console.log("wallet: ", wallet);
+                    if (!wallet) {
+                        console.log("Inside not wallet if condn");
+                        throw new Error("Wallet not found for the user");
+                    }
+
+                    
+                    if (wallet.balance >= grandTotal) {
+                        wallet.balance -= grandTotal;
+                        wallet.walletHistory.push({
+                            amount: grandTotal,
+                            type: "Debit",
+                            reason: "Order Payment",
+                            orderId2: generatedOrderId,
+                            date: new Date()
+                        });
+
+                        await wallet.save();
+                        console.log("Wallet saved");
+                        paymentStatus = 'success'
+                        
+                    } else {
+                        // console.log("Inside else condn for less balance");
+                        throw new Error("Insufficient funds in the wallet");
+                    }
+                } catch (error) {
+                    // console.log("Inside catch");
+                    console.error("Error processing wallet payment:", error);
+                }
+                break;
+            case 'razorpay':
+                paymentStatus = 'success'
+                break;
+            case 'cod':
+                paymentStatus = 'success'
+                break;
+            default:
+                console.error('Invalid payment method:', paymentMethod);
+                return res.status(400).json({ success: false, message: 'Invalid payment method' });
+        }
+        if (paymentStatus !== 'success') {
+            console.log("Payment status not success");
+            return res.status(400).json({ success: false, message: paymentMessage });
+        }
         const checkoutProduct = await Cart.find({ userid: req.session.userid }).populate({
             path: "product.productid",
-            model: Product, 
-            select: 'name price image', 
+            model: Product,
+            select: 'name price image',
         });
-
-        // console.log("checkoutProduct: ", checkoutProduct);
 
         const products = checkoutProduct.reduce((acc, checkoutItem) => {
             return acc.concat(checkoutItem.product.map((product, index) => ({
@@ -316,18 +501,13 @@ const placeOrder = async (req, res) => {
                 quantity: product.quantity,
                 total: product.totalPrice,
                 orderStatus: 'Placed',
-                image: product.productid.image[2],  
-            }
-            )));
+                image: product.productid.image[2],
+            })));
         }, []);
-
-        // console.log("products: ", products);
-
-        
         const user = await User.findById(req.session.userid).lean();
 
         if (!user) {
-            
+            console.log("Inside not user if condn");
             console.error('User not found');
             return res.redirect('/error');
         }
@@ -335,26 +515,19 @@ const placeOrder = async (req, res) => {
         const selectedAddressObj = user.address.find(address => address._id.toString() === selectedAddress);
 
         if (!selectedAddressObj) {
-            
             console.error('Selected address not found');
             return res.redirect('/error');
         }
 
-        // const subtotal = products.reduce((acc, product) => acc + product.total, 0);
-        
-        
         const shippingTimeMs = 7 * 24 * 60 * 60 * 1000;
         const estimatedDeliveryDate = new Date(Date.now() + shippingTimeMs);
-        // console.log("estimatedDeliveryDate: ", estimatedDeliveryDate);
 
         
-        const orderId = generateOrderId();
-        
-        const hashedOrderId = generateHash(orderId);
+        const hashedOrderId = generateHash(generatedOrderId);
 
         const orderData = {
             hashedOrderId: hashedOrderId,
-            orderId: orderId,
+            orderId: generatedOrderId,
             userId: userId,
             products: products,
             paymentMode: paymentMethod,
@@ -365,33 +538,25 @@ const placeOrder = async (req, res) => {
             grandTotal: grandTotal,
             date: new Date(),
             edd: estimatedDeliveryDate,
-            address:{
-                name:selectedAddressObj.name,
-                housename:selectedAddressObj.housename,
-                street:selectedAddressObj.street,
-                city:selectedAddressObj.city,
-                pin:selectedAddressObj.pin,
-                mobile:selectedAddressObj.mobile
+            address: {
+                name: selectedAddressObj.name,
+                housename: selectedAddressObj.housename,
+                street: selectedAddressObj.street,
+                city: selectedAddressObj.city,
+                pin: selectedAddressObj.pin,
+                mobile: selectedAddressObj.mobile
             },
-    
         };
 
         const orderInstance = new Order(orderData);
-        await orderInstance.save(); 
+        await orderInstance.save();
 
-        
-        // await Cart.deleteOne({ userid: userId });
-       
         await Cart.findOneAndDelete({ userid: req.session.userid });
-        
 
-        
-
-        for(const product of products){
+        for (const product of products) {
             try {
                 const productInStock = await Product.findById(product.productid);
-                if(productInStock){
-                    
+                if (productInStock) {
                     productInStock.quantity -= product.quantity;
                     await productInStock.save();
                 } else {
@@ -399,21 +564,22 @@ const placeOrder = async (req, res) => {
                 }
             } catch (error) {
                 console.error('Error updating product stock:', error);
-                
                 return res.status(500).json({ success: false, message: 'An error occurred while updating product stock.' });
             }
         }
-
+        // console.log("Just above the order success");
         res.status(200).json({ success: true, hashedOrderId });
     } catch (error) {
+        console.log("Inside last catch");
         console.error('Error:', error);
         res.status(500).json({ success: false, message: 'An error occurred while processing the order or updating product stock.' });
     }
-}
+};
+
 
 
 function generateOrderId() {
-    const timestamp = Date.now().toString(); // Get the current timestamp in milliseconds
+    const timestamp = Date.now().toString(); 
     const randomDigits = Math.floor(Math.random() * 1000000).toString().padStart(6, '0'); // Generate a random 6-digit number
     return `OD${timestamp}${randomDigits}`;
 }

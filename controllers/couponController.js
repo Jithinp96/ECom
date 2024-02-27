@@ -6,10 +6,10 @@ const Cart = require("../models/cartModel");
 
 const loadCouponPage = async (req, res) => {
     try {
-        // Fetch all coupons from the database
+        
         const coupons = await Coupon.find();
 
-        // Pass the fetched coupons to the EJS template for rendering
+        
         res.render("couponList", { coupons });
     } catch (error) {
         console.log(error);
@@ -27,7 +27,7 @@ const loadAddCoupon = async (req, res) => {
 
 const addCoupon = async (req, res) => {
     try {
-        // Create a new Coupon instance with data from the form
+        
         const {
             couponCode,
             discountAmount,
@@ -48,9 +48,6 @@ const addCoupon = async (req, res) => {
             expiryDate: expiryDate,
             active: true,
           });
-      
-
-        // Save the new coupon to the database
         const newCouponSaved = await newCoupon.save();
         res.redirect('/admin/coupon');
         // res.status(201).json(savedCoupon);
@@ -62,11 +59,10 @@ const addCoupon = async (req, res) => {
 
 const deleteCoupon = async (req, res) => {
     const couponId = req.params.id;
-    // console.log("Delete couponId: ", couponId);
     try {
-        // Find the coupon by ID and delete it from the database
+        
         await Coupon.findByIdAndDelete(couponId);
-        res.sendStatus(204); // Send a "No Content" response if successful
+        res.sendStatus(204); 
     } catch (error) {
         console.log(error);
         res.status(500).send('Internal Server Error');
@@ -92,7 +88,7 @@ const applyCoupon = async (req, res) => {
         if (usedCoupon) {
             console.log("Already used coupon");
             
-            return res.json({ used: true, message: "Coupon is already used" }); // Return to avoid multiple responses
+            return res.json({ used: true, message: "Coupon is already used" });
         }
     
         const currentCoupon = await Coupon.findOne({
@@ -123,12 +119,9 @@ const applyCoupon = async (req, res) => {
                         } },
                         { new: true }
                     );
-
-                    console.log("Cart updated with couponDiscount:", updatedCart);
-
                     return res.json({ success: true, totalPrice: changeTotalPrice ,message : 'Coupon applied successfully'}); // Return to avoid multiple responses
                 } else {
-                    console.log("Min order not met else");
+                    
                     return res.json({
                     limit: true,
                     message: `Total amount must be above ₹${currentCoupon.minOrderAmount}`,
@@ -149,10 +142,38 @@ const applyCoupon = async (req, res) => {
         }
   };
 
+const removeCoupon = async (req, res) => {
+    const userId = req.session.userid;
+
+    try {
+        const updatedCart = await Cart.findOneAndUpdate(
+            { userid: userId },
+            { $set: { couponDiscount: 0 } },
+            { new: true }
+        );
+
+        if (!updatedCart) {
+            throw new Error('Cart not found');
+        }
+
+        const { subTotal, offerDiscount, couponDiscount } = updatedCart;
+        const newGrandTotal = subTotal - offerDiscount - couponDiscount;
+
+        
+        updatedCart.grandTotal = newGrandTotal;
+        await updatedCart.save();
+        res.json({ message: 'Coupon removed successfully', updatedCart: updatedCart });
+    } catch (error) {
+        console.error("Error removing coupon:", error);
+        res.status(500).json({ error: 'Error removing coupon' });
+    }
+}
+
 module.exports = {
     loadCouponPage,
     loadAddCoupon,
     addCoupon,
     deleteCoupon,
     applyCoupon,
+    removeCoupon,
 }

@@ -63,6 +63,7 @@ user_route.post('/api/saveAddress', cartController.checkoutAddAddress);
 user_route.delete('/delete-address/:addressId', userProfileController.deleteAddress);
 user_route.post('/saveNewAddress', userProfileController.addAddress);
 user_route.post('/applycouponcode', couponController.applyCoupon);
+user_route.post('/removeCoupon', couponController.removeCoupon);
 
 user_route.post('/placeOrder', cartController.placeOrder);
 user_route.get('/orderconfirmation/:Id', cartController.loadOrderConfirmation);

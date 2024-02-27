@@ -1,6 +1,6 @@
     <%-include('../layouts/header.ejs')%>
 <%-include('../layouts/navbar.ejs')%>
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10"></link>
 <style>
     /* Custom style to set text color to black */
@@ -10,8 +10,8 @@
 
     /* Button customization */
     .custom-small-button {
-    font-size: 12px; /* Adjust the font size as needed */
-    padding: 5px 10px; /* Adjust the padding as needed */
+    font-size: 12px; 
+    padding: 5px 10px; 
 }
 </style>
 
@@ -25,15 +25,20 @@
 
     <div class="page-content">
         <div class="checkout">
-            <div class="container">
-                <div class="cart_discount mb-4 col-lg-5 p-3 bg-light rounded">
+            <div class="container" id="couponReload">
+                <div class="cart_discount mb-4 col-lg-5 p-3 bg-light rounded" >
                     <h6 class="text-uppercase mb-3 text-primary">Discount codes</h6>
                     <form class="position-relative">
                         <div class="input-group">
-                            <input type="text" class="form-control" id="couponCode" placeholder="Enter coupon code" aria-label="Enter coupon code" aria-describedby="couponButtons">
+                            
                             <div class="input-group-append" id="couponButtons">
-                                <button type="button" onclick="applyCode(event)" class="btn btn-primary mb-2 ml-4" id="applyCouponBtn">Apply</button>
-                                <button type="button" onclick="removeCoupon()" class="btn btn-danger d-none mb-2 ml-4" id="removeCouponBtn">Remove Coupon</button>
+                                <% if (couponDiscount > 0) { %>
+                                    <p>Coupon Applied</p>
+                                    <button type="button" onclick="removeCoupon()" class="btn btn-danger mb-2 ml-4" id="removeCouponBtn">Remove Coupon</button>
+                                <% } else { %>
+                                    <input type="text" class="form-control" id="couponCode" placeholder="Enter coupon code" aria-label="Enter coupon code" aria-describedby="couponButtons">
+                                    <button type="button" onclick="applyCode(event)" class="btn btn-primary mb-2 ml-4" id="applyCouponBtn">Apply</button>
+                                <% } %>
                             </div>
                         </div>
                     </form>
@@ -127,7 +132,7 @@
                                 <ul class="selection-list">
                                     <li>
                                         <input type="radio" id="wallet" name="paymentMethod" value="wallet">
-                                        <label for="wallet"> Wallet</label>
+                                        <label for="wallet"> Wallet <strong>(Balance: ₹<%= walletBalance %>)</strong></label>
                                     </li>
                                     <li>
                                         <input type="radio" id="razorpay" name="paymentMethod" value="razorpay">
@@ -206,11 +211,6 @@
                     </div>
                 </form>
             </div>
-            <!-- <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" id="saveAddressBtn" class="btn btn-primary">Save Address</button>
-            </div> -->
-            
         </div>
     </div>
 </div>
@@ -228,78 +228,86 @@
 <!-- Include the SweetAlert2 JavaScript file for functionality -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
 
-<!-- Apply Coupon -->
+<!--  Coupon -->
 <script>
+    
+    let couponDiscount = '<%= couponDiscount %>'; 
+    // Function to apply coupon code
+    function applyCode(event) {
+        event.preventDefault();
+        const couponCode = $('#couponCode').val();
+        console.log(couponCode);
+        $.ajax({
+            url: '/applycouponcode',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ couponCode: couponCode }),
+            success: function (response) {
+                if (response.used) {
+                    Swalfire(response.message);
+                } else if (response.success) {
+                     
+                    $('#updatedTotalPrice').text(`Total: ₹${response.totalPrice}`).show();
+                    SuccessSwal(response.message);
+                    couponDiscount = response.couponDiscount;
+                    $('#couponReload').load('/checkout #couponReload')
+                    // initializeButtons();
+                    
+                } else if (response.limit) {
+                    Swalfire(response.message);
+                } else if (response.expired) {
+                    Swalfire(response.message);
+                } else if(response.CodeErr){
+                    Swalfire(response.message);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Error:', errorThrown);
+            }
+        });
+    }
 
-    // applying couponCode
-    function applyCode() {
-    event.preventDefault();
-    const couponCode = $('#couponCode').val();
-    console.log(couponCode);
-    $.ajax({
-        url: '/applycouponcode',
+    // Function to remove applied coupon
+    function removeCoupon(userId) {
+        $.ajax({
+        url: '/removeCoupon',
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ couponCode: couponCode }),
-        success: function (response) {
-            if (response.used) {
-                Swalfire(response.message);
-            } else if (response.success) {
-                // Update the total price element with the new total price
-                $('#updatedTotalPrice').text(`Total: ₹${response.totalPrice}`).show();
-                SuccessSwal(response.message);
-            } else if (response.limit) {
-                Swalfire(response.message);
-            } else if (response.expired) {
-                Swalfire(response.message);
-            } else if(response.CodeErr){
-                Swalfire(response.message);
-            }
+        data: JSON.stringify({ userId: userId }),
+        success: function (data) {
+            
+            console.log('Coupon removed successfully:', data);
+            Swalfire('Coupon removed successfully');
+            couponDiscount = 0;
+            $('#couponReload').load('/checkout #couponReload');
+            // initializeButtons();
+            
         },
         error: function (jqXHR, textStatus, errorThrown) {
-        // Handle errors
-        console.error('Error:', errorThrown);
-        // You can also display an error message to the user if needed
+            console.error('Error removing coupon:', errorThrown);
         }
     });
     }
 
     function Swalfire(text) {
-    Swal.fire({
-        position: 'center',
-        icon: 'error',
-        title: `${text}`,
-        showConfirmButton: false,
-        timer: 1700,
-    })
+        Swal.fire({
+            position: 'center',
+            icon: 'error',
+            title: `${text}`,
+            showConfirmButton: false,
+            timer: 1700,
+        })
     }
 
     function SuccessSwal(text){
-    Swal.fire({
-        position: 'center',
-        icon: 'success',
-        title: `${text}`,
-        showConfirmButton: false,
-        timer: 1700,
-    })
+        Swal.fire({
+            position: 'center',
+            icon: 'success',
+            title: `${text}`,
+            showConfirmButton: false,
+            timer: 1700,
+        })
     }
-
-    // Show the "Remove Coupon" button
-    document.getElementById("removeCouponBtn").classList.remove("d-none");
-
-    // Hide the "Apply Coupon" button
-    document.getElementById("applyCouponBtn").classList.add("d-none");
-
-
-    function removeCoupon() {
-    // Assuming you have logic here to remove the applied coupon
-
-    // Hide the "Remove Coupon" button
-    document.getElementById("removeCouponBtn").classList.add("d-none");
-
-    // Show the "Apply Coupon" button
-    document.getElementById("applyCouponBtn").classList.remove("d-none");
-}
 </script>
 
 
@@ -309,31 +317,26 @@
     let grandTotal = '<%= grandTotal %>';
     console.log("grandTotal: ", grandTotal);
     document.querySelector("button[type='submit']").addEventListener("click", async function(event) {
-        console.log("Submit button clicked");
-        event.preventDefault(); // Prevent the default behavior of form submission
+    
+        event.preventDefault();
 
-        // Check if any payment method is selected
+        
         let radioButton = document.querySelector('input[name="paymentMethod"]:checked');
         console.log(radioButton);
         if (radioButton) {
             let paymentMethod = radioButton.value;
-            console.log("Selected payment method:", paymentMethod);
-
-            // Proceed with the selected payment method
             if (paymentMethod === "razorpay") {
-                // Razorpay checkout logic
                 console.log("Razorpay selected");
-
-                // Replace with your actual Razorpay options
                 var options = {
-                    "key": "rzp_test_OsHOhbbPFG3LF6",
-                    "amount": grandTotal * 100, // Amount in paise
+                    
+                    "key": '<%= process.env.RAZORPAY_ID_KEY %>',
+                    "amount": grandTotal * 100,
                     "currency": "INR",
                     "name": "FurnIt",
                     "description": "Test Transaction",
                     "image": "assets/images/logo.png",
                     "handler": function(response) {
-                        // Make a fetch request to the /placeOrder endpoint after successful payment
+                        
                         fetch("/placeorder", {
                             method: "POST",
                             headers: {
@@ -342,14 +345,14 @@
                             body: JSON.stringify({
                                 selectedAddress: document.getElementById("selectedAddress").value,
                                 paymentMethod: paymentMethod,
-                                paymentId: response.razorpay_payment_id // Include the Razorpay payment ID in the request body
+                                paymentId: response.razorpay_payment_id
                             })
                         })
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error("Failed to place order");
                             }
-                            // Extract the response data 
+                            
                             return response.json();
                         })
                         .then(responseData => {
@@ -357,20 +360,20 @@
                                 console.log("Inside .then responseData");
                                 let hashedOrderId = responseData.hashedOrderId;
                                 console.log("hashedOrderId: ", hashedOrderId);
-                                // Redirect to the order confirmation page with the hashed order ID
+                                
                                 window.location.href = `/orderconfirmation/${hashedOrderId}`;
                             } else {
-                                // Show an error warning message
+                                
                                 document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
-                                document.getElementById("warningMessage").style.color = "red"; // Set color to red
+                                document.getElementById("warningMessage").style.color = "red"; 
                                 document.getElementById("warningMessage").style.display = "block";
                             }
                         })
                         .catch(error => {
                             console.error("Error placing order:", error);
-                            // Show an error warning message
+                            
                             document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
-                            document.getElementById("warningMessage").style.color = "red"; // Set color to red
+                            document.getElementById("warningMessage").style.color = "red"; 
                             document.getElementById("warningMessage").style.display = "block";
                         });
                     },
@@ -388,14 +391,14 @@
             }
 
             else if (paymentMethod === "cod") {
-                // Implement Cash on Delivery logic here
+                
                 console.log("Cash on Delivery selected");
 
-                // Generate a unique payment ID (UUID)
+                
                 const paymentId = generatePaymentId();
 
                 try {
-                    // Make a single fetch request to the /placeOrder endpoint
+                    
                     const response = await fetch("/placeorder", {
                         method: "POST",
                         headers: {
@@ -412,36 +415,34 @@
                         throw new Error("Failed to place order");
                     }
 
-                    // Extract the response data 
+                    
                     const responseData = await response.json();
                     console.log("responseData: ", responseData);
 
                     if (responseData.success) {
                         let hashedOrderId = responseData.hashedOrderId
-                        // Redirect to the order confirmation page with the hashed order ID
+                        
                         window.location.href = `/orderconfirmation/${hashedOrderId}`;
                     } else {
-                        // Show an error warning message
+                        
                         document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
-                        document.getElementById("warningMessage").style.color = "red"; // Set color to red
+                        document.getElementById("warningMessage").style.color = "red"; 
                         document.getElementById("warningMessage").style.display = "block";
                     }
                 } catch (error) {
                     console.error("Error placing order:", error);
-                    // Show an error warning message
+                  
                     document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
-                    document.getElementById("warningMessage").style.color = "red"; // Set color to red
+                    document.getElementById("warningMessage").style.color = "red"; 
                     document.getElementById("warningMessage").style.display = "block";
                 }
             } else if (paymentMethod === "wallet") {
-                // Implement Wallet payment logic here
+                
                 console.log("Wallet selected");
-
-                // Generate a unique payment ID (UUID)
                 const paymentId = generatePaymentId();
 
                 try {
-                    // Make a single fetch request to the /placeOrder endpoint
+                    
                     const response = await fetch("/placeorder", {
                         method: "POST",
                         headers: {
@@ -450,35 +451,47 @@
                         body: JSON.stringify({
                             selectedAddress: document.getElementById("selectedAddress").value,
                             paymentMethod: paymentMethod,
-                            paymentId: paymentId // Include the generated payment ID
+                            paymentId: paymentId
                         })
                     });
                     
                     if (!response.ok) {
                         throw new Error("Failed to place order");
                     }
-                    // Redirect to the order confirmation page
-                    window.location.href = `/orderconfirmation/${hashedOrderId}`;
+
+                    const responseData = await response.json();
+                    console.log("responseData: ", responseData);
+
+                    if (responseData.success) {
+                        let hashedOrderId = responseData.hashedOrderId
+                        
+                        window.location.href = `/orderconfirmation/${hashedOrderId}`;
+                    } else {
+                        
+                        document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                        document.getElementById("warningMessage").style.color = "red"; 
+                        document.getElementById("warningMessage").style.display = "block";
+                    }
 
                 } catch (error) {
                     console.error("Error placing order:", error);
-                    // Show an error warning message
+                    
                     document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
-                    document.getElementById("warningMessage").style.color = "red"; // Set color to red
+                    document.getElementById("warningMessage").style.color = "red"; 
                     document.getElementById("warningMessage").style.display = "block";
                 }
             }
         } else {
-            // Show a warning message if no payment method is selected
+            
             document.getElementById("warningMessage").textContent = "Please select a payment method.";
-            document.getElementById("warningMessage").style.color = "red"; // Set color to red
+            document.getElementById("warningMessage").style.color = "red";
             document.getElementById("warningMessage").style.display = "block";
         }
     });
-    // Function to generate a unique payment ID (UUID)
+    
     function generatePaymentId() {
 
-        // Generate a UUID (v4)
+        
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
@@ -488,22 +501,22 @@
 
 <script>
     $(document).ready(function () {
-        // Add event listener to clear error message on input focus
+        
         $('#addressName, #houseName, #street, #city, #pincode, #mobile').on('input', function () {
             var fieldId = '#validationMessages' + $(this).attr('id').charAt(0).toUpperCase() + $(this).attr('id').slice(1);
             $(fieldId).hide().empty();
         });
 
-        // Event listener for address selection
+        
         $('input[name="addressSelection"]').on('change', function () {
             $('#selectedAddress').val($(this).attr('data-address-id'));
         });
 
         $('#saveAddressBtn').click(function () {
-            // Clear previous error messages
+            
             $('.text-danger').empty().hide();
 
-            // Validate each input field
+            
             var addressName = $('#addressName').val().trim();
             var houseName = $('#houseName').val().trim();
             var street = $('#street').val().trim();
@@ -533,21 +546,21 @@
                 isValid = false;
             }
 
-            // Validate pincode with exactly 6 digits
+            
             if (!/^\d{6}$/.test(pincode)) {
                 appendErrorMessage('#validationMessagesPincode', 'Please enter a valid 6-digit pincode.');
                 isValid = false;
             }
 
-            // Validate mobile with exactly 10 digits
+           
             if (!/^\d{10}$/.test(mobile)) {
                 appendErrorMessage('#validationMessagesMobile', 'Please enter a valid 10-digit mobile number.');
                 isValid = false;
             }
 
-            // If all validation passes, you can proceed to save the address
+ 
             if (isValid) {
-                // Create an object with the address details
+                
                 var newAddress = {
                     name: addressName,
                     housename: houseName,
@@ -557,10 +570,10 @@
                     mobile: parseInt(mobile)
                 };
 
-                // Now, you can save the address details to MongoDB
+                
                 saveAddressToDatabase(newAddress);
 
-                // Close the modal
+                
                 $('#newaddress-modal').modal('hide');
             }
         });
@@ -570,22 +583,21 @@
         }
 
         function saveAddressToDatabase(newAddress) {
-            // Perform an AJAX request or use a backend route to save the address to MongoDB
-            // Example using jQuery AJAX (replace with your actual backend route)
+            
             $.ajax({
                 type: 'POST',
-                url: '/api/saveAddress', // Replace with your backend route
+                url: '/api/saveAddress', 
                 contentType: 'application/json',
                 data: JSON.stringify(newAddress),
                 success: function (response) {
-                    // Handle the success response
+                    
                     console.log('Address saved successfully:', response);
 
-                    // Reload the page after successful save
+                    
                     location.reload();
                 },
                 error: function (error) {
-                    // Handle the error response
+                   
                     console.error('Error saving address:', error);
                 }
             });

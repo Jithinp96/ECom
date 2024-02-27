@@ -5,15 +5,15 @@ const flash = require('express-flash');
 const nocache = require('nocache');
 const app = express();
 const path = require("path");
-
+require("dotenv").config(); 
 app.use(express.json());
 app.use(nocache());
 
-mongoose.connect("mongodb://127.0.0.1:27017/Elegify");
+mongoose.connect(process.env.mongodblink);
 
 
 
-require("dotenv").config(); //FOR THE >ENV FILE
+
 
 app.use(express.static(path.join(__dirname,'public')))
 app.use(express.static(path.join(__dirname,'public/uploads')))
