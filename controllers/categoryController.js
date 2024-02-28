@@ -1,19 +1,25 @@
+const _ = require('lodash');
 const Categories = require("../models/categoryModel");
 
+function toTitleCase(str) {
+    return _.startCase(_.toLower(str));
+}
 
 const addCategory = async (req, res) => {
+
     const { categoryName } = req.body;
+    const titleCaseCategory = toTitleCase(categoryName);
 
     try {
 
-        const exist = await Categories.findOne({name:categoryName});
-        // console.log(exist);
+        const exist = await Categories.findOne({name:titleCaseCategory});
         if(exist){
-            req.flash('name', 'Category already exists');
+            console.log("Category already exist");
+            res.status(200).json({ success: false, message: 'Category already exists' });
         }
         else{
             const newCategory = new Categories({
-                name: categoryName
+                name: titleCaseCategory
             })
             await newCategory.save();
             res.status(201).json({ success: true, message: 'Category added successfully', category: newCategory });
@@ -44,11 +50,9 @@ const toggleCategoryStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Category not found' });
         }
 
-        // Toggle the 'is_listed' property
         category.is_listed = !category.is_listed;
         await category.save();
 
-        // Send the updated category information as JSON response
         res.json({
             success: true,
             category: {
@@ -74,20 +78,22 @@ const editCategory = async (req, res) => {
 
         
         const newName = req.body.name;
-        const existingCategory = await Categories.findOne({ name: newName });
+        const titleCaseCategory = toTitleCase(newName);
+        const existingCategory = await Categories.findOne({ name: titleCaseCategory });
 
         if (existingCategory && existingCategory._id.toString() !== category._id.toString()) {
-            return res.status(400).send({ success: false, message: 'Category name already exists' });
+            return res.status(201).json({ success: false, message: 'Category already exists' });
         }
-
-       
-        category.name = newName;
+        
+        console.log("Category name updated");
+        category.name = titleCaseCategory;
         await category.save();
 
-        res.send({ success: true, message: 'Category updated successfully' });
+        return res.status(201).json({ success: true, message: 'Category updated successfully' });
     } catch (error) {
+        console.log("Inside Catch");
         console.error(error.message);
-        res.status(500).send({ success: false, message: 'Internal Server Error' });
+        return res.status(500).send({ success: false, message: 'Internal Server Error' });
     }
 };
 

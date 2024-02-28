@@ -371,7 +371,7 @@ const verifyLogin = async(req, res) => {
                     }
                 }
                 else{
-                    req.flash('error', 'Your account is temporarily suspended...!!!')
+                    req.flash('error', 'Your account is temporarily suspended... Please contact Admin')
                     res.redirect('/login');
                     console.log("User Blocked");
                 }

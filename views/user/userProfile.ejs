@@ -39,14 +39,29 @@
                     <div class="col-md-8 col-lg-10">
                         <div class="tab-content">
                             <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel" aria-labelledby="tab-dashboard-link">
-                                <!-- <p>Hello <span class="font-weight-normal text-dark">User</span> (not <span class="font-weight-normal text-dark">User</span>? <a href="#">Log out</a>) 
-                                <br>
-                                From your account dashboard you can view your <a href="#tab-orders" class="tab-trigger-link link-underline">recent orders</a>, manage your <a href="#tab-address" class="tab-trigger-link">shipping and billing addresses</a>, and <a href="#tab-account" class="tab-trigger-link">edit your password and account details</a>.</p> -->
-                            
-                                <h3 class="card-title">Name: <%= user.fname %><%= user.lname %></h3>
-                                <p class="card-text">Email: <%= user.email %></p>
-                                <p class="card-text">Mobile: <%= user.mobile %></p>
-                            </div><!-- .End .tab-pane -->
+                                <table class="table table-bordered table-hover table-striped table-sm">
+                                  <thead>
+                                    <tr>
+                                      <th class="text-center" scope="col">Name</th>
+                                      <th class="text-center" scope="col">Email</th>
+                                      <th class="text-center" scope="col">Mobile</th>
+                                     
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td class="text-center"><%= user.fname %> <%= user.lname %></td>
+                                      <td class="text-center"><%= user.email %></td>
+                                      <td class="text-center"><%= user.mobile %></td>
+                        
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div class="text-center">
+                                    <a href="/edit/<%= user._id %>" class="btn btn-secondary mt-1" data-toggle="modal" data-target="#edituser-modal">Edit Profile</a>
+
+                                </div>
+                            </div>
 
                             <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
                                 <div class="row mt-4">
@@ -277,11 +292,15 @@
     </div>
 </div>
 
+
+
+
 <!-- Add your script -->
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
 
 <script>
     // JavaScript function to populate the edit address modal and handle form submission

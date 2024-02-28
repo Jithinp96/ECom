@@ -4,7 +4,7 @@
     <br>
     <div class="container" style="display: flex; justify-content: right;">
         <button type="button" class="btn btn-success" data-toggle="modal" 
-        data-target="#signup-modal">Add Category</button>
+        data-target="#add-modal">Add Category</button>
     </div>
     <div class="container-fluid">
         <div class="row">
@@ -58,11 +58,51 @@
                 </div>
 
                 <!-- ADD CATEGORY modal content -->
-                <div id="signup-modal" class="modal fade" tabindex="-1" role="dialog"
-                aria-hidden="true">
-                <div class="modal-dialog">
-                <div class="modal-content">
+                <div id="add-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
 
+                    <div class="modal-body">
+                        <div class="text-center mt-2 mb-4">
+                            <a href="index.html" class="text-success">
+                                <span><img class="mr-2" src="../assets/images/logo-icon.png"
+                                        alt="" height="18"><img
+                                        src="../assets/images/logo-text.png" alt=""
+                                        height="18"></span>
+                            </a>
+                        </div>
+
+                        
+
+                        <form class="pl-3 pr-3" id="categoryForm">
+
+                            <div class="form-group">
+                                <label for="username">Category Name</label>
+                                <div class="alert alert-danger mt-2" id="addCategoryError" style="display: none;"></div>
+                                <input class="form-control" type="text" id="categoryName" placeholder="Enter Category Name">
+                                <div class="invalid-feedback" id="categoryNameError">
+                                    Category Name should not contain blank spaces.
+                                </div>
+                            
+                                    
+                            </div>
+
+                            <div class="form-group text-center">
+                                <button class="btn btn-primary" type="button" id="submitBtn">Add</button>
+                            </div>
+
+                        </form>
+
+                    </div>
+
+            </div> 
+        </div> 
+    </div> 
+
+    <!-- Edit modal content -->
+    <div id="edit-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
                 <div class="modal-body">
                     <div class="text-center mt-2 mb-4">
                         <a href="index.html" class="text-success">
@@ -73,38 +113,10 @@
                         </a>
                     </div>
 
-                    <form class="pl-3 pr-3" id="categoryForm">
-
-                        <div class="form-group">
-                            <label for="username">Category Name</label>
-                            <input class="form-control" type="text" id="categoryName"
-                                required="" placeholder="Enter Category Name">
-                            <div class="invalid-feedback" id="categoryNameError">
-                                Category Name should not contain blank spaces.
-                            </div>
-                                
-                        </div>
-
-                        <div class="form-group text-center">
-                            <button class="btn btn-primary" type="button" id="submitBtn">Add</button>
-                        </div>
-
-                    </form>
-
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
-
-    <!-- Edit modal content -->
-    <div id="edit-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-body">
                     <form class="pl-3 pr-3" id="editCategoryForm">
                         <div class="form-group">
                             <label for="editCategoryName">Edit Category Name</label>
+                            <div class="alert alert-danger mt-2" id="editFlashMessage" style="display: none;"></div>
                             <input class="form-control" type="text" id="editCategoryName" required placeholder="Enter New Category Name">
                             <div class="invalid-feedback" id="editCategoryNameError">Category Name should not contain blank
                                 spaces.
@@ -115,228 +127,172 @@
                         </div>
                     </form>
                 </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+            </div> 
+        </div> 
+    </div> 
 </div>
 
 <!-- Confirmation modal -->
 <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to change the status<span id="categoryNameSpan"></span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmUnlistBtn">Confirm</button>
+            </div>
         </div>
-        <div class="modal-body">
-          Are you sure you want to change the status<span id="categoryNameSpan"></span>?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-success" id="confirmUnlistBtn">Confirm</button>
-        </div>
-      </div>
     </div>
-  </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
 <script>
-    // Listen for button click to add a new category
-$('#submitBtn').click(function () {
-    // Get category name
-    var categoryName = $('#categoryName').val();
+        $('#submitBtn').click(function () {
+        let categoryName = $('#categoryName').val();
 
-    // Check if category name is empty or contains only whitespace
-    if (!categoryName.trim()) {
-        $('#categoryNameError').text('Category Name cannot be empty');
-        $('#categoryNameError').show();
-        return;
-    }
-
-    // Continue with your logic to send AJAX request
-    var formData = {
-        categoryName: categoryName
-        // Add more form fields as needed
-    };
-
-    // Send AJAX request to the server
-    $.ajax({
-        type: 'POST',
-        url: '/admin/save-category', // Replace with your server-side route
-        data: JSON.stringify(formData),
-        contentType: 'application/JSON',
-        success: function (response) {
-            if (response.success) {
-                console.log('Data saved successfully:', response);
-                $('#signup-modal').modal('hide');
-                location.reload();
-            }
-        },
-        error: function (error) {
-            console.error('Error saving data:', error);
+        if (!categoryName.trim()) {
+            $('#categoryNameError').text('Category Name cannot be empty');
+            $('#categoryNameError').show();
+            return;
         }
-    });
-});
-//     $('#categoryName').on('input', function () {
-//             $('#categoryNameError').hide();
-//         });
-// });
 
-function containsBlankSpaces(value) {
-    // Check if the value contains blank spaces
-    return /\s/.test(value);
-}
+        else if (categoryName.length > 20) {
+            $('#categoryNameError').text('Category name should not contain more than 20 letters.');
+            $('#categoryNameError').show();
+            return;
+        }
+
+        else if (/^([a-zA-Z])\1+$/.test(categoryName)) {
+            $('#categoryNameError').text('All letters should not be the same.');
+            $('#categoryNameError').show();
+            return;
+        } else {
+            $('#categoryNameError').hide();
+        }
+
+        let formData = {
+            categoryName: categoryName
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '/admin/save-category',
+            data: JSON.stringify(formData),
+            contentType: 'application/JSON',
+            success: function (response) {
+                if (response.success) {
+                    console.log('Data saved successfully:', response);
+                    $('#add-modal').modal('hide');
+                    location.reload();
+                } else {
+                    if (response.message) {
+                        $('#addCategoryError').text(response.message).show();
+                    } else {
+                        console.error('Unknown error occurred:', response);
+                    }
+                }
+            },
+            error: function (error) {
+                console.error('Error saving data:', error);
+            }
+        });
+    });
+    
+    $('#categoryName').on('input', function () {
+            $('#categoryNameError').hide();
+        });
+
+    function containsBlankSpaces(value) {
+        return /\s/.test(value);
+    }
 </script>
 
 <!-- EDIT CATEGORY -->
 <script>
+    $(document).ready(function () {
+         
+        $('.edit-category').on('click', function (e) {
+            e.preventDefault();
+            
+            const categoryId = $(this).data('categoryid');
+            openEditModal(categoryId);
+        });
 
-$(document).ready(function () {
-    // Listen for edit button click
-    $('.edit-category').on('click', function (e) {
-        e.preventDefault();
+        $('#editSubmitBtn').click(function () {
+            const categoryId = $('#editCategoryForm').data('categoryid');
+            const newCategoryName = $('#editCategoryName').val();
+            editCategory(categoryId, newCategoryName);
+        });
 
-        // Get the category ID from the data attribute
-        const categoryId = $(this).data('categoryid');
-
-        // Use categoryId to fetch category details or open the edit modal
-        // You may use AJAX to fetch category details and populate the modal form
-
-        // For now, let's assume you have a function to open the modal
-        openEditModal(categoryId);
+        $('#editCategoryName').on('input', function () {
+            $('#editCategoryNameError').hide();
+        });
     });
 
-    // Listen for edit modal save button click
-    $('#editSubmitBtn').click(function () {
-        const categoryId = $('#editCategoryForm').data('categoryid');
-        const newCategoryName = $('#editCategoryName').val();
-        editCategory(categoryId, newCategoryName);
-    });
-
-    // Add an event listener for the input field in the edit modal to hide the error message on input
-    $('#editCategoryName').on('input', function () {
-        $('#editCategoryNameError').hide();
-    });
-});
-
-function openEditModal(categoryId) {
-    // Set the category ID in the edit modal
-    $('#editCategoryForm').data('categoryid', categoryId);
-    // Open the edit modal
-    $('#edit-modal').modal('show');
-}
-
-function editCategory(categoryId, newCategoryName) {
-    // Check if the newCategoryName contains blank spaces
-    if (containsBlankSpaces(newCategoryName)) {
-        // Show error message
-        $('#editCategoryNameError').show();
-        return; // Exit the function if validation fails
-    } else {
-        // Hide error message if validation succeeds
-        $('#editCategoryNameError').hide();
+    function openEditModal(categoryId) {
+        $('#editCategoryForm').data('categoryid', categoryId);
+        $('#edit-modal').modal('show');
     }
 
-    // Send AJAX request to the server to update the category name
-    $.ajax({
-        type: 'POST',
-        url: `/admin/edit-category/${categoryId}`,
-        data: { id: categoryId, name: newCategoryName },
-        success: function (response) {
-            if (response.success) {
-                console.log('Category updated successfully:', response);
-                $('#edit-modal').modal('hide');
-                location.reload();
-            } else {
-                console.error('Error updating category:', response.message);
-            }
-        },
-        error: function (error) {
-            console.error('Error updating category:', error);
+    function editCategory(categoryId, newCategoryName) {
+         
+        if (containsBlankSpaces(newCategoryName)) {
+             
+            $('#editCategoryNameError').text('Category name should not contain blank spaces.');
+            $('#editCategoryNameError').show();
+            return;  
         }
-    });
-}
 
-function containsBlankSpaces(value) {
-    // Check if the value contains blank spaces
-    return /\s/.test(value);
-}
+        if (newCategoryName.length > 20) {
+            $('#editCategoryNameError').text('Category name should not contain more than 20 letters.');
+            $('#editCategoryNameError').show();
+            return;
+        }
 
-    // $(document).ready(function () {
+        if (/^([a-zA-Z])\1+$/.test(newCategoryName)) {
+            $('#editCategoryNameError').text('All letters should not be the same.');
+            $('#editCategoryNameError').show();
+            return;
+        }
 
-    //     // Listen for edit button click
-    //     $('.edit-category').on('click', function (e) {
-    //         e.preventDefault();
-            
-    //         // Get the category ID from the data attribute
-    //         const categoryId = $(this).data('categoryid');
+        $('#editCategoryNameError').hide();
+        $('#editFlashMessage').hide();
 
-    //         // Use categoryId to fetch category details or open the edit modal
-    //         // You may use AJAX to fetch category details and populate the modal form
+        $.ajax({
+            type: 'POST',
+            url: `/admin/edit-category/${categoryId}`,
+            data: { id: categoryId, name: newCategoryName },
+            success: function (response) {
+                console.log("response: ",response);
+                if (response.success) {
+                    console.log('Category updated successfully:', response);
+                    $('#edit-modal').modal('hide');
+                    location.reload();
+                } else {
+                    console.error('Error updating category:', response.message);
+                    $('#editFlashMessage').text(response.message).show();
+                }
+            },
+            error: function (error) {
+                console.error('Error updating category:', error);
+                $('#editFlashMessage').removeClass('alert-success').addClass('alert-danger').text('Error updating category. Please try again later.').show();
+            }
+        });
+    }
 
-    //         // For now, let's assume you have a function to open the modal
-    //         openEditModal(categoryId);
-    //     });
-        
-    //     // Listen for edit modal save button click
-    //     $('#editSubmitBtn').click(function () {
-    //         const categoryId = $('#editCategoryForm').data('categoryid');
-    //         const newCategoryName = $('#editCategoryName').val();
-    //         editCategory(categoryId, newCategoryName);
-    //     });
 
-    //     // Add an event listener for the input field in the edit modal to hide the error message on input
-    //     $('#editCategoryName').on('input', function () {
-    //         $('#editCategoryNameError').hide();
-    //     });
-    // });
-
-    // function openEditModal(categoryId) {
-    //     // Set the category ID in the edit modal
-    //     $('#editCategoryForm').data('categoryid', categoryId);
-    //     // Open the edit modal
-    //     $('#edit-modal').modal('show');
-    // }
-
-    // function editCategory(categoryId, newCategoryName) {
-    //     // Check if the newCategoryName contains blank spaces
-    //     if (containsBlankSpaces(newCategoryName)) {
-    //         // Show error message
-    //         $('#editCategoryNameError').show();
-    //         return; // Exit the function if validation fails
-    //     } else {
-    //         // Hide error message if validation succeeds
-    //         $('#editCategoryNameError').hide();
-    //     }
-        
-        
-    //     // Send AJAX request to the server to update the category name
-    //     $.ajax({
-    //         type: 'POST',
-    //         url: `/admin/edit-category/${categoryId}`,
-    //         data: { id: categoryId, name: newCategoryName },
-    //         success: function (response) {
-    //             if (response.success) {
-    //                 console.log('Category updated successfully:', response);
-    //                 $('#edit-modal').modal('hide');
-    //                 location.reload();
-    //             } else {
-    //                 console.error('Error updating category:', response.message);
-    //             }
-    //         },
-    //         error: function (error) {
-    //             console.error('Error updating category:', error);
-    //         }
-    //     });
-    // }
-
-    // function containsBlankSpaces(value) {
-    //     // Check if the value contains blank spaces
-    //     return /\s/.test(value);
-    // }
+    function containsBlankSpaces(value) {
+        return /\s/.test(value);
+    }
 </script>
 
 <!-- LISTING AND UNLISTING -->
@@ -350,36 +306,29 @@ function containsBlankSpaces(value) {
             event.preventDefault();
 
             const categoryId = this.getAttribute('data-categoryid');
-            const categoryName = this.parentElement.previousElementSibling.textContent.trim(); // Get category name
+            const categoryName = this.parentElement.previousElementSibling.textContent.trim();
 
-            // Set category name in the confirmation modal
             document.getElementById('categoryNameSpan').textContent = categoryName;
 
-            // Show the confirmation modal
             $('#confirmationModal').modal('show');
 
-            // Store category ID in data attribute of confirm button
             document.getElementById('confirmUnlistBtn').setAttribute('data-categoryid', categoryId);
         });
     });
 
-    // Event listener for confirm unlist button
     document.getElementById('confirmUnlistBtn').addEventListener('click', function () {
         const categoryId = this.getAttribute('data-categoryid');
         toggleCategoryStatus(categoryId);
     });
 
     function toggleCategoryStatus(categoryId) {
-        // Send Fetch API request to update the category status
         fetch(`/admin/toggleCategoryStatus/${categoryId}`, {
             method: 'POST',
         })
         .then(response => response.json())
         .then(data => {
-            // Update UI based on the server response
             if (data.success) {
                 updateUI(data.category);
-                // Close the confirmation modal after confirming
                 $('#confirmationModal').modal('hide');
             } else {
                 console.error('Error toggling category status:', data.message);
@@ -391,7 +340,6 @@ function containsBlankSpaces(value) {
     }
 
     function updateUI(category) {
-        // Update the UI to reflect the new category status
         const badge = document.querySelector(`.btn-status-toggle[data-categoryid="${category._id}"] .badge`);
         if (category.is_listed) {
             badge.textContent = 'Listed';
