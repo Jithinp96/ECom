@@ -53,28 +53,28 @@
                                     </div>
                                 </div>
                                <!-- Category -->
-                               <div class="form-group">
-                                <div class="row">
-                                    <label class="col-lg-2">Category</label>
-                                    <div class="col-lg-10">
+                                    <div class="form-group">
                                         <div class="row">
-                                            <div class="col-md-11">
-                                                <div class="form-group mb-4">
-                                                    <select class="custom-select mr-sm-2" id="category" name="category">
-                                                        <option selected>Choose...</option>
-                                                        <% categories.forEach(function(category) { %>
-                                                            <option value="<%= category.name %>"
-                                                                <% if (product.category && category.name === product.category.toString()) { %>selected<% } %>
-                                                            ><%= category.name %></option>
-                                                        <% }); %>
-                                                    </select>
-                                                    <div id="categoryContainer" class="text-danger"></div>
+                                            <label class="col-lg-2">Category</label>
+                                            <div class="col-lg-10">
+                                                <div class="row">
+                                                    <div class="col-md-11">
+                                                        <div class="form-group mb-4">
+                                                            <select class="custom-select mr-sm-2" id="category" name="category">
+                                                                <option selected>Choose...</option>
+                                                                <% categories.forEach(function(category) { %>
+                                                                    <option value="<%= category._id %>"
+                                                                        <% if (product.category && category._id.toString() === product.category.toString()) { %>selected<% } %>
+                                                                    ><%= category.name %></option>
+                                                                <% }); %>
+                                                            </select>
+                                                            <div id="categoryContainer" class="text-danger"></div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
 
 
                                 <div class="form-group">
@@ -103,7 +103,8 @@
                                                         <% for (let i = 0; i < product.image.length; i++) { %>
                                                             <div class="image-wrapper mr-3 mb-3">
                                                                 <img style="height: 100px; max-width: 100px;" src="/uploads/<%= product.image[i] %>" alt="Product Image">
-                                                                <button class="btn btn-danger" onclick="removeImage(this, event)">Remove</button>
+                                                                <button class="btn btn-danger" onclick="removeImage(this, event, '<%= JSON.stringify(product) %>')">Remove</button>
+
                                                             </div>
                                                         <% } %>
                                                     </div>
@@ -138,7 +139,6 @@
 <!-- Edit Form Validation -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Add input event listeners to clear warning messages when the user starts typing
         addInputEventListener('name');
         addInputEventListener('price');
         addInputEventListener('quantity');
@@ -148,96 +148,92 @@
     });
 
     function addInputEventListener(fieldName) {
-        // Get the input field element
         var inputField = document.getElementById(fieldName);
-
-        // Add input event listener
         inputField.addEventListener('input', function () {
-            // Clear the warning message below the respective input field
             clearWarningMessage(fieldName);
         });
     }
 
     function validateForm() {
-        // Get input field values
-        var name = document.getElementById('name').value.trim();
-        var price = document.getElementById('price').value.trim();
-        var quantity = document.getElementById('quantity').value.trim();
-        var category = document.getElementById('category').value.trim();
-        var description = document.getElementById('description').value.trim();
-        var imageCount = document.getElementById('imageInput').files.length;
+    var name = document.getElementById('name').value.trim();
+    var price = document.getElementById('price').value.trim();
+    var quantity = document.getElementById('quantity').value.trim();
+    var category = document.getElementById('category').value.trim();
+    var description = document.getElementById('description').value.trim();
+    var imageCount = document.getElementById('imageInput').files.length;
 
-        // Clear previous warning messages
-        clearWarningMessages();
+    clearWarningMessages();
 
-        // Perform validation
-        if (name === '') {
-            displayWarningMessage('name', 'Please enter a valid product name.');
-            return false;
-        }
-
-        if (price === '') {
-            displayWarningMessage('price', 'Please enter a valid product price.');
-            return false;
-        }
-
-        if (isNaN(price) || parseFloat(price) <= 0) {
-            displayWarningMessage('price', 'Please enter a valid positive numeric price.');
-            return false;
-        }
-
-        if (quantity === '') {
-            displayWarningMessage('quantity', 'Please enter a valid quantity.');
-            return false;
-        }
-
-        if (isNaN(quantity) || parseInt(quantity) <= 0) {
-            displayWarningMessage('quantity', 'Please enter a valid positive numeric quantity.');
-            return false;
-        }
-
-        if (category === 'Choose...') {
-            displayWarningMessage('category', 'Please select a valid category.');
-            return false;
-        }
-
-        if (description === '') {
-            displayWarningMessage('description', 'Please enter a valid product description.');
-            return false;
-        }
-
-        // Validate image count
-        if (imageCount !== 4) {
-            displayWarningMessage('imageInput', 'Please select exactly 4 images.');
-            return false;
-        }
-
-        // Additional validations can be added as needed
-
-        return true; // If all validations pass
+    // Perform validation
+    if (name === '') {
+        displayWarningMessage('name', 'Please enter a valid product name.');
+        return false;
     }
 
+    if (price === '') {
+        displayWarningMessage('price', 'Please enter a valid product price.');
+        return false;
+    }
+
+    if (isNaN(price) || parseFloat(price) <= 0) {
+        displayWarningMessage('price', 'Please enter a valid positive numeric price.');
+        return false;
+    }
+
+    if (quantity === '') {
+        displayWarningMessage('quantity', 'Please enter a valid quantity.');
+        return false;
+    }
+
+    if (isNaN(quantity) || parseInt(quantity) <= 0) {
+        displayWarningMessage('quantity', 'Please enter a valid positive numeric quantity.');
+        return false;
+    }
+
+    if (category === 'Choose...') {
+        displayWarningMessage('category', 'Please select a valid category.');
+        return false;
+    }
+
+    if (description === '') {
+        displayWarningMessage('description', 'Please enter a valid product description.');
+        return false;
+    }
+
+    if (imageCount !== 4) {
+        displayWarningMessage('imageInput', 'Please select exactly 4 images.');
+        return false;
+    }
+
+    if (imageRemoved) {
+        saveChanges();
+        return false;
+    }
+
+    return true;
+}
+
+
     function displayWarningMessage(fieldName, message) {
-        // Create a warning message element
+        
         var warningMessage = document.createElement('div');
         warningMessage.className = 'text-danger';
         warningMessage.textContent = message;
 
-        // Append the warning message below the respective input field
         document.getElementById(fieldName + 'Container').appendChild(warningMessage);
     }
 
     function clearWarningMessage(fieldName) {
-        // Clear the warning message below the respective input field
+        
         var warningMessageContainer = document.getElementById(fieldName + 'Container');
-        warningMessageContainer.querySelector('.text-danger').innerHTML = ''; // Remove all child elements
+        warningMessageContainer.querySelector('.text-danger').innerHTML = '';
     }
 
     function clearWarningMessages() {
-        // Clear all existing warning messages
+        
         var warningMessageContainers = document.querySelectorAll('.text-danger');
         warningMessageContainers.forEach(function (container) {
-            container.innerHTML = ''; // Remove all child elements
+            container.innerHTML = ''; 
         });
     }
 
@@ -246,76 +242,93 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
 <script>
-    function removeImage(button,event) {
+    let imageRemoved = false;
+    function removeImage(button, event, product) {
+        
+        let productObject = JSON.parse(product);
+        imageRemoved = true;
         event.preventDefault();
         let previewContainer = document.getElementById('imagePreview');
-        
-        // Find the corresponding image container
         let imageContainer = button.parentNode;
-        
-        // Get the index of the image container
         let index = Array.from(imageContainer.parentNode.children).indexOf(imageContainer);
-
-        // Remove the corresponding image container when the remove button is clicked
+        let deletedImagesInput = document.createElement('input');
+        deletedImagesInput.type = 'hidden';
+        deletedImagesInput.name = 'deletedImages[]';
+    
+        
+        deletedImagesInput.value = productObject.image[index];
+        previewContainer.appendChild(deletedImagesInput);
         previewContainer.removeChild(imageContainer);
-
-        // Remove the corresponding image from the product.image array
-        product.image.splice(index, 1);
+        productObject.image.splice(index, 1);
     }
 
     function previewImages() {
-        let input = document.getElementById('imageInput');
-        let previewContainer = document.getElementById('imagePreview');
-        let files = input.files;
-        // Clear previous previews
-        previewContainer.innerHTML = '';
+    let input = document.getElementById('imageInput');
+    let previewContainer = document.getElementById('imagePreview');
+    let files = input.files;
+   
+    previewContainer.innerHTML = '';
 
-        for (let i = 0; i < files.length; i++) {
-            let file = files[i];
-            let reader = new FileReader();
+    for (let i = 0; i < files.length; i++) {
+        let file = files[i];
+        let reader = new FileReader();
 
-            reader.onload = function (e) {
-                // Create a container for each image and its remove button
-                let imageContainer = document.createElement('div');
-                imageContainer.classList.add('image-wrapper', 'mr-3', 'mb-3');
-
-                let image = document.createElement('img');
-                image.src = e.target.result;
-
-                // Setting Size
-                image.style.maxWidth = '100px';
-                image.style.maxHeight = '100px';
-
-                image.classList.add('img-thumbnail');
-                imageContainer.appendChild(image);
-
-                let removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove';
-                removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'ml-2');
-
-                removeButton.addEventListener('click', function () {
-                    // Remove the corresponding image container when the remove button is clicked
-                    previewContainer.removeChild(imageContainer);
-
-                    // Update the product.image array after removing the image
-                    updateProductImageArray();
-                });
-
-                imageContainer.appendChild(removeButton);
-                previewContainer.appendChild(imageContainer);
-            };
-
-            reader.readAsDataURL(file);
+        // Check if the file is an image
+        if (!file.type.startsWith('image/')) {
+            displayErrorMessage('Please select only image files.');
+            input.value = ''; // Clear the file input
+            return; // Exit the function
         }
+
+        reader.onload = function (e) {
+            
+            let imageContainer = document.createElement('div');
+            imageContainer.classList.add('image-wrapper', 'mr-3', 'mb-3');
+
+            let image = document.createElement('img');
+            image.src = e.target.result;
+
+            // Setting Size
+            image.style.maxWidth = '100px';
+            image.style.maxHeight = '100px';
+
+            image.classList.add('img-thumbnail');
+            imageContainer.appendChild(image);
+
+            let removeButton = document.createElement('button');
+            removeButton.textContent = 'Remove';
+            removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'ml-2');
+
+            removeButton.addEventListener('click', function () {
+                previewContainer.removeChild(imageContainer);
+                updateProductImageArray();
+            });
+
+            imageContainer.appendChild(removeButton);
+            previewContainer.appendChild(imageContainer);
+        };
+
+        reader.readAsDataURL(file);
     }
+}
+
+function displayErrorMessage(message) {
+    let errorMessage = document.createElement('div');
+    errorMessage.classList.add('text-danger');
+    errorMessage.textContent = message;
+
+    // Add the error message to the page
+    document.getElementById('imageInput').parentNode.appendChild(errorMessage);
+}
+
+
 
     function updateProductImageArray() {
-        // Reset the product.image array based on the current images in the preview
+        let productObject = JSON.parse(product);
         let previewContainer = document.getElementById('imagePreview');
         let imageContainers = previewContainer.getElementsByClassName('image-wrapper');
-        product.image = Array.from(imageContainers).map(container => {
+        productObject.image = Array.from(imageContainers).map(container => {
             let imageSrc = container.querySelector('img').src;
-            // Extracting the image filename from the source
             let imageName = imageSrc.substring(imageSrc.lastIndexOf('/') + 1);
             return imageName;
             previewImages()

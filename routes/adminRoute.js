@@ -17,6 +17,7 @@ const orderController = require("../controllers/orderController");
 const adminAuth = require("../middlewares/adminAuth");
 const adminDashboardController = require("../controllers/adminDashboardController");
 const couponController = require("../controllers/couponController");
+const offerController = require("../controllers/offerController");
 
 admin_route.get('/login',adminAuth.isLogout,adminController.loadAdminLogin);
 admin_route.get('/',adminAuth.isLogout,adminController.loadAdminLogin);
@@ -54,5 +55,9 @@ admin_route.get('/coupon', couponController.loadCouponPage);
 admin_route.get('/addcoupon', couponController.loadAddCoupon);
 admin_route.post('/submitCoupon', couponController.addCoupon);
 admin_route.delete('/deletecoupon/:id', couponController.deleteCoupon);
+
+admin_route.get('/offer', offerController.loadOffer);
+admin_route.get('/addoffer', offerController.loadAddOffer);
+admin_route.post('/submitOffer', offerController.addOffer);
 
 module.exports = admin_route;

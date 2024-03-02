@@ -28,7 +28,7 @@
                                                 <th scope="col">ID</th>
                                                 <th scope="col">Name</th>
                                                 <th scope="col">Price</th>
-                                                <th scope="col">Product</th>
+                                                <th scope="col">Category</th>
                                                 <th scope="col">Quantity</th>
                                                 <th scope="col">Images</th>
                                                 <th scope="col">Action</th>
@@ -42,7 +42,7 @@
                                                         <td><%= index + 1 %></td>
                                                         <td><%= product.name %></td>
                                                         <td><%= product.price %></td>
-                                                        <td><%= product.category %></td>
+                                                        <td><%= product.category.name %></td>
                                                         <td><%= product.quantity %></td>
                                                         <td>
                                                             <img src="/uploads/<%= product.image[0] %>" alt="Product Image " class="product-image" style="width: 100px; height: 100px; border-radius: 50%;">

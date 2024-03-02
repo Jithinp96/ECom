@@ -66,9 +66,9 @@
                                                         <div class="form-group mb-4">
                                                             
                                                             <select class="custom-select mr-sm-2" id="category" name="category">
-                                                                <option selected>Choose...</option>
+                                                                <option value="" disabled selected>Choose Category</option>
                                                                 <% categories.forEach(function(category) { %>
-                                                                    <option value="<%= category.name %>"><%= category.name %></option>
+                                                                    <option value="<%= category._id %>"><%= category.name %></option>
                                                                 <% }); %>
                                                             </select>
                                                             <div id="categoryContainer" class="text-danger"></div>
@@ -100,14 +100,15 @@
                                         <label class="col-lg-2">Images</label>
                                         <div class="col-lg-10">
                                             <div class="row">
-                                                
                                                 <div class="col-md-6">
                                                     <input type="file" class="form-control-file" id="imageInput" multiple="multiple" onchange="previewImages()" accept="image/*" name="image">
+                                                    <div id="imagePreview" class="d-flex flex-wrap mt-2"></div>
+                                                    <input type="hidden" id="deletedImages" name="deletedImages" value=""> <!-- Hidden input to store deleted image filenames -->
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div>                              
                             </div>
 
                             <!-- Image Preview -->
@@ -141,18 +142,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function addInputEventListener(fieldName) {
-        // Get the input field element
         var inputField = document.getElementById(fieldName);
-
-        // Add input event listener
         inputField.addEventListener('input', function () {
-            // Clear the warning message below the respective input field
             clearWarningMessage(fieldName);
         });
     }
 
     function validateForm() {
-        // Get input field values
         var name = document.getElementById('name').value.trim();
         var price = document.getElementById('price').value.trim();
         var quantity = document.getElementById('quantity').value.trim();
@@ -199,46 +195,59 @@ document.addEventListener('DOMContentLoaded', function () {
             return false;
         }
 
-        // Validate image count
         if (imageCount !== 4) {
             displayWarningMessage('imageInput', 'Please select exactly 4 images.');
             return false;
         }
 
-        // Additional validations can be added as needed
+        if (imageRemoved) {
+            saveChanges();
+            return false;
+        }
 
-        return true; // If all validations pass
+        return true;
     }
 
     function displayWarningMessage(fieldName, message) {
-        // Create a warning message element
         var warningMessage = document.createElement('div');
         warningMessage.className = 'text-danger';
         warningMessage.textContent = message;
 
-        // Append the warning message below the respective input field
         document.getElementById(fieldName + 'Container').appendChild(warningMessage);
     }
 
     function clearWarningMessage(fieldName) {
-        // Clear the warning message below the respective input field
         var warningMessageContainer = document.getElementById(fieldName + 'Container');
-        warningMessageContainer.querySelector('.text-danger').innerHTML = ''; // Remove all child elements
+        warningMessageContainer.querySelector('.text-danger').innerHTML = '';
     }
 
     function clearWarningMessages() {
-        // Clear all existing warning messages
+    
         var warningMessageContainers = document.querySelectorAll('.text-danger');
         warningMessageContainers.forEach(function (container) {
-            container.innerHTML = ''; // Remove all child elements
+            container.innerHTML = '';
         });
     }
 
 
+    let imageRemoved = false;
 
+    function removeImage(button, event) {
+    event.preventDefault();
+    let imageContainer = button.parentNode;
+    imageContainer.remove(); // Remove the image preview container from the DOM
 
-// for image preview
-    function previewImages() {
+    // Update the deleted images list
+    let deletedImagesInput = document.getElementById('deletedImages');
+    let deletedImages = deletedImagesInput.value ? JSON.parse(deletedImagesInput.value) : [];
+    let imageSrc = imageContainer.querySelector('img').src;
+    let imageName = imageSrc.substring(imageSrc.lastIndexOf('/') + 1);
+    deletedImages.push(imageName);
+    deletedImagesInput.value = JSON.stringify(deletedImages);
+}
+
+// Function to preview images
+function previewImages() {
         let input = document.getElementById('imageInput');
         let previewContainer = document.getElementById('imagePreview');
         let files = input.files;
@@ -250,42 +259,65 @@ document.addEventListener('DOMContentLoaded', function () {
             let file = files[i];
             let reader = new FileReader();
 
-            reader.onload = function (e) {
+            // Check if the file is an image
+            if (!file.type.startsWith('image/')) {
+                displayErrorMessage('Please select only image files.');
+                input.value = ''; // Clear the file input
+                return; // Exit the function
+            }
 
-                // Create a container for each image and its remove button
+            reader.onload = function (e) {
+                // Create image preview container
                 let imageContainer = document.createElement('div');
-                imageContainer.classList.add('image-container');
+                imageContainer.classList.add('image-wrapper', 'mr-3', 'mb-3');
 
                 let image = document.createElement('img');
                 image.src = e.target.result;
-                
-                //Setting Size
+
                 image.style.maxWidth = '100px';
                 image.style.maxHeight = '100px';
 
-                image.classList.add('img-thumbnail', 'mr-2', 'mb-2');
+                image.classList.add('img-thumbnail');
                 imageContainer.appendChild(image);
 
+                // Create remove button
                 let removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'ml-2');
-                
 
                 removeButton.addEventListener('click', function () {
-                    // Remove the corresponding image container when the remove button is clicked
-                    previewContainer.removeChild(imageContainer);
-                    
+                    removeImage(this, event); // Call removeImage function passing the button and event
                 });
-
-                
                 imageContainer.appendChild(removeButton);
-                previewContainer.appendChild(imageContainer);
 
+                previewContainer.appendChild(imageContainer);
             };
 
             reader.readAsDataURL(file);
         }
     }
+
+function displayErrorMessage(message) {
+    let errorMessage = document.createElement('div');
+    errorMessage.classList.add('text-danger');
+    errorMessage.textContent = message;
+
+    // Add the error message to the page
+    document.getElementById('imageInput').parentNode.appendChild(errorMessage);
+}
+
+// Function to update product image array
+function updateProductImageArray() {
+    let productObject = JSON.parse(product);
+    let previewContainer = document.getElementById('imagePreview');
+    let imageContainers = previewContainer.getElementsByClassName('image-wrapper');
+    productObject.image = Array.from(imageContainers).map(container => {
+        let imageSrc = container.querySelector('img').src;
+        let imageName = imageSrc.substring(imageSrc.lastIndexOf('/') + 1);
+        return imageName;
+        previewImages()
+    });
+}
 
 </script>
 

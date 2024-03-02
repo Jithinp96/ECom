@@ -35,11 +35,9 @@ const addCoupon = async (req, res) => {
             couponDescription,
             startDate,
             expiryDate,
-          } = req.body;
-
-          console.log("expiryDate: ",expiryDate);
+        } = req.body;
       
-          const newCoupon = new Coupon({
+        const newCoupon = new Coupon({
             couponCode: couponCode,
             discountAmount: discountAmount,
             minOrderAmount: minOrderAmount,
@@ -47,7 +45,7 @@ const addCoupon = async (req, res) => {
             startDate: startDate,
             expiryDate: expiryDate,
             active: true,
-          });
+        });
         const newCouponSaved = await newCoupon.save();
         res.redirect('/admin/coupon');
         // res.status(201).json(savedCoupon);

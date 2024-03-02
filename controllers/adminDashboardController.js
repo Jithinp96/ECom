@@ -27,68 +27,14 @@ const loadSalesReport = async (req, res) => {
 const generateSalesReport = async (req, res) => {
     try {
         const { startDate, endDate } = req.body;
-        console.log(startDate);
-        
-        const startDateTime = new Date(`${startDate}T00:00:00.000+00:00`);
-        const endDateTime = new Date(`${endDate}T23:59:59.999+00:00`);
-        
-        const orders = await Orders.aggregate([
-            {
-                $match: {
-                    date: { $gte: startDateTime, $lte: endDateTime },
-                    'products.orderStatus': 'Delivered' 
-                },
-            },
-            {
-                $lookup: {
-                    from: 'users', 
-                    localField: 'userId',
-                    foreignField: '_id',
-                    as: 'user',
-                },
-            },
-            {
-                $unwind: '$user',
-            },
-            {
-                $unwind: '$products',
-            },
-            {
-                $lookup: {
-                    from: 'products',
-                    localField: 'products.productId',
-                    foreignField: '_id',
-                    as: 'products.productInfo',
-                },
-            },
-            {
-                $unwind: '$products.productInfo',
-            },
-            {
-                $group: {
-                    _id: '$_id',
-                    user: { $first: '$user' },
-                    products: { $push: '$products' },
-                    total: { $sum: '$products.productInfo.total' },
-                    date: { $first: '$date' },
-                   
-                },
-            },
-        ]);
+  
+        const startDateTime = new Date(`${startDate}T00:00:00.000Z`);
+        const endDateTime = new Date(`${endDate}T23:59:59.999Z`);
 
+        const orders = await Orders.find({ date: { $gte: startDateTime, $lte: endDateTime } }).populate('userId').populate('products.productId');
         
-        console.log("Orders Count:", orders);
-        console.log("Start Date:", startDateTime);
-        console.log("End Date:", endDateTime);
+        res.render('salesreport', { orders })
 
-        return res.status(200).json({
-            status: "success",
-            data: {
-                orders,
-                startDate: startDateTime,
-                endDate: endDateTime,
-            },
-        });
     } catch (error) {
         console.error("Error generating sales report:", error);
         return res.status(500).json({ error: "Failed to generate sales report" });

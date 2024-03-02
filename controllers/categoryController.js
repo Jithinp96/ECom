@@ -76,7 +76,6 @@ const editCategory = async (req, res) => {
             return res.status(404).send({ success: false, message: 'Category not found' });
         }
 
-        
         const newName = req.body.name;
         const titleCaseCategory = toTitleCase(newName);
         const existingCategory = await Categories.findOne({ name: titleCaseCategory });
@@ -85,10 +84,8 @@ const editCategory = async (req, res) => {
             return res.status(201).json({ success: false, message: 'Category already exists' });
         }
         
-        console.log("Category name updated");
         category.name = titleCaseCategory;
         await category.save();
-
         return res.status(201).json({ success: true, message: 'Category updated successfully' });
     } catch (error) {
         console.log("Inside Catch");

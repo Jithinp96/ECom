@@ -46,33 +46,23 @@
                                 <div class="product-gallery product-gallery-vertical">
                                     <div class="row">
                                         <figure class="product-main-image">
-                                            <img id="product-zoom" src="/uploads/<%= product.image[3]%>" data-zoom-image="/uploads/<%= product.image[3]%>" alt="product image">
-
+                                            <img id="product-zoom" src="/uploads/<%= product.image[0]%>" data-zoom-image="/uploads/<%= product.image[3]%>" alt="product image">
                                             <a href="#" id="btn-product-gallery" class="btn-product-gallery">
                                                 <i class="icon-arrows"></i>
                                             </a>
                                         </figure><!-- End .product-main-image -->
-
+                            
                                         <div id="product-zoom-gallery" class="product-image-gallery">
-                                            <a class="product-gallery-item active" href="#" data-image="/uploads/<%= product.image[3]%>" data-zoom-image="/uploads/<%= product.image[3]%>">
-                                                <img src="/uploads/<%= product.image[3]%>" alt="product side">
-                                            </a>
-
-                                            <a class="product-gallery-item" href="#" data-image="/uploads/<%= product.image[0]%>" data-zoom-image="/uploads/<%= product.image[0]%>">
-                                                <img src="/uploads/<%= product.image[0]%>" alt="product cross">
-                                            </a>
-
-                                            <a class="product-gallery-item" href="#" data-image="/uploads/<%= product.image[1]%>" data-zoom-image="/uploads/<%= product.image[1]%>">
-                                                <img src="/uploads/<%= product.image[1]%>" alt="product with model">
-                                            </a>
-
-                                            <a class="product-gallery-item" href="#" data-image="/uploads/<%= product.image[2]%>" data-zoom-image="/uploads/<%= product.image[2]%>">
-                                                <img src="/uploads/<%= product.image[2]%>" alt="product back">
-                                            </a>
+                                            <% product.image.forEach(function(image, index) { %>
+                                                <a class="product-gallery-item <%= index === 0 ? 'active' : '' %>" href="#" data-image="/uploads/<%= image %>" data-zoom-image="/uploads/<%= image %>">
+                                                    <img src="/uploads/<%= image %>" alt="product image <%= index %>">
+                                                </a>
+                                            <% }); %>
                                         </div><!-- End .product-image-gallery -->
                                     </div><!-- End .row -->
                                 </div><!-- End .product-gallery -->
                             </div><!-- End .col-md-6 -->
+                            
 
                             <div class="col-md-6">
                                 <div class="product-details">

@@ -1,0 +1,48 @@
+<%-include('../layouts/adminHeader.ejs')%>
+<%-include('../layouts/adminSidebar.ejs')%>
+
+<div class="page-wrapper">
+    <br>
+    <div class="container" style="display: flex; justify-content: right;">
+        <a href="/admin/addoffer" class="btn btn-success">Add Offer</a>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Offer List</h4>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead class="bg-primary text-white">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Offer Name</th>
+                                        <th>Discount Percentage</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% offers.forEach(function(offer, index) { %>
+                                        <tr>
+                                            <td><%= index + 1 %></td>
+                                            <td><%= offer.offerName %></td>
+                                            <td><%= offer.discountPercentage %>%</td>
+                                            <td><%= offer.startDate %></td>
+                                            <td><%= offer.expiryDate %></td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                                
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<%-include('../layouts/adminFooter.ejs')%>

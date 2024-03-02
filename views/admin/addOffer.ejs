@@ -1,0 +1,44 @@
+<%-include('../layouts/adminHeader.ejs')%>
+<%-include('../layouts/adminSidebar.ejs')%>
+
+<div class="page-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Enter Offer Details</h4>
+                        <form action="/admin/submitOffer" method="POST">
+                            <div class="form-body">
+                                <div class="form-group">
+                                    <label for="offerName">Offer Name</label>
+                                    <input type="text" class="form-control" id="couponCode" name="offerName" placeholder="Enter Offer Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="discountPercentage">Discount Percentage</label>
+                                    <input type="text" class="form-control" id="discountPercentage" name="discountPercentage" placeholder="Enter Discount Percentage">
+                                </div>
+                                <div class="form-group">
+                                    <label for="startDate">Start Date</label>
+                                    <input type="date" class="form-control" id="startDate" name="startDate">
+                                </div>
+                                <div class="form-group">
+                                    <label for="expiryDate">Expiry Date</label>
+                                    <input type="date" class="form-control" id="expiryDate" name="expiryDate">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-info">Submit</button>
+                                    <button type="reset" class="btn btn-dark">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%-include('../layouts/adminFooter.ejs')%>
