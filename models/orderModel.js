@@ -52,7 +52,7 @@ const orderSchema = mongoose.Schema({
     },
     paymentId: {
         type: String,
-        required: true // Add required validation as per your requirement
+        required: true
     },
     orderId: {
         type:String,

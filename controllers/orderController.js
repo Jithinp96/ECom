@@ -5,8 +5,6 @@ const Cart = require("../models/cartModel");
 const Wallet = require("../models/walletModel");
 
 
-
-
 const loadAdminOrderList = async (req, res) => {
     try {
         // Fetch orders from the database
@@ -18,59 +16,6 @@ const loadAdminOrderList = async (req, res) => {
         console.log(error);
     }
 } 
-
-// const updateOrderStatus = async (req, res) => {
-//     try {
-//         const { orderId, newStatus } = req.body;
-
-//         // Find and update the order status in the database
-//         await Order.findByIdAndUpdate(orderId, { 'products.0.orderStatus': newStatus });
-
-//         // Send a success response
-//         res.status(200).json({ message: 'Order status updated successfully' });
-//     } catch (error) {
-//         // Handle errors and send an error response
-//         console.error('Error updating order status:', error);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-// };
-
-// const updateOrderStatus = async (req, res) => {
-//     try {
-//         console.log("Inside updateOrderStatus fn");
-//         const { orderId, productId, newStatus } = req.body;
-//         console.log("newStatus: ", newStatus);
-        
-//         // Find the order by its ID
-//         const order = await Order.findById(orderId);
-//         // console.log("order: ", order);
-
-//         if (!order) {
-//             return res.status(404).json({ error: 'Order not found' });
-//         }
-
-//         // Find the product within the order by its ID
-//         const product = order.products.find(prod => prod._id == productId);
-//         console.log("product: ", product);
-
-//         if (!product) {
-//             return res.status(404).json({ error: 'Product not found in the order' });
-//         }
-
-//         // Update the status of the found product
-//         product.orderStatus = newStatus;
-
-//         // Save the updated order
-//         await order.save();
-
-//         // Send a success response
-//         res.status(200).json({ message: 'Order status updated successfully' });
-//     } catch (error) {
-//         // Handle errors and send an error response
-//         console.error('Error updating order status:', error);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-// };
 
 
 const updateOrderStatus = async (req, res) => {

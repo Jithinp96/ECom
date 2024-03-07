@@ -28,8 +28,10 @@
                                         <th>Order Date</th>
                                         <th>Product</th>
                                         <th>Price</th>
+                                        <th>Discount</th>
                                         <th>Quantity</th>
                                         <th>Subtotal</th>
+                                        <th>Coupon Discount</th>
                                         <th>Status</th>
                                         
                                     </tr>
@@ -43,8 +45,10 @@
                                                 <td><%= order.date.toDateString() %></td>
                                                 <td><%= product.name %></td>
                                                 <td><%= product.price %></td>
+                                                <td><%= product.offerDiscount %></td>
                                                 <td><%= product.quantity %></td>
                                                 <td><%= product.total %></td>
+                                                <td><%= order.couponDiscount %></td>
                                                 <td><%= product.orderStatus %></td>
                                                 
                                             </tr>
@@ -107,15 +111,63 @@
     // }
 </script>
 
+<script>
+    document.getElementById('downloadButton').addEventListener('click', function () {
+        const data = generateExcelData();
+        const excelBuffer = generateExcelFile(data);
+        downloadExcelFile(excelBuffer, 'SalesReport');
+    });
 
-<!--This page plugins -->
+    function generateExcelData() {
+        const table = document.querySelector('.table');
+        const rows = table.querySelectorAll('tbody tr');
+        const data = [['Index', 'Order Id', 'User', 'Price x Quantity', 'Total', 'Date', 'Payment Mode', 'Status']];
+
+        rows.forEach(row => {
+            const rowData = [];
+            row.querySelectorAll('td').forEach((cell, index) => {
+                if (index !== 2) { // Skip the image column
+                    rowData.push(cell.textContent.trim());
+                }
+            });
+            data.push(rowData);
+        });
+
+        return data;
+    }
+
+    function generateExcelFile(data) {
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sales Report');
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        return excelBuffer;
+    }
+
+    function downloadExcelFile(buffer, fileName) {
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName + '.xlsx';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+
+<!-- xlsx library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+
+<!--Table plugins -->
 <script src="/admin/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="/admin/dist/js/pages/datatable/datatable-basic.init.js"></script>
 
-<!-- Include jQuery -->
+<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- Include Bootstrap Datepicker JS -->
+<!-- Bootstrap Datepicker JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 
 

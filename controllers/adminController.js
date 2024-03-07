@@ -30,18 +30,15 @@ const adminVerifyLogin = async(req, res) => {
     }
 }
 
-
-
-
-// const adminLogout = async (req, res) => {
-//     try {
-//         req.session.admin = null
-//         res.redirect('/admin');
+const adminLogout = async (req, res) => {
+    try {
+        req.session.admin = null
+        res.redirect('/admin');
         
-//     } catch (error) {
-//         console.log(error.message);
-//     }
-// }
+    } catch (error) {
+        console.log(error.message);
+    }
+}
 
 const loadUserList = async (req,res) => {
     try{
@@ -78,5 +75,5 @@ module.exports ={
     adminVerifyLogin,
     loadUserList,
     toggleUserStatus,
-    // adminLogout
+    adminLogout,
 }

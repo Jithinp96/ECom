@@ -31,7 +31,8 @@
     <!-- Main CSS File -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/plugins/nouislider/nouislider.css">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
 </head>
 
 <body>
@@ -100,18 +101,47 @@
                                     <div class="details-filter-row details-row-size">
                                         <label for="qty">Qty:</label>
                                         <div class="product-details-quantity">
-                                            <input type="number" id="qty" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
+                                            <input type="number" id="qty" class="form-control" value="1" min="1" max="<%=product.quantity%>" step="1" data-decimals="0" oninput="validateQuantity(this)" required>
                                         </div><!-- End .product-details-quantity -->
                                     </div><!-- End .details-filter-row -->
 
-                                    <div class="product-details-action">
-                                        <a href="#" id="addToCartBtn" class="btn-product btn-cart" <% if (product.quantity === 0) { %>disabled style="pointer-events: none; opacity: 0.5;"<% } %>>
-                                            <span>Add to Cart</span>
-                                        </a>
-                                        
-                                        <a href="/cart" id="viewCartBtn" class="btn-product btn-cart" style="display: none; text-align: center;" >
-                                            <span>View Cart</span>
-                                        </a>
+                                    <script>
+                                        function validateQuantity(input) {
+                                            // Remove non-numeric characters from the input value
+                                            input.value = input.value.replace(/\D/g, '');
+
+                                            // Ensure the value is within the specified range
+                                            const min = parseInt(input.min) || 1;
+                                            const max = parseInt(input.max) || 1000;
+                                            const value = parseInt(input.value) || min;
+
+                                            input.value = Math.min(Math.max(value, min), max);
+                                        }
+                                    </script>
+
+                                    <div class="product-details-action" id="reloadButton">
+                                        <% if (product.quantity > 0) { %>
+                                            <% if (!alreadyInCart) { %>
+                                                <a href="#" id="addToCartBtn" class="btn-product btn-cart">
+                                                    <span>Add to Cart</span>
+                                                </a>
+                                            <% } else { %>
+                                                <a href="/cart" id="viewCartBtn" class="btn-product btn-cart">
+                                                    <span>View Cart</span>
+                                                </a>
+                                            <% } %>
+                                        <% } else { %>
+                                            <span class="out-of-stock-message text-danger " style="margin-left: 60px;">Out of Stock</span>
+                                        <% } %>
+                                        <!-- <% if(!alreadyInCart){%>
+                                            <a href="#" id="addToCartBtn" class="btn-product btn-cart" <% if (product.quantity === 0) { %>disabled style="pointer-events: none; opacity: 0.5;"<% } %>>
+                                                <span>Add to Cart</span>
+                                            </a>
+                                        <%}else{%>
+                                            <a href="/cart" id="viewCartBtn" class="btn-product btn-cart" style="display: none; text-align: center;" >
+                                                <span>View Cart</span>
+                                            </a>
+                                        <%}%> -->
                                         <!-- <a href="#" id="addToCartBtn" class="btn-product btn-cart">
                                             <span>Add to Cart</span>
                                         </a>
@@ -119,10 +149,16 @@
                                         <a href="/cart" id="viewCartBtn" class="btn-product btn-cart" style="display: none; text-align: center;" >
                                             <span>View Cart</span>
                                         </a> -->
-                                        <div class="details-action-wrapper">
-                                            <a href="#" class="btn-product btn-wishlist" title="Wishlist" id="addToWishlistBtn">
-                                                <span>Add to Wishlist</span>
-                                            </a>
+                                        <div class="details-action-wrapper" id="wishlistButton">
+                                            <% if (!alreadyInWishlist) { %>
+                                                <a href="#" class="btn-product btn-wishlist" title="Wishlist" id="addToWishlistBtn">
+                                                    <span>Add to Wishlist</span>
+                                                </a>
+                                            <% } else { %>
+                                                <a href="/wishlist" id="viewWishlistBtn" class="btn-product "><i class="fas fa-heart"></i>
+                                                    <span>View Wishlist</span>
+                                                </a>
+                                            <% } %>
                                         </div><!-- End .details-action-wrapper -->
                                     </div><!-- End .product-details-action -->
                                     <div id="loginMessage"></div>
@@ -137,12 +173,6 @@
                                 <a class="nav-link active" id="product-desc-link" data-toggle="tab" href="#product-desc-tab" role="tab" aria-controls="product-desc-tab" aria-selected="true">Description</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="product-info-link" data-toggle="tab" href="#product-info-tab" role="tab" aria-controls="product-info-tab" aria-selected="false">Additional information</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="product-shipping-link" data-toggle="tab" href="#product-shipping-tab" role="tab" aria-controls="product-shipping-tab" aria-selected="false">Shipping & Returns</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews (2)</a>
                             </li>
                         </ul>
@@ -152,32 +182,6 @@
                                     <h3>Product Information</h3>
 
                                     <p><%=product.description%></p>
-                                </div><!-- End .product-desc-content -->
-                            </div><!-- .End .tab-pane -->
-                            <div class="tab-pane fade" id="product-info-tab" role="tabpanel" aria-labelledby="product-info-link">
-                                <div class="product-desc-content">
-                                    <h3>Information</h3>
-                                    <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. </p>
-
-                                    <h3>Fabric & care</h3>
-                                    <ul>
-                                        <li>Faux suede fabric</li>
-                                        <li>Gold tone metal hoop handles.</li>
-                                        <li>RI branding</li>
-                                        <li>Snake print trim interior </li>
-                                        <li>Adjustable cross body strap</li>
-                                        <li> Height: 31cm; Width: 32cm; Depth: 12cm; Handle Drop: 61cm</li>
-                                    </ul>
-
-                                    <h3>Size</h3>
-                                    <p>one size</p>
-                                </div><!-- End .product-desc-content -->
-                            </div><!-- .End .tab-pane -->
-                            <div class="tab-pane fade" id="product-shipping-tab" role="tabpanel" aria-labelledby="product-shipping-link">
-                                <div class="product-desc-content">
-                                    <h3>Delivery & returns</h3>
-                                    <p>We deliver to over 100 countries around the world. For full details of the delivery options we offer, please view our <a href="#">Delivery information</a><br>
-                                    We hope you’ll love every purchase, but if you ever need to return an item you can do so within a month of receipt. For full details of how to make a return, please view our <a href="#">Returns information</a></p>
                                 </div><!-- End .product-desc-content -->
                             </div><!-- .End .tab-pane -->
                             <div class="tab-pane fade" id="product-review-tab" role="tabpanel" aria-labelledby="product-review-link">
@@ -262,13 +266,20 @@
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <a href="/login" class="btn btn-primary">Login</a> <!-- Link to your login page -->
+            <a href="/login" class="btn btn-primary">Login</a>
             </div>
         </div>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Include SweetAlert library -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
     const productId = '<%= product._id %>';
@@ -276,7 +287,7 @@
 
     const addToCartBtn = document.getElementById('addToCartBtn');
     const viewCartBtn = document.getElementById('viewCartBtn');
-    const addToCartText = document.getElementById('addToCartText'); // Add this line to get the span element
+    const addToCartText = document.getElementById('addToCartText');
 
     // Function to add product to cart
     const addToCart = async () => {
@@ -286,6 +297,7 @@
             userId: userId,
             quantity: Quantity
         };
+        console.log("/productdetails/productId#");
 
         try {
             const response = await fetch('/addtocart', {
@@ -301,23 +313,30 @@
             }
 
             const responseData = await response.json();
-            // After adding to cart, update the button text
-            if (responseData.isProductInCart) {
-                addToCartBtn.style.display = 'none';
-                viewCartBtn.style.display = 'inline-block';
-            } else {
-                addToCartBtn.style.display = 'none';  // Assuming you want to hide the "Add to Cart" button after adding
-                viewCartBtn.style.display = 'inline-block';
-            }
-            
+            // Display SweetAlert success notification
+            Swal.fire({
+                icon: 'success',
+                title: 'Product added to cart!',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                $('#reloadButton').load('/productdetails/<%= product._id%> #reloadButton');
+            });
+
         } catch (error) {
             console.error('Error adding to cart:', error);
+
+            // Display SweetAlert error notification
+            Swal.fire({
+                icon: 'error',
+                title: 'Error adding to cart',
+                text: 'An error occurred while adding the product to the cart.'
+            });
         }
     };
 
-    // Add event listener for the "Add to Cart" button
+    // event listener for the "Add to Cart" button
     addToCartBtn.addEventListener('click', () => {
-        // Check if the session is available
         const isLoggedIn = '<%= userId !== "" %>';
         if (isLoggedIn) {
             // If user is logged in, proceed with adding to cart
@@ -327,43 +346,9 @@
             $('#loginModal').modal('show');
         }
     });
-
-    // Initial check on page load
-    checkCartStatus();  // Call the checkCartStatus function to set the initial button display
 });
 
-// Function to check cart status and update button display
-const checkCartStatus = async () => {
-    try {
-        const productId = '<%= product._id %>';  // Declare productId within the function scope
-        const userId = '<%= userId %>';
-        const response = await fetch('/checkcart', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ productId, userId })
-        });
 
-        if (!response.ok) {
-            throw new Error('Failed to check cart status');
-        }
-
-        const data = await response.json();
-
-        if (data.isProductInCart) {
-            console.log('Product is in the cart');
-            addToCartBtn.style.display = 'none';
-            viewCartBtn.style.display = 'inline-block';
-        } else {
-            console.log('Product is NOT in the cart');
-            addToCartBtn.style.display = 'inline-block';
-            viewCartBtn.style.display = 'none';
-        }
-    } catch (error) {
-        console.error('Error checking cart status:', error);
-    }
-};
 </script>
 
 <!-- Add to wishlist -->
@@ -388,12 +373,45 @@ const checkCartStatus = async () => {
                 }
 
                 const responseData = await response.json();
-                // console.log(responseData.message);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Product added to wishlist!',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    $('#wishlistButton').load('/productdetails/<%= product._id %> #wishlistButton');
+                });
+                
             } catch (error) {
                 console.error('Error adding to wishlist:', error);
             }
         });
     });
+</script>
+
+<script>
+    $(document).ready(function() {
+            // Add an event listener to the input field
+            $("#qty").on("input", function() {
+                var inputElement = $(this);
+                var currentValue = parseInt(inputElement.val()) || 0;
+                var maxValue = parseInt(inputElement.attr("max")) || Infinity;
+    
+                // Check if the maximum value is reached
+                if (currentValue >= maxValue) {
+                    // Show SweetAlert when the maximum value is reached
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Maximum Quantity Reached',
+                        text: 'You cannot exceed the maximum quantity.',
+                        showConfirmButton: false,
+                        timer: 3500 // Automatically close after 3.5 seconds
+                    });
+                    // Reset the value to the maximum allowed
+                    inputElement.val(maxValue);
+                }
+            });
+        });
 </script>
 
     <!-- Plugins JS File -->

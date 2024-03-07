@@ -8,6 +8,26 @@
     .small-text {
         font-size: 12px; /* Adjust the font size as needed */
     }
+
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-icon {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+
+    .password-rules {
+        display: none;
+        margin-top: 5px;
+        font-size: 12px;
+        color: #999;
+    }
+
 </style>
 
 <div class="page-wrapper">
@@ -49,10 +69,27 @@
                                         <input type="text" class="form-control" id="register-mobile" name="mobile" required>
                                     </div><!-- End .form-group -->
 
-                                    <div class="form-group">
+                                    <!-- <div class="form-group">
                                         <label for="register-password-2">Password *</label>
                                         <input type="password" class="form-control" id="register-password-2" name="password" required>
-                                    </div> <!-- End .form-group -->
+                                    </div>  -->
+
+                                    <div class="form-group">
+                                        <label for="register-password-2">Password *</label>
+                                        <div class="password-wrapper">
+                                            <input type="password" class="form-control" id="register-password-2" name="password" required>
+                                            <div class="password-icon" onmouseover="showPasswordRules()" onmouseout="hidePasswordRules()">ℹ️</div>
+                                        </div>
+                                        <div class="password-rules" id="passwordRules">
+                                            Password Rules: <br>
+                                            * Must be at least 8 characters long<br>
+                                            * Must contain at least:<br>
+                                                - One uppercase letter.<br>
+                                                - One lowercase letter.<br>
+                                                - One number.<br>
+                                                - One special character.
+                                        </div>
+                                    </div>
 
                                     <div class="form-group">
                                         <label for="register-confirpassword-2">Confirm Password *</label>
@@ -90,6 +127,19 @@
 <%-include('../layouts/footbar.ejs')%>
 
 <script>
+    function showPasswordRules() {
+    var passwordRules = document.getElementById('passwordRules');
+    passwordRules.style.display = 'block';
+}
+
+function hidePasswordRules() {
+    var passwordRules = document.getElementById('passwordRules');
+    passwordRules.style.display = 'none';
+}
+</script>
+
+
+<script>
     function validateForm() {
         // Reset previous validation messages
         clearValidationMessages();
@@ -120,7 +170,7 @@
             return false;
         }
 
-        // Validate password
+        // Validate mobile
         if (!validateNoSpaces(mobileInput.value)) {
             displayValidationMessage('Mobile cannot contain blank spaces.', 'register-mobile');
             return false;
@@ -135,6 +185,12 @@
         // Validate password
         if (!validateNoSpaces(passwordInput.value)) {
             displayValidationMessage('Password cannot contain blank spaces.', 'register-password-2');
+            return false;
+        }
+
+        // Validate strong password
+        if (!validateStrongPassword(passwordInput.value)) {
+            displayValidationMessage('Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.', 'register-password-2');
             return false;
         }
 
@@ -156,14 +212,44 @@
 
     function validateNoSpaces(inputValue, inputId) {
         // Use a regular expression to check for spaces
-        var spaceRegex = /\s/;
+        let spaceRegex = /\s/;
         return !spaceRegex.test(inputValue);
     }
 
+    function validateStrongPassword(password) {
+        // Password must be at least 8 characters long
+        if (password.length < 8) {
+            return false;
+        }
+
+        // Password must contain at least one uppercase letter
+        if (!/[A-Z]/.test(password)) {
+            return false;
+        }
+
+        // Password must contain at least one lowercase letter
+        if (!/[a-z]/.test(password)) {
+            return false;
+        }
+
+        // Password must contain at least one number
+        if (!/\d/.test(password)) {
+            return false;
+        }
+
+        // Password must contain at least one special character
+        if (!/[!@#$%^&*()_+{}\[\]:;<>,.?\/\\~-]/.test(password)) {
+            return false;
+        }
+
+        return true;
+    }
+
+
     function displayValidationMessage(message, inputId) {
-        var inputField = document.getElementById(inputId);
-        var messageDiv = document.createElement('div');
-        messageDiv.classList.add('text-red', 'small-text'); // You can add styling classes here
+        let inputField = document.getElementById(inputId);
+        let messageDiv = document.createElement('div');
+        messageDiv.classList.add('text-red', 'small-text');
         messageDiv.textContent = message;
 
         // Insert the message div below the input field
@@ -177,7 +263,7 @@
     }
 
     function clearValidationMessages() {
-        var validationMessages = document.querySelectorAll('.text-red');
+        let validationMessages = document.querySelectorAll('.text-red');
         validationMessages.forEach(function (message) {
             message.remove();
         });

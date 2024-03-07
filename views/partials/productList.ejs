@@ -1,0 +1,99 @@
+<style>
+    .pagination {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.pagination a {
+    margin: 0 10px;
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #000;
+}
+
+.pagination a.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+</style>
+<!-- <div> -->
+    <div id="product-list-container" class="products mb-3" >
+        <div class="row justify-content-center product-list-items" >
+            <% products.forEach(product => { %>
+                <div class="col-6 col-md-4 col-lg-4" >
+                
+                    <div class="product product-7 text-center" >
+                        
+                        <figure class="product-media">
+                            
+                            <a href="/productdetails/<%= product._id%>">
+                                <img src="<%= product.image[0] %>" alt="Product image" class="product-image">
+                            </a>
+    
+                            <div class="product-action-vertical">
+                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                            </div><!-- End .product-action-vertical -->
+    
+                            <div class="product-action">
+                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                            </div><!-- End .product-action -->
+                        </figure><!-- End .product-media -->
+    
+                        <div class="product-body">
+                            <div class="product-cat">
+                                <a href="#"><%= product.category.name %></a>
+                            </div><!-- End .product-cat -->
+                            <h3 class="product-title"><a href="/productdetails/<%= product._id%>"><%= product.name %></a></h3><!-- End .product-title -->
+                            <div class="product-price">
+                                ₹<%= product.price %>
+                            </div><!-- End .product-price -->
+                            <!-- <div class="ratings-container">
+                                <div class="ratings">
+                                    <div class="ratings-val" style="width: 20%;"></div>
+                                </div>
+                                <span class="ratings-text">( 2 Reviews )</span>
+                            </div> -->
+    
+                            
+                        </div><!-- End .product-body -->
+                        
+                    </div><!-- End .product -->
+                
+                </div><!-- End .col-sm-6 col-lg-4 -->
+            <% }); %>
+            
+        </div><!-- End .row -->
+        <div class="pagination">
+            <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>">Previous</a>
+            <% } %>
+        
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+        
+            <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>">Next</a>
+            <% } %>
+        </div>
+    </div><!-- End .products -->
+<!-- </div> -->
+
+
+
+
+
+<script>
+$(document).on('click', '.pagination a', function(e) {
+    e.preventDefault();
+    const page = $(this).attr('href').split('=')[1];
+    $.ajax({
+        url: '/your-route?page=' + page,
+        success: function(data) {
+            $('#product-list-container .product-list-items').html(data);
+        }
+    });
+});
+</script>

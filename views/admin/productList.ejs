@@ -1,6 +1,8 @@
 <%-include('../layouts/adminHeader.ejs')%>
 <%-include('../layouts/adminSidebar.ejs')%>
 
+<link href="/admin/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css" rel="stylesheet">
+
         <!-- ============================================================== -->
         <!-- Page wrapper  -->
         <!-- ============================================================== -->
@@ -22,7 +24,8 @@
                             <div class="card-body">
                                 <h4 class="card-title">Products</h4>
                                 <div class="table-responsive">
-                                    <table class="table">
+                                    <!-- <table class="table"> -->
+                                    <table id="zero_config" class="table table-striped table-bordered no-wrap">
                                         <thead>
                                             <tr>
                                                 <th scope="col">ID</th>
@@ -135,4 +138,9 @@
         }
     });
 </script>
+
+<!--This page plugins -->
+<script src="/admin/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="/admin/dist/js/pages/datatable/datatable-basic.init.js"></script>
+
 <%-include('../layouts/adminFooter.ejs')%>

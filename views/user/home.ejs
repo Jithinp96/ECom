@@ -89,7 +89,7 @@
                             </figure><!-- End .product-media -->
 
                             <div class="product-body">
-                                <h3 class="product-title"><a href="product.html"><%= product.name %></a></h3><!-- End .product-title -->
+                                <h3 class="product-title"><a href="/productdetails/<%= product._id%>"><%= product.name %></a></h3><!-- End .product-title -->
                                 <div class="product-price">
                                     <div class="out-price">₹<%= product.price %></div><!-- End .out-price -->
                                 </div><!-- End .product-price -->
@@ -159,7 +159,7 @@
             <% } %>
           </ul>
         </div>
-      </div>
+    </div>
     
     
 <%-include('../layouts/footbar.ejs')%>

@@ -1,0 +1,206 @@
+<%-include('../layouts/header.ejs')%>
+<%-include('../layouts/navbar.ejs')%>
+
+<style>
+    .price-range-slider {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .price-range-slider input[type="range"] {
+        width: 100%;
+    }
+</style>
+
+<div class="page-wrapper">
+    
+    <main class="main">
+
+        <div class="page-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-9">
+                        
+                        <%- include('../partials/productList.ejs', { products: products, currentPage: currentPage, totalPages: totalPages}) %>
+
+                    </div><!-- End .col-lg-9 -->
+                    <aside class="col-lg-3 order-lg-first">
+                        <div class="sidebar sidebar-shop">
+                            <div class="widget widget-clean">
+                                <label>Filters:</label>
+                                <a href="#" class="sidebar-filter-clear">Clear Filters</a>
+                            </div><!-- End .widget widget-clean -->
+
+                            <div class="search-container">
+                                <input type="text" id="search-input" placeholder="Search products...">
+                                <button id="apply-search-filter" class="btn btn-primary">Search</button>
+                            </div>
+
+                            <div class="widget widget-collapsible">
+                                <h3 class="widget-title">
+                                    <a data-toggle="collapse" href="#widget-1" role="button" aria-expanded="true" aria-controls="widget-1">
+                                        Category
+                                    </a>
+                                </h3><!-- End .widget-title -->
+
+                                <div class="collapse show" id="widget-1">
+                                    <div class="widget-body">
+                                        <div class="filter-items filter-items-count">
+                                            <% categories.forEach(category => { %>
+                                                <div class="filter-item">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input" id="<%= category._id %>">
+                                                        <label class="custom-control-label" for="<%= category._id %>"><%= category.name %></label>
+                                                    </div><!-- End .custom-checkbox -->
+                                                    <!-- <span class="item-count">3</span> -->
+                                                </div><!-- End .filter-item -->
+                                            <% }); %>
+                                            
+                                        </div><!-- End .filter-items -->
+                                    </div><!-- End .widget-body -->
+                                </div><!-- End .collapse -->
+                            </div><!-- End .widget -->
+
+
+                            <div class="widget widget-collapsible">
+                                <h3 class="widget-title">
+                                    <a data-toggle="collapse" href="#widget-5" role="button" aria-expanded="true" aria-controls="widget-5">
+                                        Price Range
+                                    </a>
+                                </h3><!-- End .widget-title -->
+                            
+                                <div class="collapse show" id="widget-5">
+                                    <div class="widget-body">
+                                        <div class="filter-price">
+                                            <div class="price-range-inputs">
+                                                <input type="number" id="min-price-input" placeholder="Enter Min Price">
+                                                <input type="number" id="max-price-input" placeholder="Enter Max Price">
+                                            </div>
+                            
+                                            <button id="apply-price-filter" class="btn btn-primary">Apply Price Filter</button>
+                                        </div><!-- End .filter-price -->
+                                    </div><!-- End .widget-body -->
+                                </div><!-- End .collapse -->
+                            </div><!-- End .widget -->
+                            
+                            
+                            
+                            
+                        </div><!-- End .sidebar sidebar-shop -->
+                    </aside><!-- End .col-lg-3 -->
+                </div><!-- End .row -->
+            </div><!-- End .container -->
+        </div><!-- End .page-content -->
+    </main><!-- End .main -->
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.custom-control-input');
+    const applyPriceFilterButton = document.getElementById('apply-price-filter');
+    const clearAllFiltersLink = document.querySelector('.sidebar-filter-clear');
+    const searchInput = document.getElementById('search-input');
+    const applySearchFilterButton = document.getElementById('apply-search-filter');
+
+    // Function to update the product list based on the current filters and search term
+    function updateProductList() {
+        const queryParams = new URLSearchParams(window.location.search);
+
+        // Update categories
+        let selectedCategories = [];
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                selectedCategories.push(cb.id);
+            }
+        });
+        queryParams.set('categories', selectedCategories.join(','));
+
+        // Update price range
+        const minPrice = document.getElementById('min-price-input').value;
+        const maxPrice = document.getElementById('max-price-input').value;
+        queryParams.set('minPrice', minPrice);
+        queryParams.set('maxPrice', maxPrice);
+
+        // Update search term
+        const searchTerm = searchInput.value;
+        queryParams.set('search', searchTerm);
+
+        const newUrl = '?' + queryParams.toString();
+
+        // Use AJAX to fetch the filtered data without reloading the page
+        $.ajax({
+            url: newUrl,
+            type: 'GET',
+            success: function(data) {
+                // Replace the existing product list with the new one
+                $('#product-list-container').html(data);
+            },
+            error: function(error) {
+                console.error('Error fetching filtered data:', error);
+            }
+        });
+    }
+
+    // Apply category filter when a checkbox is changed
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateProductList);
+    });
+
+    // Apply price filter when the "Apply Price Filter" button is clicked
+    applyPriceFilterButton.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        updateProductList();
+    });
+
+    // Clear all filters when the "Clean All" link is clicked
+    clearAllFiltersLink.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent the default link behavior
+
+        // Clear category checkboxes
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        // Clear price range inputs
+        document.getElementById('min-price-input').value = '';
+        document.getElementById('max-price-input').value = '';
+
+        // Clear search input
+        searchInput.value = '';
+
+        // Update the URL to remove filter parameters
+        const queryParams = new URLSearchParams(window.location.search);
+        queryParams.delete('categories');
+        queryParams.delete('minPrice');
+        queryParams.delete('maxPrice');
+        queryParams.delete('search');
+        const newUrl = '?' + queryParams.toString();
+
+        // Use AJAX to fetch the filtered data without reloading the page
+        $.ajax({
+            url: newUrl,
+            type: 'GET',
+            success: function(data) {
+                // Replace the existing product list with the new one
+                $('#product-list-container').html(data);
+            },
+            error: function(error) {
+                console.error('Error fetching filtered data:', error);
+            }
+        });
+    });
+
+    // Apply search filter when the "Search" button is clicked
+    applySearchFilterButton.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        updateProductList();
+    });
+});
+
+</script>
+
+<%-include('../layouts/footbar.ejs')%>
+<%-include('../layouts/footer.ejs')%>

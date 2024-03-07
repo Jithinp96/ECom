@@ -36,19 +36,30 @@ const addCoupon = async (req, res) => {
             startDate,
             expiryDate,
         } = req.body;
-      
-        const newCoupon = new Coupon({
-            couponCode: couponCode,
-            discountAmount: discountAmount,
-            minOrderAmount: minOrderAmount,
-            couponDescription: couponDescription,
-            startDate: startDate,
-            expiryDate: expiryDate,
-            active: true,
-        });
-        const newCouponSaved = await newCoupon.save();
-        res.redirect('/admin/coupon');
-        // res.status(201).json(savedCoupon);
+
+        const capitalCouponCode = couponCode.toUpperCase();
+        const exist = await Coupon.findOne({couponCode: capitalCouponCode});
+
+        if(exist){
+            console.log("Coupon code already exist");
+            req.flash("error","Coupon code already exist");
+            res.redirect('/admin/addcoupon');
+        }
+        
+        else{
+            const newCoupon = new Coupon({
+                couponCode: capitalCouponCode,
+                discountAmount: discountAmount,
+                minOrderAmount: minOrderAmount,
+                couponDescription: couponDescription,
+                startDate: startDate,
+                expiryDate: expiryDate,
+                active: true,
+            });
+            await newCoupon.save();
+            res.redirect('/admin/coupon');
+            // res.status(201).json(savedCoupon);
+        }
     } catch (err) {
         console.error('Error saving coupon:', err.message);
         res.status(500).send('Internal Server Error');
@@ -58,7 +69,6 @@ const addCoupon = async (req, res) => {
 const deleteCoupon = async (req, res) => {
     const couponId = req.params.id;
     try {
-        
         await Coupon.findByIdAndDelete(couponId);
         res.sendStatus(204); 
     } catch (error) {
@@ -155,7 +165,8 @@ const removeCoupon = async (req, res) => {
         }
 
         const { subTotal, offerDiscount, couponDiscount } = updatedCart;
-        const newGrandTotal = subTotal - offerDiscount - couponDiscount;
+        // const newGrandTotal = subTotal - offerDiscount - couponDiscount;
+        const newGrandTotal = subTotal - couponDiscount;
 
         
         updatedCart.grandTotal = newGrandTotal;
@@ -167,6 +178,61 @@ const removeCoupon = async (req, res) => {
     }
 }
 
+
+const loadEditCoupon = async (req, res) => {
+    try {
+        const couponId = req.params.couponId;
+        const coupon = await Coupon.findById(couponId);
+
+        if (!coupon) {
+            return res.status(404).send('Coupon not found');
+        }
+
+        res.render('editCoupon', { coupon: coupon });
+    } catch (error) {
+        console.error('Error in loadEditCoupon controller:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+const editCoupon = async (req, res) => {
+    try {
+        const couponId = req.params.couponId;
+        const { couponCode, discountAmount, minOrderAmount, couponDescription, startDate, expiryDate } = req.body;
+
+        // Get the existing coupon
+        const existingCoupon = await Coupon.findById(couponId);
+
+        const capitalCouponCode = couponCode.toUpperCase();
+        const exist = await Coupon.findOne({couponCode: capitalCouponCode});
+
+        if(exist){
+            console.log("Coupon code already exist");
+            req.flash("error","Coupon code already exist");
+            res.redirect('/admin/addcoupon');
+        }
+        else {
+            // Update the existing coupon with the new information
+            await Coupon.findByIdAndUpdate(couponId, {
+                couponCode: capitalCouponCode,
+                discountAmount: discountAmount,
+                minOrderAmount: minOrderAmount,
+                couponDescription: couponDescription,
+                startDate: startDate,
+                expiryDate: expiryDate,
+                // Use the existing status if not provided in the form data
+                // is_listed: req.body.is_listed || existingCoupon.is_listed
+            });
+        }
+
+        res.redirect('/admin/coupon'); // Redirect to a suitable route after successful submission
+    } catch (error) {
+        console.log(error.message);
+        req.flash('err', 'Error editing coupon. Please try again');
+    }
+};
+
+
 module.exports = {
     loadCouponPage,
     loadAddCoupon,
@@ -174,4 +240,6 @@ module.exports = {
     deleteCoupon,
     applyCoupon,
     removeCoupon,
+    loadEditCoupon,
+    editCoupon,
 }

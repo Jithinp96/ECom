@@ -33,15 +33,16 @@
                                                 <div class="product">
                                                     <figure class="product-media">
                                                         <a href="#">
-                                                            <img src="<%= product.productid.image[2] %>" alt="Product image">
+                                                            <img src="<%= product.productid.image[0] %>" alt="Product image">
                                                         </a>
                                                     </figure>
                                                     <h3 class="product-title">
                                                         <a href="#"><%= product.productid.name %></a>
                                                     </h3><!-- End .product-title -->
                                                 </div><!-- End .product -->
+                                                
                                             </td>
-                                            <td class="price-col">₹<%= product.productid.price %></td>
+                                            <td class="price-col">₹<span id="product-price"><%= product.productid.price %></span></td>
                                             <td class="quantity-col">
                                                 <div class="cart-product-quantity">
                                                     <input 
@@ -49,17 +50,17 @@
                                                         class="form-control quantity-input" 
                                                         value="<%= product.quantity %>" 
                                                         min="1" 
-                                                        max="10" 
+                                                        max="<%= product.productid.quantity %>" 
                                                         step="1" 
                                                         data-decimals="0" 
                                                         required
-                                                        oninput="updateTotalPrice(this, '<%= product.price %>', '<%= product.productid %>')"
+                                                        id="<%= product.productid._id %>"
                                                     >
-                                                </div> <!-- End .cart-product-quantity -->
+                                                </div>
                                             </td>
                                             <td class="total-col">₹<%= product.totalPrice %></td>
                                             <td class="remove-col">
-                                                <button class="btn-remove" onclick="removeProduct('<%= product.productid %>')">
+                                                <button class="btn-remove" onclick="removeProduct('<%= product.productid._id %>')">
                                                     <i class="icon-close"></i>
                                                 </button>
                                             </td>
@@ -138,62 +139,6 @@
         </div><!-- End .cart -->
     </div><!-- End .page-content -->
 </main><!-- End .main -->
-
-
-
-<script>
-    function removeProduct(productId) {
-        // Send a DELETE request to the server to remove the product
-        console.log("Inside remove fn");
-        console.log(("productId: ", productId));
-        fetch(`/removeFromCart/${productId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Handle success, you can update the UI as needed
-            console.log(data);
-            // Optionally, you can reload the cart page or update the UI without a page reload
-            window.location.reload();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
-
-    function updateTotalPrice(inputElement, productPrice) {
-        const quantity = inputElement.value;
-        const totalPriceElement = inputElement.closest('tr').querySelector('.total-col');
-
-        const total = quantity * productPrice;
-        totalPriceElement.textContent = `₹${total.toFixed(2)}`;
-
-        // You may also need to update the grand total here based on all products' total prices
-        updateGrandTotal();
-    }
-
-
-
-    function updateGrandTotal() {
-        // Calculate and update the grand total based on all products' total prices
-        const totalElements = document.querySelectorAll('.total-col');
-        let grandTotal = 0;
-
-        totalElements.forEach(element => {
-            grandTotal += parseFloat(element.textContent.replace('₹', ''));
-        });
-
-        document.querySelector('.summary-total td:last-child').textContent = `₹${grandTotal.toFixed(2)}`;
-    }
-</script>
 
 
 <footer class="footer">
@@ -276,5 +221,105 @@
 </body>
 
 
-<!-- molla/cart.html  22 Nov 2019 09:55:06 GMT -->
+<script>
+    function removeProduct(productId) {
+        // Send a DELETE request to the server to remove the product
+        console.log("Inside remove fn");
+        console.log(("productId: ", productId));
+        fetch(`/removeFromCart/${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Handle success, you can update the UI as needed
+            console.log(data);
+            // Optionally, you can reload the cart page or update the UI without a page reload
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    function updateTotalPrice(inputElement, productPrice) {
+        const quantity = inputElement.value;
+        const totalPriceElement = inputElement.closest('tr').querySelector('.total-col');
+
+        const total = quantity * productPrice;
+        totalPriceElement.textContent = `₹${total.toFixed(2)}`;
+
+        // You may also need to update the grand total here based on all products' total prices
+        updateGrandTotal();
+    }
+
+
+
+    function updateGrandTotal() {
+        // Calculate and update the grand total based on all products' total prices
+        const totalElements = document.querySelectorAll('.total-col');
+        let grandTotal = 0;
+
+        totalElements.forEach(element => {
+            grandTotal += parseFloat(element.textContent.replace('₹', ''));
+        });
+
+        document.querySelector('.summary-total td:last-child').textContent = `₹${grandTotal.toFixed(2)}`;
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+<script>
+    
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', async (event) => {
+            const productId = input.id;
+            console.log("productId: ", productId);
+            const quantity = input.value;
+            console.log("quantity: ", quantity);
+            const cartId = '<%= cartId %>'; 
+            console.log("cartId: ", cartId);
+            
+
+            const response = await updateCartQuantity(cartId, productId, quantity);
+            console.log("response: ", response);
+
+            // Update total price and subtotal on the frontend
+            // For example:
+            document.getElementById('subtotal').innerText = response.subtotal;
+            document.getElementById('totalPrice').innerText = response.totalPrice;
+        });
+    });
+
+    async function updateCartQuantity(cartId, productId, quantity) {
+        console.log("Inside the update quantity fn");
+        try {
+            const response = await fetch('/updateQuantity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ cartId, productId, quantity })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to update quantity');
+            }
+            location.reload();
+            return await response.json();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+</script>
+
 </html>

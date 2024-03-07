@@ -21,10 +21,14 @@ const offerController = require("../controllers/offerController");
 
 admin_route.get('/login',adminAuth.isLogout,adminController.loadAdminLogin);
 admin_route.get('/',adminAuth.isLogout,adminController.loadAdminLogin);
-admin_route.post('/loginsubmit',adminController.adminVerifyLogin);
+admin_route.post('/loginsubmit', adminController.adminVerifyLogin);
+
+admin_route.get('/logout', adminController.adminLogout);
 
 
 admin_route.get('/dashboard', adminAuth.isLogin, adminDashboardController.loadDashboard);
+admin_route.post("/order-filter", adminDashboardController.filterDashboard);
+
 admin_route.get('/userlist', adminAuth.isLogin, adminController.loadUserList);
 admin_route.post('/toggle_user_status/:id', adminController.toggleUserStatus);
 
@@ -51,13 +55,16 @@ admin_route.get('/salesreport', adminDashboardController.loadSalesReport);
 admin_route.post('/salesreport', adminDashboardController.generateSalesReport);
 
 
-admin_route.get('/coupon', couponController.loadCouponPage);
-admin_route.get('/addcoupon', couponController.loadAddCoupon);
+admin_route.get('/coupon', adminAuth.isLogin, couponController.loadCouponPage);
+admin_route.get('/addcoupon', adminAuth.isLogin, couponController.loadAddCoupon);
 admin_route.post('/submitCoupon', couponController.addCoupon);
 admin_route.delete('/deletecoupon/:id', couponController.deleteCoupon);
 
-admin_route.get('/offer', offerController.loadOffer);
-admin_route.get('/addoffer', offerController.loadAddOffer);
-admin_route.post('/submitOffer', offerController.addOffer);
+admin_route.get('/editCoupon/:couponId', adminAuth.isLogin, couponController.loadEditCoupon);
+admin_route.post('/submitEditCoupon/:couponId', couponController.editCoupon);
+
+admin_route.get('/offer', adminAuth.isLogin, offerController.loadOffer);
+admin_route.get('/addoffer', adminAuth.isLogin, offerController.loadAddOffer);
+admin_route.post('/submitOffer', adminAuth.isLogin, offerController.addOffer);
 
 module.exports = admin_route;

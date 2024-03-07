@@ -12,7 +12,7 @@ const loadWishlist = async (req, res) => {
             model: Product, // Use the actual Product model
             select: 'name price quantity image',
         });
-        res.render('wishlist', {wishlistProduct})
+        res.render('user/wishlist', {wishlistProduct})
     } catch (error) {
         console.log(error);
     }

@@ -4,9 +4,12 @@ const nodemailer = require('nodemailer')
 // const userAuth = require("../middlewares/userAuth")
 const Order = require("../models/orderModel");
 const Wallet = require('../models/walletModel');
+const Category = require ("../models/categoryModel");
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const Token = require("../models/tokenModel")
+const Cart = require("../models/cartModel");
+const Wishlist = require("../models/wishlistModel");
 
 const UserOTPVerification = require("../models/userOTPVerification");
 const Products = require("../models/productModel");
@@ -23,7 +26,7 @@ const securePassword = async(password) => {
 
 const loadRegister = async (req, res) => {
     try {
-        res.render('registration')
+        res.render('user/registration')
     } catch(error) {
         console.log(error);
     }
@@ -37,7 +40,7 @@ const insertUser = async (req, res) => {
 
         if(exist){
             req.flash('email', 'Email already exists');
-            res.render('registration');
+            res.render('user/registration');
         }
         else{
             const spassword = await securePassword(req.body.password);
@@ -116,7 +119,7 @@ const loadOTP = async (req, res) => {
     try {
         console.log("Inside Load OTP page");
         const email = req.query.email;
-        res.render('OTPVerification', { email: email});
+        res.render('user/OTPVerification', { email: email});
 
     } catch (error) {
         console.log(error);
@@ -133,7 +136,7 @@ const verifyOTP = async (req, res) => {
         // console.log('userVerification:', userVerification);
 
         if (! userVerification) {
-            res.render('OTPVerification', {email, errorMessage:"OTP Expired. Please resend OTP and try again...!!!"})
+            res.render('user/OTPVerification', {email, errorMessage:"OTP Expired. Please resend OTP and try again...!!!"})
             return;
         }
 
@@ -184,7 +187,7 @@ const verifyOTP = async (req, res) => {
         } else {
             // req.flash('error', 'OTP is incorrect. Please login to reverify OTP again...!!!');
             // res.redirect('/login')
-            res.render('OTPVerification', {email, errorMessage:"Invalid OTP. Please try again...!!!"})
+            res.render('user/OTPVerification', {email, errorMessage:"Invalid OTP. Please try again...!!!"})
         }
 
     } catch (error) {
@@ -220,7 +223,7 @@ const resendOTP = async (req, res) => {
 
 const loadForgotPassword = async (req,res)=>{
     try {
-        res.render('forgotpassword')
+        res.render('user/forgotpassword')
     } catch (error) {
         console.log(error.message);
     }
@@ -238,8 +241,8 @@ const submitForgotPassword = async (req, res) => {
 
         // Generate a token
         const token = crypto.randomBytes(20).toString('hex');
-        console.log("userData._id,:", userData._id);
-        console.log("Generated TOken: ", token);
+        // console.log("userData._id,:", userData._id);
+        // console.log("Generated TOken: ", token);
         // Save the token in the database
         const tokenData = new Token({
             Token: token,
@@ -292,7 +295,7 @@ const loadResetPassword = async (req,res)=>{
         }
 
         // Pass the token to the reset password page
-        res.render('resetpassword',{token});
+        res.render('user/resetpassword',{token});
     } catch (error) {
         console.log(error.message);
     }
@@ -302,15 +305,15 @@ const loadResetPassword = async (req,res)=>{
 const submitResetPassword = async (req,res)=>{
     try {
         const token = req.body.token;
-        console.log("token: ", token);
+        // console.log("token: ", token);
         const newPassword = req.body.newPassword;
-        console.log("newPassword", newPassword);
+        // console.log("newPassword", newPassword);
         const confirmPassword = req.body.confirmPassword;
-        console.log("confirmPassword", confirmPassword);
+        // console.log("confirmPassword", confirmPassword);
 
         // Find the user associated with the token
         const tokenData = await Token.findOne({ Token: token });
-        console.log("tokenData", tokenData);
+        // console.log("tokenData", tokenData);
 
         if (!tokenData) {
             console.log("Inside not tokendata");
@@ -363,7 +366,7 @@ const verifyLogin = async(req, res) => {
                     if(!userData.is_verified){
                         console.log("Non verified user reverifying");
                         sendOTPVerificationEmail(userData, res);
-                        // res.render('login', {message:"Your email is not verified...!!!"});
+                        // res.render('user/login', {message:"Your email is not verified...!!!"});
                     }
                     else{
                         req.session.userid = userData._id;
@@ -378,14 +381,14 @@ const verifyLogin = async(req, res) => {
                 
             }
             else {
-                // res.render('login',{message:"Email or Password is Incorrect...!!!"});
+                // res.render('user/login',{message:"Email or Password is Incorrect...!!!"});
                 req.flash('error', 'Email or Password is Incorrect...!!!')
                 res.redirect('/login');
                 console.log("Wrong Password");
             }
         }
         else{
-            // res.render('login',{message:"Email or Password is Incorrect...!!!"});
+            // res.render('user/login',{message:"Email or Password is Incorrect...!!!"});
             req.flash('error', 'Email or Password is Incorrect...!!!')
             res.redirect('/login');
             console.log("Wrong Email");
@@ -411,7 +414,7 @@ const userLogout = async (req, res) => {
 
 const loadLogin = async (req, res) => {
     try {
-        res.render('login', { message: "" })
+        res.render('user/login', { message: "" })
     }
     catch(error) {
         console.log(error.message);
@@ -420,7 +423,7 @@ const loadLogin = async (req, res) => {
 
 const loadAboutUs = async (req, res) => {
     try {
-        res.render('aboutUs')
+        res.render('user/aboutUs')
     }
     catch(error) {
         console.log(error.message);
@@ -429,7 +432,7 @@ const loadAboutUs = async (req, res) => {
 
 const loadContactUs = async (req, res) => {
     try {
-        res.render('contactUs')
+        res.render('user/contactUs')
     }
     catch(error) {
         console.log(error.message);
@@ -444,7 +447,7 @@ const loadHome = async (req, res) => {
   try {
     const totalItems = await Products.countDocuments({ is_listed: true });
     const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-
+    const categories = await Category.find({is_listed: true})
     const products = await Products.find({ is_listed: true })
       .skip((page - 1) * ITEMS_PER_PAGE)
       .limit(ITEMS_PER_PAGE);
@@ -453,12 +456,14 @@ const loadHome = async (req, res) => {
     const cartCount = res.locals.cartCount;
     const wishlistCount = res.locals.wishlistCount;
 
-    res.render('home', { userAuthenticated: req.session.userid, products, currentPage: page, totalPages, cartCount, wishlistCount });
+    res.render('user/home', { userAuthenticated: req.session.userid, products, currentPage: page, totalPages, cartCount, wishlistCount, categories });
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Internal Server Error');
   }
 }
+
+
 
 const loadProductDetails = async (req, res) => {
     try {
@@ -469,21 +474,127 @@ const loadProductDetails = async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(productId)) {
             return res.status(400).json({ error: 'Invalid product ID' });
         }
-
+        console.log("Reached above product finding");
         const product = await Products.findById(productId);
 
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        res.render('productDetailsPage', { product, userId });
+        // Check if the product is already in the cart
+        const cart = await Cart.findOne({ userid: userId, 'product.productid': productId });
+        let alreadyInCart = false;
+
+        // If the product is in the cart, set alreadyInCart to true
+        if (cart) {
+            alreadyInCart = true;
+        }
+
+        const wishlist = await Wishlist.findOne({ userid: userId, 'product.productid': productId });
+        let alreadyInWishlist = false;
+
+        // If the product is in the cart, set alreadyInCart to true
+        if (wishlist) {
+            alreadyInWishlist = true;
+        }
+
+        res.render('user/productDetailsPage', { product, userId, alreadyInCart, alreadyInWishlist });
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
 
+const loadPaymentPolicy = async (req, res) => {
+    try {
+        res.render("user/paymentpolicy");
+    } catch (error) {
+        console.log(error);
+    }
+}
 
+const ITEMS_PER_PAGE_SHOP = 9;
+
+const loadAllProducts = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    try {
+        const categoriesQueryParam = req.query.categories;
+        const minPrice = parseInt(req.query.minPrice) || 0;
+        const maxPrice = parseInt(req.query.maxPrice) || 10000; // Assuming 1000 is the maximum price
+        const searchTerm = req.query.search;
+
+        let filter = { is_listed: true };
+
+        if (categoriesQueryParam) {
+            const categoryIds = categoriesQueryParam.split(',');
+            filter.category = { $in: categoryIds };
+        }
+
+        // Add price range filter
+        filter.price = { $gte: minPrice, $lte: maxPrice };
+
+        if (searchTerm) {
+            // Assuming 'name' is the field you want to search in
+            // Adjust this according to your schema
+            filter.$or = [
+                { name: { $regex: searchTerm, $options: 'i' } },
+                // Add more fields here if you want to search in other fields
+            ];
+        }
+
+        const totalItems = await Products.countDocuments(filter);
+        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE_SHOP);
+        const categories = await Category.find({is_listed: true});
+
+        const products = await Products.find(filter)
+            .populate('category')
+            .skip((page - 1) * ITEMS_PER_PAGE_SHOP)
+            .limit(ITEMS_PER_PAGE_SHOP);
+
+        if (req.xhr) {
+            res.render("partials/productList", { products, currentPage: page, totalPages });
+        } else {
+            res.render("user/allproducts", { products, currentPage: page, totalPages, categories });
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+
+// const loadAllProducts = async (req, res) => {
+//     const page = parseInt(req.query.page) || 1;
+//     try {
+//         const categoriesQueryParam = req.query.categories;
+//         let categoryFilter = {};
+
+//         if (categoriesQueryParam) {
+//             const categoryIds = categoriesQueryParam.split(',');
+//             categoryFilter = { category: { $in: categoryIds } };
+//         }
+
+//         const totalItems = await Products.countDocuments({ is_listed: true, ...categoryFilter });
+//         const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE_SHOP);
+//         const categories = await Category.find({is_listed: true});
+
+//         const products = await Products.find({ is_listed: true, ...categoryFilter })
+//             .populate('category')
+//             .skip((page - 1) * ITEMS_PER_PAGE_SHOP)
+//             .limit(ITEMS_PER_PAGE_SHOP);
+
+//         if (req.xhr) {
+//             res.render("partials/productList", { products, currentPage: page, totalPages });
+//         } else {
+//             res.render("user/allproducts", { products, currentPage: page, totalPages, categories });
+//         }
+
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// }
 
 
 module.exports ={
@@ -500,11 +611,14 @@ module.exports ={
     loadResetPassword,
     submitResetPassword,
 
-
+    
     userLogout,
     loadLogin,
     loadHome,
     loadAboutUs,
     loadContactUs,
     loadProductDetails,
+    loadPaymentPolicy,
+
+    loadAllProducts,
 }

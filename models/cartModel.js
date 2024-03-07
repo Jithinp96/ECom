@@ -11,12 +11,15 @@ const cartSchema = mongoose.Schema({
             productid: {
                 type: mongoose.Schema.ObjectId,
                 ref: 'Products',
-                // first Product en ayrn... pine coupon time matith an
                 required: true
             },
             quantity: {
                 type: Number,
                 default: 1
+            },
+            offerDiscount: {
+                type: Number,
+                default: 0
             },
             totalPrice: {
                 type: Number,
@@ -29,10 +32,6 @@ const cartSchema = mongoose.Schema({
         }
     ],
     subTotal: {
-        type: Number,
-        default: 0
-    },
-    offerDiscount: {
         type: Number,
         default: 0
     },

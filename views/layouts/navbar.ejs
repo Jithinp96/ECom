@@ -36,7 +36,7 @@
                     <span class="sr-only">Toggle mobile menu</span>
                     <i class="icon-bars"></i>
                 </button>
-                <a href="index.html" class="logo">
+                <a href="/home" class="logo">
                     <img src="/assets/images/logo.png" alt="FurnIt Logo" width="155" height="45">
                 </a>
                 <nav class="main-nav">
@@ -45,14 +45,18 @@
                             <a href="/home" class="sf-with-ul">Home</a>
                         </li>
                         <li>
-                            <a href="product.html" class="sf-with-ul">Product</a>
+                            <a href="/allproducts" class="sf-with-ul">Product</a>
                             <div class="megamenu megamenu-sm">
                                 <div class="row no-gutters">
                                     <div class="col-md-6">
                                         <div class="menu-col">
-                                            <div class="menu-title">Product Details</div><!-- End .menu-title -->
+                                            <div class="menu-title">Categories</div><!-- End .menu-title -->
                                             <ul>
-                                                <li><a href="/sofa">Sofas</a></li>
+                                                
+                                                <%categories.forEach((el) => {%>
+                                                 <li><a href="/category/<%= el._id %>"><%= el.name %></a></li>
+                                                <%})%>
+                                             
                                             </ul>
                                         </div><!-- End .menu-col -->
                                     </div><!-- End .col-md-6 -->

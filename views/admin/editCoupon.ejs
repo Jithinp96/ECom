@@ -7,8 +7,8 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Enter Coupon Details</h4>
-                        <form action="/admin/submitCoupon" method="POST" onsubmit="return validateCouponForm()">
+                        <h4 class="card-title">Edit Coupon Details</h4>
+                        <form action="/admin/submitEditCoupon/<%= coupon._id %>" method="POST" onsubmit="return validateCouponForm()">
                             <% if (messages.error) { %>
                                 <div class="alert alert-danger">
                                     <%= messages.error %>
@@ -23,7 +23,7 @@
                                             <div class="row">
                                                 <div class="col-md-11">
                                                     <input type="text" class="form-control" id="couponCode" name="couponCode"
-                                                        placeholder="Enter Coupon Code">
+                                                        placeholder="Enter Coupon Code" value="<%= coupon.couponCode %>">
                                                     <div id="couponCodeContainer" class="text-danger"></div>
                                                 </div>
                                             </div>
@@ -37,7 +37,7 @@
                                             <div class="row">
                                                 <div class="col-md-11">
                                                     <input type="text" class="form-control" id="discount" name="discountAmount"
-                                                        placeholder="Enter Discount">
+                                                        placeholder="Enter Discount" value="<%= coupon.discountAmount %>">
                                                     <div id="discountContainer" class="text-danger"></div>
                                                 </div>
                                             </div>
@@ -51,7 +51,7 @@
                                             <div class="row">
                                                 <div class="col-md-11">
                                                     <input type="text" class="form-control" id="minAmount" name="minOrderAmount"
-                                                        placeholder="Enter Min Amount">
+                                                        placeholder="Enter Min Amount" value="<%= coupon.minOrderAmount %>">
                                                     <div id="minAmountContainer" class="text-danger"></div>
                                                 </div>
                                             </div>
@@ -65,7 +65,7 @@
                                             <div class="row">
                                                 <div class="col-md-11">
                                                     <textarea class="form-control" rows="3" id="couponDescription" name="couponDescription"
-                                                        placeholder="Text Here..."></textarea>
+                                                        placeholder="Text Here..."><%= coupon.couponDescription %></textarea>
                                                     <div id="couponDescriptionContainer" class="text-danger"></div>
                                                 </div>
                                             </div>
@@ -78,7 +78,7 @@
                                         <div class="col-lg-10">
                                             <div class="row">
                                                 <div class="col-md-11">
-                                                    <input type="date" class="form-control" id="startDate" name="startDate">
+                                                    <input type="date" class="form-control" id="startDate" name="startDate" value="<%= coupon.startDate %>">
                                                     <div id="startDateContainer" class="text-danger"></div>
                                                 </div>
                                             </div>
@@ -91,7 +91,7 @@
                                         <div class="col-lg-10">
                                             <div class="row">
                                                 <div class="col-md-11">
-                                                    <input type="date" class="form-control" id="expiryDate" name="expiryDate">
+                                                    <input type="date" class="form-control" id="expiryDate" name="expiryDate" value="<%= coupon.expiryDate %>">
                                                     <div id="expiryDateContainer" class="text-danger"></div>
                                                 </div>
                                             </div>
@@ -101,7 +101,7 @@
                             </div>
                             <div class="form-actions">
                                 <div class="text-right">
-                                    <button type="submit" class="btn btn-info">Submit</button>
+                                    <button type="submit" class="btn btn-success">Update</button>
                                     <button type="reset" class="btn btn-dark">Reset</button>
                                 </div>
                             </div>
@@ -113,6 +113,7 @@
     </div>
 </div>
 
+<!-- LISTING AND UNLISTING -->
 
 <script>
     function validateCouponForm() {
@@ -145,7 +146,7 @@
 
         // Validate Discount
         if (!discount.trim()) {
-            displayError('discountContainer', 'Discount amount is required.');
+            displayError('discountContainer', 'Discount is required.');
             return false;
         }
         if (isNaN(discount) || discount <= 0) {
@@ -155,10 +156,9 @@
 
         // Validate Min Amount
         if (!minAmount.trim()) {
-            displayError('minAmountContainer', 'Minimum Amount is required.');
+            displayError('minAmountContainer', 'Min Amount is required.');
             return false;
         }
-
         if (isNaN(minAmount) || minAmount <= 0)  {
             displayError('minAmountContainer', 'Enter a valid minimum amount.');
             return false;
@@ -174,7 +174,6 @@
             displayError('couponDescriptionContainer', 'Coupon Description is required.');
             return false;
         }
-
         if(couponDescription.length < 10) {
             displayError('couponDescriptionContainer', 'Coupon Description must have minimum 10 character.');
             return false;
@@ -196,6 +195,7 @@
             displayError('expiryDateContainer', 'Expiry Date should be after start  date.');
             return false;
         }
+
 
         // If all validations pass, return true
         return true;
@@ -222,9 +222,6 @@
         document.getElementById(containerId).innerHTML = errorMessage;
     }
 </script>
-
-
-
 
 
 <%-include('../layouts/adminFooter.ejs')%>

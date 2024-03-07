@@ -1,4 +1,4 @@
-    <%-include('../layouts/header.ejs')%>
+<%-include('../layouts/header.ejs')%>
 <%-include('../layouts/navbar.ejs')%>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10"></link>
@@ -33,7 +33,7 @@
                             
                             <div class="input-group-append" id="couponButtons">
                                 <% if (couponDiscount > 0) { %>
-                                    <p>Coupon Applied</p>
+                                    <h4>Coupon Applied</h4>
                                     <button type="button" onclick="removeCoupon()" class="btn btn-danger mb-2 ml-4" id="removeCouponBtn">Remove Coupon</button>
                                 <% } else { %>
                                     <input type="text" class="form-control" id="couponCode" placeholder="Enter coupon code" aria-label="Enter coupon code" aria-describedby="couponButtons">
@@ -43,7 +43,7 @@
                         </div>
                     </form>
                 </div>
-                <form action="/placeorder" method="POST">
+                <!-- <form action="/placeorder" method="POST"> -->
                     <div class="row">
                         
                         <div class="col-lg-9">
@@ -120,11 +120,11 @@
                                         </tr>
                                         <tr>
                                             <td>Discount:</td>
-                                            <td>-₹<%= discount %></td> <!-- Display discount -->
+                                            <td>-₹<%= couponDiscount %></td> <!-- Display discount -->
                                         </tr>
                                         <tr>
                                             <td>Grand Total:</td>
-                                            <td>₹<%= grandTotal %></td> <!-- Display grand total -->
+                                            <td id="grandTotal">₹<%= grandTotal %></td> <!-- Display grand total -->
                                         </tr>
                                     </tbody>
                                 </table><!-- End .table table-summary -->
@@ -148,7 +148,7 @@
                                 <div id="warningMessage" style="display: none;"></div>
                         
                                 <!-- Button to trigger checkout -->
-                                <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block" >
+                                <button type="submit" id="place_order" class="btn btn-outline-primary-2 btn-order btn-block" >
                                     <span class="btn-text">Place Order</span>
                                     <span class="btn-hover-text">Proceed to Checkout</span>
                                 </button>
@@ -156,7 +156,7 @@
                         </aside><!-- End .col-lg-3 -->
                         
                     </div><!-- End .row -->
-                </form>
+                <!-- </form> -->
             </div><!-- End .container -->
         </div><!-- End .checkout -->
     </div><!-- End .page-content -->
@@ -250,9 +250,14 @@
                     $('#updatedTotalPrice').text(`Total: ₹${response.totalPrice}`).show();
                     SuccessSwal(response.message);
                     couponDiscount = response.couponDiscount;
-                    $('#couponReload').load('/checkout #couponReload')
-                    // initializeButtons();
-                    
+                    // $('#couponReload').load('/checkout #couponReload')
+                    // // initializeButtons();
+                    // return
+
+                    $('#couponReload').load('/checkout #couponReload', () => {
+                        reAttachEvent(true);
+                    })
+
                 } else if (response.limit) {
                     Swalfire(response.message);
                 } else if (response.expired) {
@@ -279,7 +284,10 @@
             console.log('Coupon removed successfully:', data);
             Swalfire('Coupon removed successfully');
             couponDiscount = 0;
-            $('#couponReload').load('/checkout #couponReload');
+            // $('#couponReload').load('/checkout #couponReload');
+            $('#couponReload').load('/checkout #couponReload', () => {
+                reAttachEvent(false);
+            });
             // initializeButtons();
             
         },
@@ -316,28 +324,98 @@
 <script>
     let grandTotal = '<%= grandTotal %>';
     console.log("grandTotal: ", grandTotal);
-    document.querySelector("button[type='submit']").addEventListener("click", async function(event) {
-    
-        event.preventDefault();
+    function reAttachEvent(is) {
+        let amount = document.getElementById('grandTotal').innerText;
+        amount= amount.slice(1)
+        let discountTotal = is === true ? amount : grandTotal;
 
+        document.getElementById("place_order").addEventListener("click", async function(event) {
         
-        let radioButton = document.querySelector('input[name="paymentMethod"]:checked');
-        console.log(radioButton);
-        if (radioButton) {
-            let paymentMethod = radioButton.value;
-            if (paymentMethod === "razorpay") {
-                console.log("Razorpay selected");
-                var options = {
-                    
-                    "key": '<%= process.env.RAZORPAY_ID_KEY %>',
-                    "amount": grandTotal * 100,
-                    "currency": "INR",
-                    "name": "FurnIt",
-                    "description": "Test Transaction",
-                    "image": "assets/images/logo.png",
-                    "handler": function(response) {
+            // event.preventDefault();
+
+            
+            let radioButton = document.querySelector('input[name="paymentMethod"]:checked');
+            // console.log(radioButton);
+            if (radioButton) {
+                let paymentMethod = radioButton.value;
+                if (paymentMethod === "razorpay") {
+                    console.log("Razorpay selected");
+                    // console.log(("rzr pay paymentId: ", paymentId));
+                    var options = {
                         
-                        fetch("/placeorder", {
+                        "key": '<%= process.env.RAZORPAY_ID_KEY %>',
+                        "amount": discountTotal * 100,
+                        "currency": "INR",
+                        "name": "FurnIt",
+                        "description": "Test Transaction",
+                        "image": "assets/images/logo.png",
+                        "handler": function(response) {
+    
+                            // console.log(" response.razorpay_payment_id:",  response.razorpay_payment_id);
+                    
+                            fetch("/placeorder", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    selectedAddress: document.getElementById("selectedAddress").value,
+                                    paymentMethod: paymentMethod,
+                                    paymentId: response.razorpay_payment_id
+                                })
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error("Failed to place order");
+                                }
+                                
+                                return response.json();
+                            })
+                            .then(responseData => {
+                                if (responseData.success) {
+                                    // console.log("Inside .then responseData");
+                                    let hashedOrderId = responseData.hashedOrderId;
+                                    // console.log("hashedOrderId: ", hashedOrderId);
+                                    
+                                    window.location.href = `/orderconfirmation/${hashedOrderId}`;
+                                } else {
+                                    
+                                    document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                                    document.getElementById("warningMessage").style.color = "red"; 
+                                    document.getElementById("warningMessage").style.display = "block";
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error placing order:", error);
+                                
+                                document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                                document.getElementById("warningMessage").style.color = "red"; 
+                                document.getElementById("warningMessage").style.display = "block";
+                            });
+                        },
+                        "prefill": {
+                            "name": "Customer Name",
+                            "email": "customer@example.com",
+                            "contact": "9999999999"
+                        },
+                        "theme": {
+                            "color": "#CC9966"
+                        }
+                    };
+                    var rzp = new Razorpay(options);
+                    rzp.open();
+                }
+
+                else if (paymentMethod === "cod") {
+                    
+                    // console.log("Cash on Delivery selected");
+
+                    
+                    const paymentId = generatePaymentId();
+
+                    try {
+                        
+                        const response = await fetch("/placeorder", {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json"
@@ -345,153 +423,91 @@
                             body: JSON.stringify({
                                 selectedAddress: document.getElementById("selectedAddress").value,
                                 paymentMethod: paymentMethod,
-                                paymentId: response.razorpay_payment_id
+                                paymentId: paymentId
                             })
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error("Failed to place order");
-                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error("Failed to place order");
+                        }
+
+                        
+                        const responseData = await response.json();
+                        console.log("responseData: ", responseData);
+
+                        if (responseData.success) {
+                            let hashedOrderId = responseData.hashedOrderId
                             
-                            return response.json();
-                        })
-                        .then(responseData => {
-                            if (responseData.success) {
-                                console.log("Inside .then responseData");
-                                let hashedOrderId = responseData.hashedOrderId;
-                                console.log("hashedOrderId: ", hashedOrderId);
-                                
-                                window.location.href = `/orderconfirmation/${hashedOrderId}`;
-                            } else {
-                                
-                                document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
-                                document.getElementById("warningMessage").style.color = "red"; 
-                                document.getElementById("warningMessage").style.display = "block";
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error placing order:", error);
+                            window.location.href = `/orderconfirmation/${hashedOrderId}`;
+                        } else {
                             
                             document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
                             document.getElementById("warningMessage").style.color = "red"; 
                             document.getElementById("warningMessage").style.display = "block";
+                        }
+                    } catch (error) {
+                        console.error("Error placing order:", error);
+                    
+                        document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                        document.getElementById("warningMessage").style.color = "red"; 
+                        document.getElementById("warningMessage").style.display = "block";
+                    }
+                } else if (paymentMethod === "wallet") {
+                    
+                    // console.log("Wallet selected");
+                    const paymentId = generatePaymentId();
+
+                    try {
+                        
+                        const response = await fetch("/placeorder", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                selectedAddress: document.getElementById("selectedAddress").value,
+                                paymentMethod: paymentMethod,
+                                paymentId: paymentId
+                            })
                         });
-                    },
-                    "prefill": {
-                        "name": "Customer Name",
-                        "email": "customer@example.com",
-                        "contact": "9999999999"
-                    },
-                    "theme": {
-                        "color": "#CC9966"
-                    }
-                };
-                var rzp = new Razorpay(options);
-                rzp.open();
-            }
-
-            else if (paymentMethod === "cod") {
-                
-                console.log("Cash on Delivery selected");
-
-                
-                const paymentId = generatePaymentId();
-
-                try {
-                    
-                    const response = await fetch("/placeorder", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            selectedAddress: document.getElementById("selectedAddress").value,
-                            paymentMethod: paymentMethod,
-                            paymentId: paymentId
-                        })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error("Failed to place order");
-                    }
-
-                    
-                    const responseData = await response.json();
-                    console.log("responseData: ", responseData);
-
-                    if (responseData.success) {
-                        let hashedOrderId = responseData.hashedOrderId
                         
-                        window.location.href = `/orderconfirmation/${hashedOrderId}`;
-                    } else {
+                        if (!response.ok) {
+                            throw new Error("Failed to place order");
+                        }
+
+                        const responseData = await response.json();
+                        console.log("responseData: ", responseData);
+
+                        if (responseData.success) {
+                            let hashedOrderId = responseData.hashedOrderId
+                            
+                            window.location.href = `/orderconfirmation/${hashedOrderId}`;
+                        } else {
+                            
+                            document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                            document.getElementById("warningMessage").style.color = "red"; 
+                            document.getElementById("warningMessage").style.display = "block";
+                        }
+
+                    } catch (error) {
+                        console.error("Error placing order:", error);
                         
                         document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
                         document.getElementById("warningMessage").style.color = "red"; 
                         document.getElementById("warningMessage").style.display = "block";
                     }
-                } catch (error) {
-                    console.error("Error placing order:", error);
-                  
-                    document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
-                    document.getElementById("warningMessage").style.color = "red"; 
-                    document.getElementById("warningMessage").style.display = "block";
                 }
-            } else if (paymentMethod === "wallet") {
+            } else {
                 
-                console.log("Wallet selected");
-                const paymentId = generatePaymentId();
-
-                try {
-                    
-                    const response = await fetch("/placeorder", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            selectedAddress: document.getElementById("selectedAddress").value,
-                            paymentMethod: paymentMethod,
-                            paymentId: paymentId
-                        })
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error("Failed to place order");
-                    }
-
-                    const responseData = await response.json();
-                    console.log("responseData: ", responseData);
-
-                    if (responseData.success) {
-                        let hashedOrderId = responseData.hashedOrderId
-                        
-                        window.location.href = `/orderconfirmation/${hashedOrderId}`;
-                    } else {
-                        
-                        document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
-                        document.getElementById("warningMessage").style.color = "red"; 
-                        document.getElementById("warningMessage").style.display = "block";
-                    }
-
-                } catch (error) {
-                    console.error("Error placing order:", error);
-                    
-                    document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
-                    document.getElementById("warningMessage").style.color = "red"; 
-                    document.getElementById("warningMessage").style.display = "block";
-                }
+                document.getElementById("warningMessage").textContent = "Please select a payment method.";
+                document.getElementById("warningMessage").style.color = "red";
+                document.getElementById("warningMessage").style.display = "block";
             }
-        } else {
-            
-            document.getElementById("warningMessage").textContent = "Please select a payment method.";
-            document.getElementById("warningMessage").style.color = "red";
-            document.getElementById("warningMessage").style.display = "block";
-        }
-    });
+        });
+    }
+    reAttachEvent();
     
     function generatePaymentId() {
-
-        
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
