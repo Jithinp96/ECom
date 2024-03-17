@@ -69,16 +69,34 @@
                                 <div class="product-details">
                                     <h1 class="product-title"><%=product.name%></h1><!-- End .product-title -->
 
-                                    <div class="ratings-container">
+                                    <!-- <div class="ratings-container">
                                         <div class="ratings">
-                                            <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
-                                        </div><!-- End .ratings -->
+                                            <div class="ratings-val" style="width: 80%;"></div>
+                                        </div>
                                         <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
-                                    </div><!-- End .rating-container -->
+                                    </div> -->
 
-                                    <div class="product-price">
+                                    <!-- <div class="product-price">
                                         ₹<%=product.price%>
+                                    </div> -->
+                                    <!-- <style>
+                                    .price-block span {
+                                        display: block;
+                                    }
+                                </style> -->
+                                    <div class="product-price">
+                                        <% if (bestOffer) { %>
+                                            <span class="price-block">
+                                                <span class="out-price" style="text-decoration: line-through;">₹<%=product.price%></span>
+                                                <span class="offer-price">₹<%=product.price - (product.price * (bestOffer.discountPercentage / 100))%></span>
+                                                <span class="discount-percentage" style="color: green;">(<%=bestOffer.discountPercentage%>% off)</span>
+                                            </span>
+                                        <% } else { %>
+                                            ₹<%=product.price%>
+                                        <% } %>
                                     </div><!-- End .product-price -->
+                                    
+
                                     <div class="stock-col">
                                         <% if (product.quantity !== undefined) { %>
                                             <% const quantity = product.quantity; %>
@@ -122,7 +140,7 @@
                                     <div class="product-details-action" id="reloadButton">
                                         <% if (product.quantity > 0) { %>
                                             <% if (!alreadyInCart) { %>
-                                                <a href="#" id="addToCartBtn" class="btn-product btn-cart">
+                                                <a href="" id="addToCartBtn" class="btn-product btn-cart">
                                                     <span>Add to Cart</span>
                                                 </a>
                                             <% } else { %>
@@ -133,22 +151,7 @@
                                         <% } else { %>
                                             <span class="out-of-stock-message text-danger " style="margin-left: 60px;">Out of Stock</span>
                                         <% } %>
-                                        <!-- <% if(!alreadyInCart){%>
-                                            <a href="#" id="addToCartBtn" class="btn-product btn-cart" <% if (product.quantity === 0) { %>disabled style="pointer-events: none; opacity: 0.5;"<% } %>>
-                                                <span>Add to Cart</span>
-                                            </a>
-                                        <%}else{%>
-                                            <a href="/cart" id="viewCartBtn" class="btn-product btn-cart" style="display: none; text-align: center;" >
-                                                <span>View Cart</span>
-                                            </a>
-                                        <%}%> -->
-                                        <!-- <a href="#" id="addToCartBtn" class="btn-product btn-cart">
-                                            <span>Add to Cart</span>
-                                        </a>
-            
-                                        <a href="/cart" id="viewCartBtn" class="btn-product btn-cart" style="display: none; text-align: center;" >
-                                            <span>View Cart</span>
-                                        </a> -->
+                                        
                                         <div class="details-action-wrapper" id="wishlistButton">
                                             <% if (!alreadyInWishlist) { %>
                                                 <a href="#" class="btn-product btn-wishlist" title="Wishlist" id="addToWishlistBtn">
@@ -172,9 +175,9 @@
                             <li class="nav-item">
                                 <a class="nav-link active" id="product-desc-link" data-toggle="tab" href="#product-desc-tab" role="tab" aria-controls="product-desc-tab" aria-selected="true">Description</a>
                             </li>
-                            <li class="nav-item">
+                            <!-- <li class="nav-item">
                                 <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews (2)</a>
-                            </li>
+                            </li> -->
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane fade show active" id="product-desc-tab" role="tabpanel" aria-labelledby="product-desc-link">
@@ -184,7 +187,7 @@
                                     <p><%=product.description%></p>
                                 </div><!-- End .product-desc-content -->
                             </div><!-- .End .tab-pane -->
-                            <div class="tab-pane fade" id="product-review-tab" role="tabpanel" aria-labelledby="product-review-link">
+                            <!-- <div class="tab-pane fade" id="product-review-tab" role="tabpanel" aria-labelledby="product-review-link">
                                 <div class="reviews">
                                     <h3>Reviews (2)</h3>
                                     <div class="review">
@@ -193,53 +196,29 @@
                                                 <h4><a href="#">Samanta J.</a></h4>
                                                 <div class="ratings-container">
                                                     <div class="ratings">
-                                                        <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
-                                                    </div><!-- End .ratings -->
-                                                </div><!-- End .rating-container -->
+                                                        <div class="ratings-val" style="width: 80%;"></div>
+                                                    </div>
+                                                </div>
                                                 <span class="review-date">6 days ago</span>
-                                            </div><!-- End .col -->
+                                            </div>
                                             <div class="col">
                                                 <h4>Good, perfect size</h4>
 
                                                 <div class="review-content">
                                                     <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus cum dolores assumenda asperiores facilis porro reprehenderit animi culpa atque blanditiis commodi perspiciatis doloremque, possimus, explicabo, autem fugit beatae quae voluptas!</p>
-                                                </div><!-- End .review-content -->
+                                                </div>
 
                                                 <div class="review-action">
                                                     <a href="#"><i class="icon-thumbs-up"></i>Helpful (2)</a>
                                                     <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div><!-- End .review-action -->
-                                            </div><!-- End .col-auto -->
-                                        </div><!-- End .row -->
-                                    </div><!-- End .review -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                    <div class="review">
-                                        <div class="row no-gutters">
-                                            <div class="col-auto">
-                                                <h4><a href="#">John Doe</a></h4>
-                                                <div class="ratings-container">
-                                                    <div class="ratings">
-                                                        <div class="ratings-val" style="width: 100%;"></div><!-- End .ratings-val -->
-                                                    </div><!-- End .ratings -->
-                                                </div><!-- End .rating-container -->
-                                                <span class="review-date">5 days ago</span>
-                                            </div><!-- End .col -->
-                                            <div class="col">
-                                                <h4>Very good</h4>
-
-                                                <div class="review-content">
-                                                    <p>Sed, molestias, tempore? Ex dolor esse iure hic veniam laborum blanditiis laudantium iste amet. Cum non voluptate eos enim, ab cumque nam, modi, quas iure illum repellendus, blanditiis perspiciatis beatae!</p>
-                                                </div><!-- End .review-content -->
-
-                                                <div class="review-action">
-                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (0)</a>
-                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div><!-- End .review-action -->
-                                            </div><!-- End .col-auto -->
-                                        </div><!-- End .row -->
-                                    </div><!-- End .review -->
-                                </div><!-- End .reviews -->
-                            </div><!-- .End .tab-pane -->
+                                
+                                </div>
+                            </div> -->
                         </div><!-- End .tab-content -->
                     </div><!-- End .product-details-tab -->
                 </div><!-- End .container -->

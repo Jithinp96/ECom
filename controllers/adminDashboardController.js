@@ -99,6 +99,149 @@ const loadDashboard = async (req,res) => {
                 monthlyData[monthIndex] = item.count;
             });
 
+            const topProductsDetails = await Orders.aggregate([
+                { $unwind: "$products" },
+                { $match: { "products.orderStatus": "Delivered" } },
+                {
+                    $group: {
+                        _id: "$products.productId",
+                        totalQuantitySold: { $sum: "$products.quantity" },
+                        productName: { $first: "$products.name" },
+                        productPrice: { $first: "$products.price" },
+                        productImage: { $first: "$products.image" },
+                    },
+                },
+                { $sort: { totalQuantitySold: -1 } },
+                { $limit: 10 },
+                
+                {
+                    $lookup: {
+                        from: "products",
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "productDetails"
+                    }
+                },
+                
+                { $unwind: "$productDetails" },
+               
+                {
+                    $lookup: {
+                        from: "categories",
+                        localField: "productDetails.category",
+                        foreignField: "_id",
+                        as: "categoryDetails"
+                    }
+                },
+                
+                { $unwind: "$categoryDetails" },
+                
+                {
+                    $project: {
+                        _id: 0,
+                        productId: "$_id",
+                        totalQuantitySold: 1,
+                        productName: "$productDetails.name",
+                        productPrice: "$productDetails.price",
+                        productImage: "$productDetails.image",
+                        categoryName: "$categoryDetails.name" 
+                    }
+                }
+            ]);
+
+            const topCategories = await Orders.aggregate([
+                { $unwind: "$products" },
+                { $match: { "products.orderStatus": "Delivered" } },
+               
+                {
+                    $lookup: {
+                        from: "products",
+                        localField: "products.productId",
+                        foreignField: "_id",
+                        as: "productDetails"
+                    }
+                },
+                
+                { $unwind: "$productDetails" },
+               
+                {
+                    $group: {
+                        _id: "$productDetails.category",
+                        totalQuantitySold: { $sum: "$products.quantity" }, 
+                    },
+                },
+                { $sort: { totalQuantitySold: -1 } }, 
+                { $limit: 10 },
+              
+                {
+                    $lookup: {
+                        from: "categories", 
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "categoryDetails"
+                    }
+                },
+                
+                { $unwind: "$categoryDetails" },
+                
+                {
+                    $project: {
+                        _id: 0,
+                        categoryId: "$_id",
+                        totalQuantitySold: 1,
+                        categoryName: "$categoryDetails.name"
+                    }
+                }
+            ]);
+            
+            const allCategoriesWithSales = await Orders.aggregate([
+                { $unwind: "$products" },
+                { $match: { "products.orderStatus": "Delivered" } },
+                {
+                    $lookup: {
+                        from: "products",
+                        localField: "products.productId",
+                        foreignField: "_id",
+                        as: "productDetails"
+                    }
+                },
+                { $unwind: "$productDetails" },
+                {
+                    $group: {
+                        _id: "$productDetails.category",
+                        totalQuantitySold: { $sum: "$products.quantity" },
+                        totalSalesAmount: { $sum: "$products.total" }, // Calculate total sales amount
+                    },
+                },
+                { $sort: { totalQuantitySold: -1 } }, // Sort by total sales count
+                // Removed the $limit stage to include all categories
+                {
+                    $lookup: {
+                        from: "categories", 
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "categoryDetails"
+                    }
+                },
+                { $unwind: "$categoryDetails" },
+                {
+                    $project: {
+                        _id: 0,
+                        categoryId: "$_id",
+                        totalQuantitySold: 1,
+                        totalSalesAmount: 1, // Include the new field in the projection
+                        categoryName: "$categoryDetails.name"
+                    }
+                }
+            ]);
+
+            const allCategoriesData = allCategoriesWithSales.map(category => ({
+                categoryName: category.categoryName,
+                totalSalesCount: category.totalQuantitySold,
+                totalSalesAmount: category.totalSalesAmount
+            }));
+            
+            
         res.render('adminDashboard', {
             userCount,
             orderCount,
@@ -110,12 +253,13 @@ const loadDashboard = async (req,res) => {
             cancelledCount,
             monthlyData,
             montlyEarning,
-
+            topProductsDetails,
+            topCategories,
+            allCategoriesData: JSON.stringify(allCategoriesData),
         });
     } catch (error) {
         console.log(error);
     }
-    
 }
 
 const filterDashboard = async (req, res) => {
@@ -189,7 +333,8 @@ const generateSalesReport = async (req, res) => {
             }
           )
           .populate('userId')
-          .populate('products.productId');
+          .populate('products.productId')
+          .sort({ date: -1 });
           
         res.render('salesreport', { orders })
 

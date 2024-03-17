@@ -22,7 +22,7 @@ const offerSchema = mongoose.Schema({
 
     is_active: {
         type : Boolean,
-        default : false
+        default : true
     }
 });
 

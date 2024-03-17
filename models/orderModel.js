@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate-v2');
+
 
 const orderSchema = mongoose.Schema({
     userId: {
@@ -10,6 +12,7 @@ const orderSchema = mongoose.Schema({
         productId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Products',
+            required: true
         },
         name: {
             type: String,
@@ -88,6 +91,18 @@ const orderSchema = mongoose.Schema({
         mobile: String,
     }
 });
+
+// async function checkForDeliveredItems(orderId) {
+//     try {
+//         const order = await Order.findOne({ orderId: orderId, 'products.orderStatus': 'Delivered' });
+//         return order !== null;
+//     } catch (error) {
+//         console.error('Error checking for delivered items:', error);
+//         return false;
+//     }
+// }
+
+orderSchema.plugin(mongoosePaginate);
 
 
 module.exports = mongoose.model('Order', orderSchema);

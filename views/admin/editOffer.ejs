@@ -1,0 +1,120 @@
+<%-include('../layouts/adminHeader.ejs')%>
+<%-include('../layouts/adminSidebar.ejs')%>
+
+<style>
+    .error-message {
+        color: red;
+        margin-top: 5px;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Edit Offer Details</h4>
+                        <form action="/admin/submiteditoffer/<%= offer._id %>" method="POST">
+                            <div class="form-body">
+                                <div class="form-group">
+                                    <label for="offerName">Offer Name</label>
+                                    <input type="text" class="form-control" id="couponCode" name="offerName" placeholder="Enter Offer Name" value="<%= offer.offerName %>">
+                                </div>
+                                <div class="form-group">
+                                    <label for="discountPercentage">Discount Percentage</label>
+                                    <input type="text" class="form-control" id="discountPercentage" name="discountPercentage" placeholder="Enter Discount Percentage" value="<%= offer.discountPercentage %>">
+                                </div>
+                                <div class="form-group">
+                                    <label for="startDate">Start Date</label>
+                                    <input type="date" class="form-control" id="startDate" name="startDate" value="<%= offer.startDate %>">
+                                </div>
+                                <div class="form-group">
+                                    <label for="expiryDate">Expiry Date</label>
+                                    <input type="date" class="form-control" id="expiryDate" name="expiryDate" value="<%= offer.expiryDate %>">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-info">Update</button>
+                                    <a href="/admin/offer" class="btn btn-dark">Back</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the form element
+    let form = document.querySelector('form');
+
+    // Function to clear all error messages
+    function clearErrors() {
+        let errorMessages = document.querySelectorAll('.error-message');
+        errorMessages.forEach(function(error) {
+            error.remove();
+        });
+    }
+
+    // Function to display an error message below a specific input field
+    function showError(inputId, message) {
+        let inputField = document.getElementById(inputId);
+        let errorMessage = document.createElement('div');
+        errorMessage.classList.add('error-message');
+        errorMessage.textContent = message;
+        inputField.parentNode.insertBefore(errorMessage, inputField.nextSibling);
+    }
+
+    // Add event listener for form submission
+    form.addEventListener('submit', function(event) {
+        // Prevent form submission by default
+        event.preventDefault();
+
+        // Clear any existing error messages
+        clearErrors();
+
+        // Get form fields
+        let offerName = document.getElementById('couponCode').value.trim();
+        let discountPercentage = document.getElementById('discountPercentage').value.trim();
+        let startDate = document.getElementById('startDate').value;
+        let expiryDate = document.getElementById('expiryDate').value;
+
+        // Validate fields
+        if (!offerName) {
+            showError('couponCode', 'Offer Name cannot be blank.');
+            return;
+        }
+
+        if (isNaN(discountPercentage) || discountPercentage < 1 || discountPercentage > 100) {
+            showError('discountPercentage', 'Discount Percentage must be a number between 1 and 100.');
+            return;
+        }
+
+        if (!startDate || !expiryDate) {
+            showError('startDate', 'Both Start Date and Expiry Date must be selected.');
+            showError('expiryDate', 'Both Start Date and Expiry Date must be selected.');
+            return;
+        }
+
+        let start = new Date(startDate);
+        let end = new Date(expiryDate);
+
+        if (start >= end) {
+            showError('startDate', 'Start Date must be before Expiry Date.');
+            showError('expiryDate', 'Expiry Date must be after Start Date.');
+            return;
+        }
+
+        // If all validations pass, submit the form
+        form.submit();
+    });
+});
+</script>
+
+
+<%-include('../layouts/adminFooter.ejs')%>

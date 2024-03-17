@@ -65,23 +65,9 @@ const checkBlockedStatus = async (req, res, next) => {
     }
 };
 
-
-const loadCategories = async (req, res, next) => {
-    try {
-        const categories = await Category.find({ is_listed: true });
-        res.locals.categories = categories;
-
-        next();
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send("Internal Server Error");
-    }
-};
-
 module.exports = {
     isLogin,
     isLogout,
     isAuthenticated,
     checkBlockedStatus,
-    loadCategories,
 }

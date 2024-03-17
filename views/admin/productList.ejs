@@ -33,6 +33,7 @@
                                                 <th scope="col">Price</th>
                                                 <th scope="col">Category</th>
                                                 <th scope="col">Quantity</th>
+                                                <th scope="col">Offer</th>
                                                 <th scope="col">Images</th>
                                                 <th scope="col">Action</th>
                                                 <th scope="col">Status</th>
@@ -47,6 +48,9 @@
                                                         <td><%= product.price %></td>
                                                         <td><%= product.category.name %></td>
                                                         <td><%= product.quantity %></td>
+                                                        <td>
+                                                            <button class="btn btn-info"><a href="/admin/selectproductoffer?id=<%= product._id %>" style="text-decoration: none;color: white;">View</a> </button>
+                                                        </td>
                                                         <td>
                                                             <img src="/uploads/<%= product.image[0] %>" alt="Product Image " class="product-image" style="width: 100px; height: 100px; border-radius: 50%;">
           
@@ -142,5 +146,32 @@
 <!--This page plugins -->
 <script src="/admin/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="/admin/dist/js/pages/datatable/datatable-basic.init.js"></script>
+
+<script>
+    document.querySelectorAll('.select-offer').forEach(button => {
+    button.addEventListener('click', function() {
+        const offerId = this.dataset.offerId;
+        const productId = this.dataset.productId;
+
+        // Send the offerId and productId to the server
+        fetch('/admin/selectoffer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ offerId, productId }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Handle success, e.g., show a success message or redirect
+            console.log('Offer applied successfully:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
+});
+
+</script>
 
 <%-include('../layouts/adminFooter.ejs')%>

@@ -3,30 +3,30 @@
 
 <style>
     body{
-    background:#eee;
-}
-.card {
-    box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
-}
-.card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    word-wrap: break-word;
-    background-color: #fff;
-    background-clip: border-box;
-    border: 0 solid rgba(0,0,0,.125);
-    border-radius: 1rem;
-}
-.text-reset {
-    --bs-text-opacity: 1;
-    color: inherit!important;
-}
-a {
-    color: #5465ff;
-    text-decoration: none;
-}
+        background:#eee;
+    }
+    .card {
+        box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+    }
+    .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: #fff;
+        background-clip: border-box;
+        border: 0 solid rgba(0,0,0,.125);
+        border-radius: 1rem;
+    }
+    .text-reset {
+        --bs-text-opacity: 1;
+        color: inherit!important;
+    }
+    a {
+        color: #5465ff;
+        text-decoration: none;
+    }
 </style>
 
 <div class="container-fluid">
@@ -50,16 +50,167 @@ a {
                         </div>
                     
                         <div class="d-flex">
-                        <button class="btn btn-link p-0 me-3 d-none d-lg-block btn-icon-text"><i class="bi bi-download"></i> <span class="text">Invoice</span></button>
-                        <div class="dropdown">
-                            <button class="btn btn-link p-0 text-muted" type="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-three-dots-vertical"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-pencil"></i> Edit</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-printer"></i> Print</a></li>
-                            </ul>
-                        </div>
+                            <!-- <button class="btn btn-link p-0 me-3 d-none d-lg-block btn-icon-text" 
+                                onclick="downloadReport()">
+                                <i class="bi bi-download"></i> 
+                                <span class="text">Download Invoice</span>
+                            </button> -->
+                            <% if (isProductDelivered) { %>
+                                <button class="btn btn-link p-0 me-3 d-none d-lg-block btn-icon-text" onclick="downloadReport()">
+                                    <i class="bi bi-download"></i>
+                                    <span class="text">Download Invoice</span>
+                                </button>
+                            <% } %>
+                            
+
+                            <!-- <button onclick="downloadReport()" class="btn-warning" >Download Invoice</button> -->
+
+                            <!-- <div class="dropdown">
+                                <button class="btn btn-link p-0 text-muted" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-pencil"></i> Edit</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-printer"></i> Print</a></li>
+                                </ul>
+                            </div> -->
+                            <div class="container fluid" id="invoice" hidden>
+                                <div class="container fluid ">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <img src="/assets/images/furnit-logo.png" alt="Furnit Logo" width="150">
+                                        </div>
+                                        <div class="col-sm-6 text-right mt-2">
+                                            <h1>INVOICE</h1>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="container-fluid mt-1">
+                                            <div class="container-fluid mt-1 mb-1">
+                                            <h3>BILLED TO:</h3>
+                                                
+                                                <p>
+                                                    <strong><%=order.address.name %></strong><br>
+                                                    <%=order.address.housename %><br>
+                                                    <%=order.address.street %>, <%=order.address.city %><br>
+                                                    Pincode: <%=order.address.pin %><br>
+                                                    Mobile: +91-<%=order.address.mobile %>
+                                                </p>
+                                            </div>
+                                            
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    <div class="col-sm-6 text-right">
+                                        <div class="container-fluid mt-1">
+                                            <p>
+                                                <div class="container-fluid mt-1">
+                                                    Order ID: <strong>#<%= order.orderId %></strong><br>
+                                                    Billing Date: <strong><%= order.date.toDateString() %></strong>
+                                                </div>
+                                                
+                                            </p>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <div class="container-fluid">
+                                    <div class="row ">
+                                        <div class="col-sm-12 container-fluid">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center"><strong>Item</strong></th>
+                                                        <th class="text-center"><strong>Quantity</strong></th>
+                                                        <th class="text-center"><strong>Unit Price</strong></th>
+                                                        <th class="text-center"><strong>Offer Price</strong></th>
+                                                        <th class="text-center"><strong>Total</strong></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% let subtotal = 0; %>
+                                                    <% let totalDiscount = 0; %>
+                                                    <% order.products.filter(product => product.orderStatus === 'Delivered').forEach((product, index) => { %>
+                                                        <% let discountedPrice = product.price - (product.offerDiscount / product.quantity); %>
+                                                        <% let itemTotal = discountedPrice * product.quantity; %>
+                                                        <% subtotal += itemTotal; %>
+                                                        <% totalDiscount += product.offerDiscount; %>
+                                                        <tr>
+                                                            <td class="text-center"><%= product.name %></td>
+                                                            <td class="text-center"><%= product.quantity %></td>
+                                                            <td class="text-center">₹ <%= product.price %></td>
+                                                            <td class="text-center">₹ <%= discountedPrice %></td>
+                                                            <td class="text-center">₹ <%= itemTotal %></td>
+                                                        </tr>
+                                                    <% }) %>
+                                                </tbody>
+                                                
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="4"><strong>Subtotal</strong></td>
+                                                        <td class="text-center"><strong>₹ <%= subtotal %></strong></td>
+                                                    </tr>
+                                    
+                                                    <% if (order.couponDiscount > 0) { %>
+                                                        <% order.products.filter(product => product.orderStatus === 'Delivered').forEach((product, index) => { %>
+                                                            <% let discountedPrice = product.price - (product.offerDiscount / product.quantity); %>
+                                                            <% let itemTotal = discountedPrice * product.quantity; %>
+                                                        
+                                                            <tr>
+                                                                <td colspan="4"><strong>Coupon Discount</strong></td>
+                                                                <td class="text-center"><strong>- ₹ <%= order.couponDiscount %></strong></td>
+                                                            </tr>
+                                                        <% }) %>
+                                        
+                                                    <% } %>
+                                                    <tr>
+                                                        <td colspan="4"><strong>Grand Total</strong></td>
+                                                        <td class="text-center"><strong>₹ <%= subtotal - order.couponDiscount %></strong></td>
+                                                    </tr>
+                                                </tfoot>
+                                                
+                                            </table>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="container-fluid">
+                                            <div class="col-sm-6"><br>
+                                                <h3>PAYMENT INFORMATION</h3><br>
+                                    
+                                                    <% if (order.paymentMode === 'cod') { %>
+                                                        <p><strong>Payment Method: </strong>Cash On Delivery<br>
+                                                    <% } else if (order.paymentMode === 'razorpay') { %>
+                                                        <p><strong>Payment Method: </strong>Razor Pay<br>
+                                                    <% } else if (order.paymentMode === 'wallet') { %>
+                                                        <p><strong>Payment Method: </strong>Wallet<br>
+                                                    <% } %>      
+                                                    <strong>Payment ID: </strong><%= order.paymentId %></p>
+                                            </div>
+                                            <div class="col-sm-6 text-right">
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            
+                                <div class="container-fluid text-center mt-2">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <h4>Thank you for shopping with FurnIt!</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    
                     </div>
                 </div>
                 <table class="table table-borderless">
@@ -74,7 +225,7 @@ a {
                                         <div class="flex-lg-grow-1 ms-3">
                                             <h6 class="small mb-1"><a href="#" class="text-reset"><strong><%= product.name %></strong></a></h6>
                                             <span class="small">Quantity: <%= product.quantity %></span><br>
-                                            <span class="small">Price: ₹<%= product.price-product.offerDiscount %></span>
+                                            <span class="small">Price: ₹<%= product.price-(product.offerDiscount/product.quantity) %></span>
                                             <span class="badge rounded-pill text-white 
                                                 <% switch (product.orderStatus) { 
                                                     case 'Placed': %>bg-info<% break; 
@@ -293,6 +444,7 @@ a {
             // Optionally, perform any additional actions after successful submission
             // Close modal after submission if needed
             $('#returnModal').modal('hide');
+            location.reload();
         })
         .catch(error => {
             console.error('There was a problem with your fetch operation:', error);
@@ -341,10 +493,12 @@ a {
                 if (response.ok) {
                     // Update the UI to reflect the changed status
                     let productRow = document.getElementById(`product${productId}`);
+                    location.reload(); // Reload the page
                     productRow.querySelector('.badge').textContent = 'Cancelled';
                     productRow.querySelector('.cancel-link').remove(); // Remove the cancel link
+                    
                     $('#cancelConfirmationModal').modal('hide'); // Hide the modal
-                    location.reload(); // Reload the page
+                    // location.reload(); // Reload the page
                 } else {
                     throw new Error('Failed to cancel item');
                 }
@@ -352,6 +506,29 @@ a {
             .catch(error => console.error('Error:', error));
         }
     });
+</script>
+
+
+<script>
+    // let hide = document.getElementById('hide')
+    // function downloadReport(){
+    //     hideDownloadButton()
+    //     window.print()
+    //     showDownloadButton()
+    // }
+    function downloadReport() {
+        let printableElement = document.getElementById('invoice');
+        let originalContents = document.body.innerHTML;
+        document.body.innerHTML = printableElement.innerHTML;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+    // function  hideDownloadButton(){
+    //     hide.style.display = 'none'
+    // }
+    // function showDownloadButton(){
+    //     hide.style.display = 'inline-block'
+    // }
 </script>
 
 <%-include('../layouts/footbar.ejs')%>

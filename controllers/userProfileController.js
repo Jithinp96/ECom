@@ -22,11 +22,10 @@ const Wallet = require("../models/walletModel");
 //     }
 // }
 
-const ITEMS_PER_PAGE = 2; // Adjust this according to your preference
+
+
 
 const loadUserProfile = async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-
     try {
         const userId = req.session.userid;
         const user = await User.findById(userId);
@@ -34,36 +33,74 @@ const loadUserProfile = async (req, res) => {
         const wallet = await Wallet.findOne({ user: userId });
 
         wallet.walletHistory.sort((a, b) => b.date - a.date);
-        
-        // Count total number of orders for the user
-        const totalOrders = await Order.countDocuments({ userId: userId });
 
-        // Calculate total pages based on the total number of orders and items per page
-        const totalPages = Math.ceil(totalOrders / ITEMS_PER_PAGE);
+        const page = parseInt(req.query.page) || 1;
+        const size = parseInt(req.query.size) || 3;
 
-        // Fetch orders for the current page
-        const orders = await Order.find({ userId: userId })
-            .populate({
+        const options = {
+            page: page,
+            limit: size,
+            sort: { date: -1 },
+            populate: {
                 path: 'products.productId',
-                model: Order,
                 select: 'name price quantity date image'
-            })
-            .sort({ date: -1 })
-            .skip((page - 1) * ITEMS_PER_PAGE)
-            .limit(ITEMS_PER_PAGE);
+            }
+        };
 
-            console.log("orders: ", orders);
+        const result = await Order.paginate({ userId: userId }, options);
+        const orders = result.docs;
+        const totalPages = result.totalPages;
 
-        // Access cart and wishlist counts from res.locals
-        const cartCount = res.locals.cartCount;
-        const wishlistCount = res.locals.wishlistCount;
-
-        res.render('user/userprofile', { user, userAddress, order: orders, wallet, currentPage: page, totalPages });
+        res.render('user/userprofile', { user, userAddress, order: orders, wallet, currentPage: page, totalPages, pageSize: size });
     } catch (error) {
-        console.error(error.message);
+        console.log(error);
         res.status(500).send('Internal Server Error');
     }
 }
+
+
+// const ITEMS_PER_PAGE = 8; // Adjust this according to your preference
+
+// const loadUserProfile = async (req, res) => {
+//     const page = parseInt(req.query.page) || 1;
+
+//     try {
+//         const userId = req.session.userid;
+//         const user = await User.findById(userId);
+//         const userAddress = user.address;
+//         const wallet = await Wallet.findOne({ user: userId });
+
+//         wallet.walletHistory.sort((a, b) => b.date - a.date);
+        
+//         // Count total number of orders for the user
+//         const totalOrders = await Order.countDocuments({ userId: userId });
+
+//         // Calculate total pages based on the total number of orders and items per page
+//         const totalPages = Math.ceil(totalOrders / ITEMS_PER_PAGE);
+
+//         // Fetch orders for the current page
+//         const orders = await Order.find({ userId: userId })
+//             .populate({
+//                 path: 'products.productId',
+//                 model: Order,
+//                 select: 'name price quantity date image'
+//             })
+//             .sort({ date: -1 })
+//             .skip((page - 1) * ITEMS_PER_PAGE)
+//             .limit(ITEMS_PER_PAGE);
+
+//             console.log("orders: ", orders);
+
+//         // Access cart and wishlist counts from res.locals
+//         const cartCount = res.locals.cartCount;
+//         const wishlistCount = res.locals.wishlistCount;
+
+//         res.render('user/userprofile', { user, userAddress, order: orders, wallet, currentPage: page, totalPages });
+//     } catch (error) {
+//         console.error(error.message);
+//         res.status(500).send('Internal Server Error');
+//     }
+// }
 
 const updateUser = async (req, res) => {
     try {
@@ -166,7 +203,30 @@ const updateAddress = async (req, res) => {
     }
 };
 
-const loadOrderDetails = async(req, res) => {
+// const loadOrderDetails = async(req, res) => {
+//     try {
+//         const userId = req.session.userid;
+//         const orderId = req.params.Id;
+
+//         const order = await Order.findOne({ _id: orderId, userId: userId }).populate({
+//             path: 'products.productId',
+//             model: Products,
+//             select: 'name price quantity' 
+//         });
+//         if (!order) {
+            
+//             return res.status(404).send('Order not found');
+//         }
+
+        
+//         res.render('user/orderdetails', { order });
+//         } catch (error) {
+//             console.log(error);
+//             res.status(500).send('Internal Server Error');
+//         }
+//     }
+
+const loadOrderDetails = async (req, res) => {
     try {
         const userId = req.session.userid;
         const orderId = req.params.Id;
@@ -174,20 +234,22 @@ const loadOrderDetails = async(req, res) => {
         const order = await Order.findOne({ _id: orderId, userId: userId }).populate({
             path: 'products.productId',
             model: Products,
-            select: 'name price quantity' 
+            select: 'name price quantity orderStatus' // Include orderStatus in selection
         });
         if (!order) {
-            
             return res.status(404).send('Order not found');
         }
 
-        
-        res.render('user/orderdetails', { order });
-        } catch (error) {
-            console.log(error);
-            res.status(500).send('Internal Server Error');
-        }
+        // Check if at least one product in the order is marked as delivered
+        const isProductDelivered = order.products.some(product => product.orderStatus === 'Delivered');
+
+        res.render('user/orderdetails', { order, isProductDelivered });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Internal Server Error');
     }
+}
+
 
 const orderCancel = async (req, res) => {
     const { orderId, productId } = req.params;
@@ -296,7 +358,18 @@ const orderReturnRequest = async (req, res) => {
         console.error('Error:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-}
+};
+
+const getInvoice = async (req, res) => {
+    try {
+        const orderid = req.params.id;
+
+        res.render("user/invoice")
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+};
     
     
 
@@ -310,5 +383,6 @@ module.exports = {
     updateAddress,
     loadOrderDetails,
     orderCancel,
-    orderReturnRequest,  
+    orderReturnRequest,
+    getInvoice,
 }

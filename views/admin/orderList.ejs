@@ -1,6 +1,11 @@
 <%-include('../layouts/adminHeader.ejs')%>
 <%-include('../layouts/adminSidebar.ejs')%>
 
+<!-- This page plugin CSS -->
+<link href="/admin/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+
+
 <link href="/admin/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css" rel="stylesheet">
 
         <!-- ============================================================== -->
@@ -20,11 +25,11 @@
                             <div class="card-body">
                                 <h4 class="card-title">Order Details</h4>
                             </div>
-                            <div class="table-responsive">
+                            <!-- <div class="table-responsive"> -->
                                 <!-- <table class="table"> -->
-                                <table id="zero_config" class="table table-striped table-bordered no-wrap">
-                                    <!-- <thead class="thead-light"> -->
-                                    <thead>
+                                <table class="table">
+                                    <thead class="thead-light">
+                            
                                         <tr>
                                             <!-- <th scope="col">ID</th> -->
                                             <th scope="col">Customer</th>
@@ -62,13 +67,13 @@
                                                                     <option value="Delivered" <%= product.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
                                                                     <option value="Return Requested" <%= product.orderStatus === 'Return Requested' ? 'selected' : '' %>>Return Requested</option>
                                                                     <option value="Returned" <%= product.orderStatus === 'Returned' ? 'selected' : '' %>>Returned</option>
-                                                                
                                                                     <option value="Cancelled" <%= product.orderStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
                                                                 </select>
                                                             </div>
                                                         </td>
                                                         <td>
                                                             <!-- <button class="btn btn-primary update-status-btn" data-orderid="<%= order.id %>" id="updateBtn<%= order._id %>">Update</button> -->
+                                                            <input type="hidden" value="<%= product.productId %>" id="productIdOg">
                                                             <button class="btn btn-primary update-status-btn" data-orderid="<%= order.id %>" data-productid="<%= product._id %>" id="updateBtn<%= order._id %>">Update</button>
                                                         </td>
                                                     </tr>
@@ -81,6 +86,15 @@
                                         <% } %>
                                     </tbody>
                                 </table>
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination">
+                                        <% for (let i = 1; i <= totalPages; i++) { %>
+                                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                                            </li>
+                                        <% } %>
+                                    </ul>
+                                </nav>
                             </div>
                         </div>
                     </div>
@@ -121,8 +135,12 @@
             const orderId = $(this).data('orderid');
             const productId = $(this).data('productid');
             const newStatus = $('#orderStatusDropdown_' + orderId).val();
+
+            const productIdOg = document.getElementById('productIdOg').value
+            console.log("productIdOg: ", productIdOg);
             console.log(newStatus);
             console.log("productId:", productId);
+
 
 
             // Set the orderId and newStatus as data attributes of the modal
@@ -139,6 +157,9 @@
             const orderId = $('#confirmationModal').data('orderid');
             const productId = $('#confirmationModal').data('productid');
             const newStatus = $('#confirmationModal').data('newstatus');
+            const productIdOg = document.getElementById('productIdOg').value
+            console.log("productIdOg: ", productIdOg);
+            console.log("productId:", productId);
 
             // Make an AJAX request to update the order status
             $.ajax({
@@ -147,7 +168,8 @@
                 data: {
                     orderId: orderId,
                     productId: productId,
-                    newStatus: newStatus
+                    newStatus: newStatus,
+                    productIdOg: productIdOg
                 },
                 success: function (data) {
                     // Handle success response (if needed)
@@ -172,5 +194,5 @@
 <!--This page plugins -->
 <script src="/admin/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="/admin/dist/js/pages/datatable/datatable-basic.init.js"></script>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <%-include('../layouts/adminFooter.ejs')%>

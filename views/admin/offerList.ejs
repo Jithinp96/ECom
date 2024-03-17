@@ -21,6 +21,7 @@
                                         <th>Discount Percentage</th>
                                         <th>Start Date</th>
                                         <th>End Date</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -31,6 +32,7 @@
                                             <td><%= offer.discountPercentage %>%</td>
                                             <td><%= offer.startDate %></td>
                                             <td><%= offer.expiryDate %></td>
+                                            <td><a href="/admin/editoffer/<%= offer._id %>">Edit</a></td>
                                         </tr>
                                     <% }); %>
                                 </tbody>

@@ -18,6 +18,7 @@
                                     <tr>
                                         <th scope="col">ID</th>
                                         <th scope="col">Name</th>
+                                        <th scope="col">Offer</th>
                                         <th scope="col">Action</th>
                                         <th scope="col">Status</th>
                                     </tr>
@@ -28,7 +29,9 @@
                                             <tr>
                                                 <td><%= index + 1 %></td>
                                                 <td><%= category.name %></td>
-                                                
+                                                <td>
+                                                    <button class="btn btn-info"><a href="/admin/selectcategoryoffer?id=<%= category._id %>" style="text-decoration: none;color: white;">View</a> </button>
+                                                </td>
                                                 <td>
                                                     <a href="#" class="edit-category" data-categoryid="<%= category._id %>">
                                                         <i class="fas fa-edit"></i>

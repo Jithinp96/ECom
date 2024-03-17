@@ -207,7 +207,7 @@ const editCoupon = async (req, res) => {
         const exist = await Coupon.findOne({couponCode: capitalCouponCode});
 
         if(exist){
-            console.log("Coupon code already exist");
+            // console.log("Coupon code already exist");
             req.flash("error","Coupon code already exist");
             res.redirect('/admin/addcoupon');
         }

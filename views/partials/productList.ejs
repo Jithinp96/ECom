@@ -46,9 +46,22 @@
                                 <a href="#"><%= product.category.name %></a>
                             </div><!-- End .product-cat -->
                             <h3 class="product-title"><a href="/productdetails/<%= product._id%>"><%= product.name %></a></h3><!-- End .product-title -->
-                            <div class="product-price">
+                           
+                           
+                            <!-- <div class="product-price">
                                 ₹<%= product.price %>
-                            </div><!-- End .product-price -->
+                            </div> -->
+
+                            <div class="product-price">
+                                <% if (product.bestOffer) { %>
+                                    <div class="out-price" style="text-decoration: line-through;">₹<%= product.price %></div><!-- End .out-price -->
+                                    <div class="offer-price">₹<%= product.price - (product.price * (product.bestOffer.discountPercentage / 100)) %></div><!-- End .offer-price -->
+                                <% } else { %>
+                                    <div class="offer-price">₹<%= product.price %></div><!-- End .out-price -->
+                                <% } %>
+                            </div>
+
+
                             <!-- <div class="ratings-container">
                                 <div class="ratings">
                                     <div class="ratings-val" style="width: 20%;"></div>

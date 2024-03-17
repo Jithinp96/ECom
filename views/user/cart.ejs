@@ -59,6 +59,7 @@
                                                 </div>
                                             </td>
                                             <td class="total-col">₹<%= product.totalPrice %></td>
+                                            
                                             <td class="remove-col">
                                                 <button class="btn-remove" onclick="removeProduct('<%= product.productid._id %>')">
                                                     <i class="icon-close"></i>
@@ -109,7 +110,6 @@
                                     <tr class="summary-discount-row">
                                         <td>
                                             <div class>
-                                                
                                                 <label for="discount">Discount</label>
                                             </div><!-- End .custom-control -->
                                         </td>
@@ -139,7 +139,6 @@
         </div><!-- End .cart -->
     </div><!-- End .page-content -->
 </main><!-- End .main -->
-
 
 <footer class="footer">
     <div class="footer-middle">
@@ -284,15 +283,15 @@
     document.querySelectorAll('.quantity-input').forEach(input => {
         input.addEventListener('change', async (event) => {
             const productId = input.id;
-            console.log("productId: ", productId);
+            // console.log("productId: ", productId);
             const quantity = input.value;
-            console.log("quantity: ", quantity);
+            // console.log("quantity: ", quantity);
             const cartId = '<%= cartId %>'; 
-            console.log("cartId: ", cartId);
+            // console.log("cartId: ", cartId);
             
 
             const response = await updateCartQuantity(cartId, productId, quantity);
-            console.log("response: ", response);
+            // console.log("response: ", response);
 
             // Update total price and subtotal on the frontend
             // For example:

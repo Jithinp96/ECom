@@ -59,12 +59,22 @@
                                         <td width="60%">
                                             <span class="font-weight-bold"><%= product.name %></span>
                                             <div class="product-qty">
-                                                <span class="d-block">Quantity: <%= product.quantity %></span>                               
+                                                <span class="d-block">Quantity: <%= product.quantity %></span>   
+                                                <!-- <span class="font-weight-bold">Original Price₹<%= product.price%> -->
+                                                <% if (product.offerDiscount > 0) { %>
+                                                    <!-- <span class="d-block">Quantity: <%= product.quantity %></span> -->
+                                                    Original Price: <span style="text-decoration: line-through;">₹<%= product.price %> </span><br> 
+                                                    Offer Price: <span class="font-weight-bold"> ₹<%= product.price - (product.offerDiscount/product.quantity) %> </span> 
+                                                    
+                                                <% } else { %>
+                                                    <!-- <span class="d-block">Quantity: <%= product.quantity %></span>    -->
+                                                    <span class="font-weight-bold">Price ₹<%= product.price %></span>
+                                                <% } %>
                                             </div>
                                         </td>
                                         <td width="20%">
                                             <div class="text-right">
-                                                <span class="font-weight-bold">₹<%= product.price-product.offerDiscount %></span>
+                                                <span class="font-weight-bold">₹<%= (product.price - (product.offerDiscount/product.quantity))*product.quantity %></span>
                                             </div>
                                         </td>
                                     </tr>
@@ -75,6 +85,75 @@
                         
 
 
+                    </div>
+
+                    <div class="row d-flex justify-content-end">
+                        <div class="col-md-5">
+                            <table class="table table-borderless">
+                                <tbody class="totals">
+                                    <tr>
+                                        <td>
+                                            <div class="text-left">
+                                                <span class="text-muted">Subtotal</span>   
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-right">
+                                                <span>₹ <%= order.subTotal %></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                     <tr>
+                                        <td>
+                                            <div class="text-left">
+                                                <span class="text-muted">Shipping Fee</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-right">
+                                                <span>$22</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                     <tr>
+                                        <td>
+                                            <div class="text-left">
+                                                <span class="text-muted">Tax Fee</span>  
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-right">
+                                                <span>$7.65</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                     <tr>
+                                        <td>
+                                            <div class="text-left">
+                                                <span class="text-muted">Coupon Discount</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-right">
+                                                <span class="text-success">₹ <%= order.couponDiscount %></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                     <tr class="border-top border-bottom">
+                                        <td>
+                                            <div class="text-left">
+                                                <span class="font-weight-bold">Grand Total</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-right">
+                                                <span class="font-weight-bold">₹ <%= order.grandTotal %></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <div>

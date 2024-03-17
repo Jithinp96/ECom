@@ -318,10 +318,290 @@
     }
 </script>
 
+<script>
+    let grandTotal = '<%= grandTotal %>';
+    console.log("grandTotal: ", grandTotal);
+
+    function reAttachEvent(is) {
+        let amount = document.getElementById('grandTotal').innerText;
+        amount = amount.slice(1)
+        let discountTotal = is === true ? amount : grandTotal;
+
+        document.getElementById("place_order").addEventListener("click", async function(event) {
+            let radioButton = document.querySelector('input[name="paymentMethod"]:checked');
+            if (radioButton) {
+                let paymentMethod = radioButton.value;
+                if (paymentMethod === "razorpay") {
+                    console.log("Razorpay selected");
+                    const paymentId = generatePaymentId();
+
+                    $.ajax({
+                        url: "/placeorder",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            selectedAddress: $("#selectedAddress").val(),
+                            paymentMethod: paymentMethod,
+                            paymentId: paymentId,
+                            amount: discountTotal
+                        }),
+                        success: function(response) {
+                            console.log("Razorpay .then response");
+                            console.log("response: ", response);
+                            console.log("response.order: ", response.order);
+                            if(response.order) {
+                                console.log("Razorpay .then response if");
+                                console.log("response.hashedOrderId: ", response.hashedOrderId);
+                                razorpay(response.order, response.hashedOrderId);
+                            }
+                        }
+                    });
+
+
+                    // const response = await fetch("/placeorder", {
+                    //     method: "POST",
+                    //     headers: {
+                    //         "Content-Type": "application/json"
+                    //     },
+                    //     body: JSON.stringify({
+                    //         selectedAddress: document.getElementById("selectedAddress").value,
+                    //         paymentMethod: paymentMethod,
+                    //         paymentId: paymentId,
+                    //         amount: discountTotal
+                    //     })
+                    // })
+                    // .then((response) => {
+                    //     console.log("Razorpay .then responce");
+                    //     console.log("response: ", response)
+                    //     console.log("response.order: ", response.order);
+                    //     if(response.order) {
+                    //         console.log("Razorpay .then responce if");
+                    //         razorpay(response.order);
+                    //     }
+                    // })
+                   
+                }
+                
+            else if (paymentMethod === "cod") {
+                    
+                console.log("Cash on Delivery selected");
+                const paymentId = generatePaymentId();
+
+                try {
+                    $.ajax({
+                        url: "/placeorder",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            selectedAddress: $("#selectedAddress").val(),
+                            paymentMethod: paymentMethod,
+                            paymentId: paymentId
+                        }),
+                        success: function(responseData) {
+                            console.log("responseData: ", responseData);
+                            if (responseData.success) {
+                                let hashedOrderId = responseData.hashedOrderId;
+                                window.location.href = `/orderconfirmation/${hashedOrderId}`;
+                            } else {
+                                if (responseData.message) {
+                                    $("#warningMessage").text(responseData.message).css({"color": "red", "display": "block"});
+                                } else {
+                                    $("#warningMessage").text("Failed to place order. Please try again.").css({"color": "red", "display": "block"});
+                                }
+                            }
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.error("Error placing order:", errorThrown);
+                            $("#warningMessage").text("Failed to place order. Please try again.").css({"color": "red", "display": "block"});
+                        }
+                    });
+                } catch (error) {
+                    console.error("Error placing order:", error);
+                    $("#warningMessage").text("Failed to place order. Please try again.").css({"color": "red", "display": "block"});
+                }
+
+
+                // try {
+                    
+                //     const response = await fetch("/placeorder", {
+                //         method: "POST",
+                //         headers: {
+                //             "Content-Type": "application/json"
+                //         },
+                //         body: JSON.stringify({
+                //             selectedAddress: document.getElementById("selectedAddress").value,
+                //             paymentMethod: paymentMethod,
+                //             paymentId: paymentId
+                //         })
+                //     });
+
+                //     if (!response.ok) {
+                //         throw new Error("Failed to place order");
+                //     }
+
+                    
+                //     const responseData = await response.json();
+                //     console.log("responseData: ", responseData);
+
+                //     if (responseData.success) {
+                //         let hashedOrderId = responseData.hashedOrderId
+                        
+                //         window.location.href = `/orderconfirmation/${hashedOrderId}`;
+                //     } else {
+                //         // Check if COD is not allowed for orders above Rs 1000
+                //         if (responseData.message) {
+                //             // Display the error message to the user
+                //             document.getElementById("warningMessage").textContent = responseData.message;
+                //             document.getElementById("warningMessage").style.color = "red";
+                //             document.getElementById("warningMessage").style.display = "block";
+                //         } else {
+                //             // Display a generic error message
+                //             document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                //             document.getElementById("warningMessage").style.color = "red";
+                //             document.getElementById("warningMessage").style.display = "block";
+                //         }
+                //         // document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                //         // document.getElementById("warningMessage").style.color = "red"; 
+                //         // document.getElementById("warningMessage").style.display = "block";
+                //     }
+                // } catch (error) {
+                //     console.error("Error placing order:", error);
+                
+                //     document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                //     document.getElementById("warningMessage").style.color = "red"; 
+                //     document.getElementById("warningMessage").style.display = "block";
+                // }
+            } 
+            else if (paymentMethod === "wallet") {
+                    
+                // console.log("Wallet selected");
+                const paymentId = generatePaymentId();
+
+                try {
+                    
+                    const response = await fetch("/placeorder", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            selectedAddress: document.getElementById("selectedAddress").value,
+                            paymentMethod: paymentMethod,
+                            paymentId: paymentId,
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error("Failed to place order");
+                    }
+
+                    const responseData = await response.json();
+                    console.log("responseData: ", responseData);
+
+                    if (responseData.success) {
+                        let hashedOrderId = responseData.hashedOrderId
+                        
+                        window.location.href = `/orderconfirmation/${hashedOrderId}`;
+                    } else {
+                        
+                        document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                        document.getElementById("warningMessage").style.color = "red"; 
+                        document.getElementById("warningMessage").style.display = "block";
+                    }
+
+                    } catch (error) {
+                        console.error("Error placing order:", error);
+                        
+                        document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                        document.getElementById("warningMessage").style.color = "red"; 
+                        document.getElementById("warningMessage").style.display = "block";
+                    }
+                }
+            } else {
+                document.getElementById("warningMessage").textContent = "Please select a payment method.";
+                document.getElementById("warningMessage").style.color = "red";
+                document.getElementById("warningMessage").style.display = "block";
+            }
+        });
+    }
+
+    function razorpay(order, id) {
+        console.log("Inside razorpay fn");
+        let options = {
+            "key": '<%= process.env.RAZORPAY_ID_KEY %>',
+            "amount": order.amount,
+            "currency": "INR",
+            "name": "FurnIt",
+            "description": "Test Transaction",
+            "image": "assets/images/logo.png",
+            "order_id": order.id,
+            "handler": function(response) {
+                // verifyPayment(response.razorpay_payment_id, paymentMethod);
+                verifyPayment(response, order, id);
+            },
+            "prefill": {
+                "name": "Customer Name",
+                "email": "customer@example.com",
+                "contact": "9999999999"
+            },
+            "theme": {
+                "color": "#CC9966"
+            }
+        };
+        var rzp = new Razorpay(options);
+        rzp.open();
+    }
+
+    function verifyPayment(payment, order, id) {
+        fetch("/verify-payment", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                 payment,
+                 order,
+                 id
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Payment verification failed");
+            }
+            return response.json();
+        })
+        .then(responseData => {
+            if (responseData.success) {
+                let hashedOrderId = responseData.hashedOrderId;
+                window.location.href = `/orderconfirmation/${hashedOrderId}`;
+            } else {
+                document.getElementById("warningMessage").textContent = "Payment verification failed. Please try again.";
+                document.getElementById("warningMessage").style.color = "red";
+                document.getElementById("warningMessage").style.display = "block";
+            }
+        })
+        .catch(error => {
+            console.error("Error verifying payment:", error);
+            document.getElementById("warningMessage").textContent = "Payment verification failed. Please try again.";
+            document.getElementById("warningMessage").style.color = "red";
+            document.getElementById("warningMessage").style.display = "block";
+        });
+    }
+
+    reAttachEvent();
+
+    function generatePaymentId() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+</script>
+
 
 
 <!-- Payment tab -->
-<script>
+<!-- <script>
     let grandTotal = '<%= grandTotal %>';
     console.log("grandTotal: ", grandTotal);
     function reAttachEvent(is) {
@@ -341,7 +621,7 @@
                 if (paymentMethod === "razorpay") {
                     console.log("Razorpay selected");
                     // console.log(("rzr pay paymentId: ", paymentId));
-                    var options = {
+                    let options = {
                         
                         "key": '<%= process.env.RAZORPAY_ID_KEY %>',
                         "amount": discountTotal * 100,
@@ -440,10 +720,21 @@
                             
                             window.location.href = `/orderconfirmation/${hashedOrderId}`;
                         } else {
-                            
-                            document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
-                            document.getElementById("warningMessage").style.color = "red"; 
-                            document.getElementById("warningMessage").style.display = "block";
+                            // Check if COD is not allowed for orders above Rs 1000
+                            if (responseData.message) {
+                                // Display the error message to the user
+                                document.getElementById("warningMessage").textContent = responseData.message;
+                                document.getElementById("warningMessage").style.color = "red";
+                                document.getElementById("warningMessage").style.display = "block";
+                            } else {
+                                // Display a generic error message
+                                document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                                document.getElementById("warningMessage").style.color = "red";
+                                document.getElementById("warningMessage").style.display = "block";
+                            }
+                            // document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                            // document.getElementById("warningMessage").style.color = "red"; 
+                            // document.getElementById("warningMessage").style.display = "block";
                         }
                     } catch (error) {
                         console.error("Error placing order:", error);
@@ -513,7 +804,7 @@
             return v.toString(16);
         });
     }
-</script>
+</script> -->
 
 <script>
     $(document).ready(function () {

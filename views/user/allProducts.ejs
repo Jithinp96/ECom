@@ -1,16 +1,10 @@
+
+
 <%-include('../layouts/header.ejs')%>
+
 <%-include('../layouts/navbar.ejs')%>
 
-<style>
-    .price-range-slider {
-        width: 100%;
-        margin-bottom: 20px;
-    }
 
-    .price-range-slider input[type="range"] {
-        width: 100%;
-    }
-</style>
 
 <div class="page-wrapper">
     
@@ -27,22 +21,22 @@
                     <aside class="col-lg-3 order-lg-first">
                         <div class="sidebar sidebar-shop">
                             <div class="widget widget-clean">
-                                <label>Filters:</label>
+                                <h3 class="widget-title">Filters:</h3>
                                 <a href="#" class="sidebar-filter-clear">Clear Filters</a>
                             </div><!-- End .widget widget-clean -->
-
-                            <div class="search-container">
-                                <input type="text" id="search-input" placeholder="Search products...">
-                                <button id="apply-search-filter" class="btn btn-primary">Search</button>
+                    
+                            <div class="search-container mb-4">
+                                <input type="text" id="search-input" class="form-control" placeholder="Search products...">
+                                <button id="apply-search-filter" class="btn btn-dark">Search</button>
                             </div>
-
+                    
                             <div class="widget widget-collapsible">
                                 <h3 class="widget-title">
                                     <a data-toggle="collapse" href="#widget-1" role="button" aria-expanded="true" aria-controls="widget-1">
                                         Category
                                     </a>
                                 </h3><!-- End .widget-title -->
-
+                    
                                 <div class="collapse show" id="widget-1">
                                     <div class="widget-body">
                                         <div class="filter-items filter-items-count">
@@ -52,16 +46,13 @@
                                                         <input type="checkbox" class="custom-control-input" id="<%= category._id %>">
                                                         <label class="custom-control-label" for="<%= category._id %>"><%= category.name %></label>
                                                     </div><!-- End .custom-checkbox -->
-                                                    <!-- <span class="item-count">3</span> -->
                                                 </div><!-- End .filter-item -->
                                             <% }); %>
-                                            
                                         </div><!-- End .filter-items -->
                                     </div><!-- End .widget-body -->
                                 </div><!-- End .collapse -->
                             </div><!-- End .widget -->
-
-
+                    
                             <div class="widget widget-collapsible">
                                 <h3 class="widget-title">
                                     <a data-toggle="collapse" href="#widget-5" role="button" aria-expanded="true" aria-controls="widget-5">
@@ -72,29 +63,32 @@
                                 <div class="collapse show" id="widget-5">
                                     <div class="widget-body">
                                         <div class="filter-price">
-                                            <div class="price-range-inputs">
-                                                <input type="number" id="min-price-input" placeholder="Enter Min Price">
-                                                <input type="number" id="max-price-input" placeholder="Enter Max Price">
+                                            <div class="price-range-inputs row">
+                                                <div class="col-6">
+                                                    <input type="text" id="min-price-input" class="form-control" placeholder="Enter Min Price">
+                                                </div>
+                                                <div class="col-6">
+                                                    <input type="text" id="max-price-input" class="form-control" placeholder="Enter Max Price">
+                                                </div>
                                             </div>
-                            
-                                            <button id="apply-price-filter" class="btn btn-primary">Apply Price Filter</button>
-                                        </div><!-- End .filter-price -->
+                                        
+                                            <button id="apply-price-filter" class="btn btn-dark">Apply Price Filter</button>
+                                        </div>
                                     </div><!-- End .widget-body -->
                                 </div><!-- End .collapse -->
                             </div><!-- End .widget -->
-                            
-                            
-                            
-                            
                         </div><!-- End .sidebar sidebar-shop -->
                     </aside><!-- End .col-lg-3 -->
+                    
                 </div><!-- End .row -->
             </div><!-- End .container -->
         </div><!-- End .page-content -->
     </main><!-- End .main -->
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
+<!-- <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script> -->
 
 <script>
 

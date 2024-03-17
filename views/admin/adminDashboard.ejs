@@ -127,12 +127,12 @@
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-12">
-                        <div class="card">
+                        <div class="card" >
                             <div class="card-body">
-                                <h4 class="card-title">Net Income</h4>
-                                <div class="net-income mt-4 position-relative" style="height:294px;"></div>
+                                <h4 class="card-title">Category Sales</h4>
+                                <canvas id="salesGraph" style="height: 315px;"></canvas>
                                 <ul class="list-inline text-center mt-5 mb-2">
-                                    <li class="list-inline-item text-muted font-italic">Sales for this month</li>
+                                    <li class="list-inline-item text-muted font-italic">Total Category Wise Sales</li>
                                 </ul>
                             </div>
                         </div>
@@ -152,14 +152,16 @@
                                                 <input type="date" required id="startDate" name="startDate" class="form-control">
                                             </div>
                                         </div>
-                                
+                                    
                                         <div class="row align-items-center mb-2">
                                             <label for="endDate" class="col-md-5 col-12">End Date:</label>
                                             <div class="col-md-7 col-12">
                                                 <input type="date" required id="endDate" name="endDate" class="form-control">
                                             </div>
                                         </div>
-                                
+                                    
+                                        <div id="errorMessage" style="color: red;"></div>
+
                                         <div class="row justify-content-center">
                                             <button type="submit" class="btn btn-primary">Generate Report</button>
                                         </div>
@@ -257,6 +259,68 @@
                 <!-- *************************************************************** -->
                 <!-- End Location and Earnings Charts Section -->
                 <!-- *************************************************************** -->
+
+                <div class="container mt-5">
+                    <h1 class="mb-4" style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; font-size: xx-large;">
+                        Top 10 Best Selling Products
+                    </h1>
+                
+                    <div class="row">
+                        <% topProductsDetails.forEach((product, index) => { %>
+                            <div class="col-md-4 mb-4">
+                                <div class="card" style="width: 18rem">
+                                    <img src="/uploads/<%= product.productImage[0] %>" style="width: 300px; height: 180px" class="card-img-top" alt="Product 1" />
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <%= product.productName %>
+                                        </h5>
+                                        <p class="card-text">
+                                            Category: <%= product.categoryName %>
+                                         </p>
+                                        <p class="card-text">
+                                           Unit Price: <%= product.productPrice %>
+                                        </p>
+                                        <p class="card-text">
+                                            Total Quantity Sold: <%= product.totalQuantitySold %>
+                                        </p>
+                                        
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+                
+                <div class="container mt-5">
+                    <h1 class="mb-4" style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; font-size: xx-large;">
+                        Top 10 Best Selling Categories
+                    </h1>
+                
+                    <div class="row">
+                        <% topCategories.forEach((category, index) => { %>
+                            <div class="col-md-4 mb-4">
+                                <div class="card" style="width: 18rem">
+                                   
+                                    <div class="card-body">
+                                        
+                                        
+                                        <p class="card-text">
+                                            Name: <%= category.categoryName %>
+                                         </p>
+                                        <p class="card-text">
+                                            Total Quantity Sold: <%= category.totalQuantitySold %>
+                                        </p>
+                                        
+                                        
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+                       
             </div>
             <!-- ============================================================== -->
             <!-- End Container fluid  -->
@@ -354,23 +418,50 @@
 </html>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<!-- sales report date validation -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set the max attribute for the end date input to today's date
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').setAttribute('max', today);
+        document.getElementById('endDate').setAttribute('max', today);
+
+        // Add event listener to the form to validate dates
+        document.getElementById('filterForm').addEventListener('submit', function(event) {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+
+            // Check if start date is before end date
+            if (startDate > endDate) {
+                // Create and insert error message
+                const errorMessage = document.createElement('p');
+                errorMessage.textContent = 'Start date must be before end date.';
+                document.getElementById('errorMessage').appendChild(errorMessage);
+
+                event.preventDefault(); // Prevent form submission
+            } else {
+                // Clear previous error messages
+                document.getElementById('errorMessage').innerHTML = '';
+            }
+        });
+    });
+</script>
+
 <script>
     async function applyFilter() {
-        console.log("hiiiii");
         const filter = document.getElementById("filter").value;
         console.log(filter);
         if (filter) {
             const response = await axios.post("/admin/order-filter", {
                 data: filter,
             });
-            console.log("heloo", response.data);
             document.getElementById('removeFilter').style.display = 'inline-block';
             updateChart(response.data.data, response.data.newData);
         }
     }
 
     function clearFilter() {
-        console.log('hello')
         window.location.reload();
     }
 
@@ -459,6 +550,40 @@
             console.error("Chart instance not found. Cannot update.");
         }
     }
+</script>
+
+<script>
+    // Parse the JSON string back into an array of objects
+    const allCategoriesData = JSON.parse('<%- allCategoriesData %>');
+
+    // Initialize the chart
+    const ctx2 = document.getElementById('salesGraph').getContext('2d');
+    const salesGraph = new Chart(ctx2, {
+        type: 'bar', // or 'line', 'pie', etc., depending on your preference
+        data: {
+            labels: allCategoriesData.map(category => category.categoryName),
+            datasets: [{
+                label: 'Total Sales Count',
+                data: allCategoriesData.map(category => category.totalSalesCount),
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Total Sales Amount',
+                data: allCategoriesData.map(category => category.totalSalesAmount),
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>

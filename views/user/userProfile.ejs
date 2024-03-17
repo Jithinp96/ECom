@@ -84,9 +84,15 @@
                                                                         </div>
                                                                         <div class="col-md-8">
                                                                             <div class="product-info">
-                                                                                <p><%= product.name %></p>
+                                                                                <p><strong><%= product.name %></strong></p>
                                                                                 <p>Quantity: <%= orderItem.products[0].quantity %> Price: ₹<%= product.price %></p>
-                                                                            </div>
+                                                                        </div>
+                                                                        <div class="product-info">
+                                                                            <p>Total Price: ₹<%= product.total %></p>
+                                                                        </div>
+                                                                        <div class="product-info">
+                                                                            <p>Order Date: <%= orderItem.date.toLocaleDateString() %></p>
+                                                                        </div>
                                                                             <!-- Additional product details can be added here -->
                                                                         </div>
                                                                     <% }) %>
@@ -105,10 +111,37 @@
                                             </div>
                                         <% } %>
                                     </div><!-- End .row -->
-                                    <a href="/shop" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
-                                </div><!-- .End .tab-pane -->                           
 
-                                <!-- .End .tab-pane -->
+                                    <!-- Pagination Controls -->
+                                    <div class="pagination-controls">
+                                        <nav aria-label="Page navigation example">
+                                            <ul class="pagination">
+                                                <% if (currentPage > 1) { %>
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="?page=<%= currentPage - 1 %>&size=<%= pageSize %>" aria-label="Previous">
+                                                            <span aria-hidden="true">&laquo;</span>
+                                                        </a>
+                                                    </li>
+                                                <% } %>
+                                                <% for(let i = 1; i <= totalPages; i++) { %>
+                                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                                        <a class="page-link" href="?page=<%= i %>&size=<%= pageSize %>"><%= i %></a>
+                                                    </li>
+                                                <% } %>
+                                                <% if (currentPage < totalPages) { %>
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="?page=<%= currentPage + 1 %>&size=<%= pageSize %>" aria-label="Next">
+                                                            <span aria-hidden="true">&raquo;</span>
+                                                        </a>
+                                                    </li>
+                                                <% } %>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                    <a href="/shop" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
+                                    </div><!-- .End .tab-pane -->                       
+
+                                
 
                                 <div class="tab-pane fade" id="tab-wallet" role="tabpanel" aria-labelledby="tab-wallet-link">
                                     <div>
@@ -168,9 +201,11 @@
                                 <!-- .End .tab-pane -->
 
                                 <div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
-                                    <button type="button" class="btn btn-success custom-small-button float-right" data-toggle="modal" data-target="#newaddress-modal">
-                                        Add New Address
-                                    </button>
+                                    <div>
+                                        <button type="button" class="btn btn-success custom-small-button float-right" data-toggle="modal" data-target="#newaddress-modal">
+                                            Add New Address
+                                        </button>
+                                    </div>
 
                                     <div class="row mt-1" >
                                         <% if(userAddress && userAddress.length > 0) { %>
@@ -416,76 +451,73 @@
 
 
 <!-- For user Edit -->
-
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
     $(document).ready(function () {
-        $("#updateUserBtn").on("click", function () {
-            // Clear previous validation messages
-            $(".validation-warning").remove();
+    $("#updateUserBtn").on("click", function () {
+        // Clear previous validation messages
+        $(".validation-warning").remove();
 
-            // Get input values
-            var fname = $("#editUserFName").val().trim();
-            var lname = $("#editUserLName").val().trim();
-            var email = $("#editUserEmail").val().trim();
-            var mobile = $("#editUserMobile").val().trim();
+        // Get input values
+        var fname = $("#editUserFName").val().trim();
+        var lname = $("#editUserLName").val().trim();
+        var email = $("#editUserEmail").val().trim();
+        var mobile = $("#editUserMobile").val().trim();
 
-            // Validate FName
-            if (fname === "" || fname === "*") {
-                displayWarning("editUserFName", "Please enter a valid first name");
-                return false;
-            }
-
-            // Validate LName
-            if (lname === "" || lname === "*") {
-                displayWarning("editUserLName", "Please enter a valid last name");
-                return false;
-            }
-
-            // Validate Email
-            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                displayWarning("editUserEmail", "Please enter a valid email address");
-                return false;
-            }
-
-            // Validate Mobile Number
-            var mobileRegex = /^\d{10}$/;
-            if (!mobileRegex.test(mobile) || /^(.)\1+$/.test(mobile)) {
-                displayWarning("editUserMobile", "Please enter a valid 10-digit mobile number");
-                return false;
-            }
-
-            // If all validations pass, proceed with the AJAX request
-            $.ajax({
-                type: "PUT",
-                url: "/edit/<%= user._id %>",
-                data: {
-                    fname: fname,
-                    lname: lname,
-                    email: email,
-                    mobile: mobile,
-                    // Add other fields as needed
-                },
-                success: function (response) {
-                    console.log(response);
-                    // Handle success (e.g., close modal, show success message)
-                    $("#edituser-modal").modal("hide");
-                    // Reload the page after successful update
-                    location.reload();
-                },
-                error: function (error) {
-                    console.log(error);
-                    // Handle error (e.g., show error message)
-                }
-            });
-        });
-
-        // Function to display validation warning message
-        function displayWarning(fieldId, message) {
-            $("#" + fieldId).after('<div class="validation-warning text-danger">' + message + '</div>');
+        // Validate FName
+        if (fname === "" || fname === "*") {
+            displayWarning("editUserFName", "Please enter a valid first name");
+            return false;
         }
+
+        // Validate LName
+        if (lname === "" || lname === "*") {
+            displayWarning("editUserLName", "Please enter a valid last name");
+            return false;
+        }
+
+        // Validate Email
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            displayWarning("editUserEmail", "Please enter a valid email address");
+            return false;
+        }
+
+        // Validate Mobile Number
+        var mobileRegex = /^\d{10}$/;
+        if (!mobileRegex.test(mobile) || /^(.)\1+$/.test(mobile)) {
+            displayWarning("editUserMobile", "Please enter a valid 10-digit mobile number");
+            return false;
+        }
+
+        // If all validations pass, proceed with the AJAX request
+        $.ajax({
+            type: "PUT",
+            url: "/edit/<%= user._id %>",
+            data: {
+                fname: fname,
+                lname: lname,
+                email: email,
+                mobile: mobile,
+                // Add other fields as needed
+            },
+            success: function (response) {
+                console.log(response);
+                
+                $("#edituser-modal").modal("hide");
+                window.location.reload();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
     });
+
+    function displayWarning(fieldId, message) {
+        $("#" + fieldId).after('<div class="validation-warning text-danger">' + message + '</div>');
+    }
+});
+
 </script>
 
 
@@ -760,9 +792,6 @@
 </script>
 
 <!-- For Edit password -->
-
-
-
 
 <%-include('../layouts/footer.ejs')%>
 <%-include('../layouts/footbar.ejs')%>

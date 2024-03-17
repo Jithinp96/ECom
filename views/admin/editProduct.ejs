@@ -53,7 +53,7 @@
                                     </div>
                                 </div>
                                <!-- Category -->
-                                    <div class="form-group">
+                                    <!-- <div class="form-group">
                                         <div class="row">
                                             <label class="col-lg-2">Category</label>
                                             <div class="col-lg-10">
@@ -74,7 +74,31 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div> -->
+
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <label class="col-lg-2">Category</label>
+                                            <div class="col-lg-10">
+                                                <div class="row">
+                                                    <div class="col-md-11">
+                                                        <div class="form-group mb-4">
+                                                            <select class="custom-select mr-sm-2" id="category" name="category">
+                                                                <option selected>Choose...</option>
+                                                                <% categories.forEach(function(category) { %>
+                                                                    <option value="<%= category._id %>"
+                                                                        <% if (product.category && category._id.toString() === product.category._id.toString()) { %>selected<% } %>
+                                                                    ><%= category.name %></option>
+                                                                <% }); %>
+                                                            </select>
+                                                            <div id="categoryContainer" class="text-danger"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
+                                    
 
 
                                 <div class="form-group">
@@ -185,7 +209,7 @@
         return false;
     }
 
-    if (isNaN(quantity) || parseInt(quantity) <= 0) {
+    if (isNaN(quantity) || parseInt(quantity) < 0) {
         displayWarningMessage('quantity', 'Please enter a valid positive numeric quantity.');
         return false;
     }

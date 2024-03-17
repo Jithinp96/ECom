@@ -79,23 +79,46 @@
                                     <img src="<%= product.image[0] %>" alt="Product image" class="product-image">
                                 </a>
 
-                                <div class="product-action-vertical">
+                                <!-- <div class="product-action-vertical">
                                     <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                </div><!-- End .product-action -->
+                                </div> -->
 
                                 <div class="product-action">
-                                    <a href="popup/quickView.html" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></a>
+                                    <a href="/productdetails/<%= product._id%>" class="btn-product btn-quickview" title="Quick view"><span>View Details</span></a>
                                 </div><!-- End .product-action -->
                             </figure><!-- End .product-media -->
 
                             <div class="product-body">
                                 <h3 class="product-title"><a href="/productdetails/<%= product._id%>"><%= product.name %></a></h3><!-- End .product-title -->
+                                
+                                <!-- <div class="product-price">
+                                    <div class="out-price">₹<%= product.price %></div>
+                                </div> -->
+
                                 <div class="product-price">
-                                    <div class="out-price">₹<%= product.price %></div><!-- End .out-price -->
-                                </div><!-- End .product-price -->
+                                  <% if (product.bestOffer) { %>
+                                      <div class="out-price" style="text-decoration: line-through;">₹<%= product.price %></div><!-- End .out-price -->
+                                      <div class="offer-price">₹<%= product.price - (product.price * (product.bestOffer.discountPercentage / 100)) %></div><!-- End .offer-price -->
+                                  <% } else { %>
+                                      <div class="offer-price">₹<%= product.price %></div><!-- End .out-price -->
+                                  <% } %>
+                              </div><!-- End .product-price -->
+                              
+                              
+
                                 <div class="product-action">
-                                    <a href="#" class="btn-product btn-cart"><span>add to cart</span><i class="icon-long-arrow-right"></i></a>
-                                </div><!-- End .product-action -->
+                                   
+                                    <% if (product.quantity <= 0) { %>
+                                     
+                                          <!-- <a href="#" id="addToCartBtn" class="btn-product btn-cart">
+                                              <span>Add to Cart</span><i class="icon-long-arrow-right"></i>
+                                          </a> -->
+                                          <span class="out-of-stock-message text-danger " >Out of Stock</span>
+                                  <% } %>
+                                      
+                                  
+                                
+                                  </div><!-- End .product-action -->
                             </div><!-- End .product-body -->
                         </div><!-- End .product -->
                         
@@ -109,15 +132,6 @@
 
     </div><!-- End .page-wrapper -->
     <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
-
-    <!-- Pagination -->
-    <!-- <div class="container">
-        <div class="pagination">
-        <% for(let i = 1; i <= totalPages; i++) { %>
-            <a href="?page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
-        <% } %>
-        </div>
-    </div> -->
 
     <div class="container">
         <div class="pagination justify-content-center">
