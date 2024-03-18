@@ -1,0 +1,210 @@
+<%-include('../layouts/adminHeader.ejs')%>
+<%-include('../layouts/adminSidebar.ejs')%>
+
+<div class="page-wrapper">
+    <section class="h-100 gradient-custom">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-lg-12 col-xl-12">
+                    <div class="card" style="border-radius: 10px;">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <p class="lead fw-normal mb-0" style="color: #a8729a;">Order Details</p>
+                                <p class="small text-muted mb-0">Order Id : #<%= order.orderId %></p>
+                            </div>
+                            <div>
+                                <span class="me-3">Estimated Delivery By: <strong><span style="color: green;"><%= order.edd.toDateString() %>, 11PM</span></strong></span>
+                            </div>
+                            <div class="row">
+                                <% order.products.forEach(product => { %>
+                                <div class="col-md-12">
+                                    <div class="card shadow-0 border mb-4">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <img src="/uploads/<%= product.image %>" class="img-fluid" alt="Product Image">
+                                                </div>
+                                                <div class="col-md-9">
+                                                    <h5 class="card-title"><%= product.name %></h5>
+                                                    <p class="card-text">
+                                                        Quantity: <%= product.quantity %> | Price: ₹<%= product.price %> | 
+                                                        <% if (product.offerDiscount > 0) { %>
+                                                            Discount: -₹<%= product.offerDiscount %> | 
+                                                        <% } %>
+                                                        Total: ₹<%= product.total %>
+                                                    </p>
+                                                    <input type="hidden" value="<%= product.productId._id %>" id="productIdOg">
+                                                    <div style="width: 200px;">
+                                                        <select class="custom-select mr-sm-2" id="orderStatusDropdown_<%= order._id %>_<%= product._id %>" name="orderStatus">
+                                                            <!-- Options for order status dropdown -->
+                                                            <option value="Placed" <%= product.orderStatus === 'Placed' ? 'selected' : '' %>>Placed</option>
+                                                            <option value="Shipped" <%= product.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                                            <option value="Delivered" <%= product.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                                            <option value="Return Requested" <%= product.orderStatus === 'Return Requested' ? 'selected' : '' %>>Return Requested</option>
+                                                            <option value="Returned" <%= product.orderStatus === 'Returned' ? 'selected' : '' %>>Returned</option>
+                                                            <option value="Return Cancelled" <%= product.orderStatus === 'Return Cancelled' ? 'selected' : '' %>>Return Cancelled</option>
+                                                            <option value="Cancelled" <%= product.orderStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% }) %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container py-5 h-100">
+                    <div class="row d-flex justify-content-center align-items-center h-100">
+                        <div class="col-lg-12 col-xl-12">
+                            <!-- Order Summary Card -->
+                            <div class="card shadow-0 border mb-6 col-lg-6">
+                                <div class="card-body">
+                                    <h5 class="card-title">Order Summary</h5>
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="2">Subtotal</td>
+                                                <td class="text-end">₹<%=order.subTotal %></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">Shipping</td>
+                                                <td class="text-end">₹00.00</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">Coupon Discount</td>
+                                                <td class="text-end">-₹<%=order.couponDiscount %></td>
+                                            </tr>
+                                            <tr class="fw-bold">
+                                                <td colspan="2">GRAND TOTAL</td>
+                                                <td class="text-end" id="grandTotal">₹<%=order.grandTotal %></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    
+                                </div>
+                            </div>
+                            <!-- Payment Details Card -->
+                            <div class="card shadow-0 border mb-6 col-lg-6">
+                                <div class="card-body">
+                                    <h5 class="card-title">Payment Details</h5>
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="3">Payment Mode</td>
+                                                <td class="text-end"><%=order.paymentMode %></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3">Total Paid</td>
+                                                <td class="text-end">₹<%= order.grandTotal %></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- Address Card -->
+                            <div class="card shadow-0 border mb-6 col-lg-6">
+                                <div class="card-body">
+                                    <h5 class="card-title">Address</h5>
+                                    <div class="d-flex justify-content-between pt-2">
+                                        <p class="text-muted mb-0">Name: <%= order.address.name %></p>
+                                    </div>
+                                    <div class="d-flex justify-content-between pt-2">
+                                        <p class="text-muted mb-0">Street: <%= order.address.street %></p>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="text-muted mb-0">City: <%= order.address.city %></p>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="text-muted mb-0">Pin: <%= order.address.pin %></p>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-5">
+                                        <p class="text-muted mb-0">Mobile: <%= order.address.mobile %></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </section>
+</div>
+
+
+<!-- Order Status Confirmation Modal -->
+<div class="modal fade" id="confirmStatusChangeModal" tabindex="-1" role="dialog" aria-labelledby="confirmStatusChangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+       <div class="modal-content">
+         <div class="modal-header">
+           <h5 class="modal-title" id="confirmStatusChangeModalLabel">Confirm Status Change</h5>
+           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+             <span aria-hidden="true">&times;</span>
+           </button>
+         </div>
+         <div class="modal-body">
+           Are you sure you want to change the order status to <span id="newStatus"></span>?
+         </div>
+         <div class="modal-footer">
+           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+           <button type="button" class="btn btn-primary" id="confirmStatusChangeBtn">Confirm</button>
+         </div>
+       </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+     // Listen for dropdown change events
+     document.querySelectorAll('select[name="orderStatus"]').forEach(function(dropdown) {
+        dropdown.addEventListener('change', function(event) {
+          // Show the confirmation modal
+          $('#confirmStatusChangeModal').modal('show');
+          // Set the new status text
+          document.getElementById('newStatus').textContent = event.target.value;
+          // Store the order ID, product ID, and new status for later use
+          document.getElementById('confirmStatusChangeBtn').dataset.orderId = this.id.split('_')[1];
+          document.getElementById('confirmStatusChangeBtn').dataset.productId = this.id.split('_')[2];
+          document.getElementById('confirmStatusChangeBtn').dataset.newStatus = event.target.value;
+        });
+     });
+    
+     // Handle confirmation button click
+     document.getElementById('confirmStatusChangeBtn').addEventListener('click', function() {
+        const orderId = this.dataset.orderId;
+        const productId = this.dataset.productId;
+        const newStatus = this.dataset.newStatus;
+        const productIdOg = document.getElementById('productIdOg').value
+
+        console.log("orderId: ", orderId);
+        console.log("productId: ", productId);
+        console.log("productIdOg: ", productIdOg);
+        console.log("newStatus:", newStatus);
+
+
+        // Make an AJAX request to update the product status in the database
+        $.ajax({
+          url: '/admin/toggleOrderStatus',
+          method: 'POST',
+          data: { orderId: orderId, productId: productId, newStatus: newStatus, productIdOg: productIdOg },
+          success: function(response) {
+            // Handle success (e.g., show a success message, refresh the page, etc.)
+            console.log('Product status updated successfully');
+            $('#confirmStatusChangeModal').modal('hide');
+          },
+          error: function(error) {
+            // Handle error (e.g., show an error message)
+            console.error('Failed to update product status', error);
+          }
+        });
+     });
+    });
+</script>
+    
+    
+
+<%-include('../layouts/adminFooter.ejs')%>

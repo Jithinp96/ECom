@@ -356,30 +356,6 @@
                             }
                         }
                     });
-
-
-                    // const response = await fetch("/placeorder", {
-                    //     method: "POST",
-                    //     headers: {
-                    //         "Content-Type": "application/json"
-                    //     },
-                    //     body: JSON.stringify({
-                    //         selectedAddress: document.getElementById("selectedAddress").value,
-                    //         paymentMethod: paymentMethod,
-                    //         paymentId: paymentId,
-                    //         amount: discountTotal
-                    //     })
-                    // })
-                    // .then((response) => {
-                    //     console.log("Razorpay .then responce");
-                    //     console.log("response: ", response)
-                    //     console.log("response.order: ", response.order);
-                    //     if(response.order) {
-                    //         console.log("Razorpay .then responce if");
-                    //         razorpay(response.order);
-                    //     }
-                    // })
-                   
                 }
                 
             else if (paymentMethod === "cod") {
@@ -419,58 +395,6 @@
                     console.error("Error placing order:", error);
                     $("#warningMessage").text("Failed to place order. Please try again.").css({"color": "red", "display": "block"});
                 }
-
-
-                // try {
-                    
-                //     const response = await fetch("/placeorder", {
-                //         method: "POST",
-                //         headers: {
-                //             "Content-Type": "application/json"
-                //         },
-                //         body: JSON.stringify({
-                //             selectedAddress: document.getElementById("selectedAddress").value,
-                //             paymentMethod: paymentMethod,
-                //             paymentId: paymentId
-                //         })
-                //     });
-
-                //     if (!response.ok) {
-                //         throw new Error("Failed to place order");
-                //     }
-
-                    
-                //     const responseData = await response.json();
-                //     console.log("responseData: ", responseData);
-
-                //     if (responseData.success) {
-                //         let hashedOrderId = responseData.hashedOrderId
-                        
-                //         window.location.href = `/orderconfirmation/${hashedOrderId}`;
-                //     } else {
-                //         // Check if COD is not allowed for orders above Rs 1000
-                //         if (responseData.message) {
-                //             // Display the error message to the user
-                //             document.getElementById("warningMessage").textContent = responseData.message;
-                //             document.getElementById("warningMessage").style.color = "red";
-                //             document.getElementById("warningMessage").style.display = "block";
-                //         } else {
-                //             // Display a generic error message
-                //             document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
-                //             document.getElementById("warningMessage").style.color = "red";
-                //             document.getElementById("warningMessage").style.display = "block";
-                //         }
-                //         // document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
-                //         // document.getElementById("warningMessage").style.color = "red"; 
-                //         // document.getElementById("warningMessage").style.display = "block";
-                //     }
-                // } catch (error) {
-                //     console.error("Error placing order:", error);
-                
-                //     document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
-                //     document.getElementById("warningMessage").style.color = "red"; 
-                //     document.getElementById("warningMessage").style.display = "block";
-                // }
             } 
             else if (paymentMethod === "wallet") {
                     
@@ -536,7 +460,6 @@
             "image": "assets/images/logo.png",
             "order_id": order.id,
             "handler": function(response) {
-                // verifyPayment(response.razorpay_payment_id, paymentMethod);
                 verifyPayment(response, order, id);
             },
             "prefill": {

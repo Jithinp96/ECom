@@ -737,16 +737,16 @@ const placeOrder = async (req, res) => {
             },
         };
 
-        console.log("orderData: ", orderData);
+        // console.log("orderData: ", orderData);
 
         const orderInstance = new Order(orderData);
         await orderInstance.save();
 
         await Cart.findOneAndDelete({ userid: req.session.userid });
-        console.log("After delete cart");
+        // console.log("After delete cart");
         
         if(orderStatus != 'Pending') {
-            console.log("Inside not pendinf order status: ", orderStatus);
+            // console.log("Inside not pendinf order status: ", orderStatus);
             for (const product of products) {
                 try {
     
@@ -767,7 +767,7 @@ const placeOrder = async (req, res) => {
         }
         
         if(orderStatus == 'Pending') {
-            console.log("inside orderstatus pending: ", orderStatus);
+            // console.log("inside orderstatus pending: ", orderStatus);
             const options = {
                 amount:  req.body.amount * 100,
                 currency: "INR",
@@ -777,7 +777,7 @@ const placeOrder = async (req, res) => {
                 if (err) {
                   console.log(err);
                 }
-                console.log("order created by razorpay: ", order);
+                // console.log("order created by razorpay: ", order);
                 res.json({hashedOrderId ,order });
             
         });
@@ -801,12 +801,12 @@ function generateOrderId() {
 
 const verifyPayment = async (req, res) => {
     try {
-        console.log("Inside verify payment");
+        // console.log("Inside verify payment");
         const { payment, order } = req.body;
-        console.log("payment: ", payment);
-        console.log("order: ", order);
+        // console.log("payment: ", payment);
+        // console.log("order: ", order);
         const userId = req.session.user?._id;
-        console.log(req.body);
+        // console.log(req.body);
         const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY);
         hmac.update(payment.razorpay_order_id + "|" + payment.razorpay_payment_id);
         const hmacValue = hmac.digest("hex");
@@ -849,10 +849,10 @@ const verifyPayment = async (req, res) => {
                     return res.status(500).json({ success: false, message: 'An error occurred while updating product stock.' });
                 }
             }
-            console.log("order.receipt: ", order.receipt);
-            const Dorder = await Order.findById({ _id: order.receipt });
-            console.log("Order inside verify payment: ", Dorder);
-            console.log("payment.razorpay_payment_id: ", payment.razorpay_payment_id);
+            // console.log("order.receipt: ", order.receipt);
+            // const Dorder = await Order.findById({ _id: order.receipt });
+            // console.log("Order inside verify payment: ", Dorder);
+            // console.log("payment.razorpay_payment_id: ", payment.razorpay_payment_id);
 
             // Update order status to "Placed"
            const up = await Order.updateOne(
@@ -861,9 +861,9 @@ const verifyPayment = async (req, res) => {
                 })
                 
                 
-           console.log('up:', up)
+        //    console.log('up:', up)
 
-            console.log('req.body.id:', req.body.id);
+            // console.log('req.body.id:', req.body.id);
             if(req.body.id != undefined) {
                 res.status(200).json({ success: true, hashedOrderId: req.body.id });
             }
@@ -874,123 +874,6 @@ const verifyPayment = async (req, res) => {
         return res.redirect('/500');
     }
 };
-
-
-// const verifyPayment = async (req, res) => {
-//     try {
-//         console.log("Inside verify payment");
-//         const { payment, order } = req.body;
-//         console.log("payment: ", payment);
-//         console.log("order: ", order);
-//         const userId = req.session.user?._id;
-//         console.log(req.body);
-//         const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY);
-//         hmac.update(payment.razorpay_order_id + "|" + payment.razorpay_payment_id);
-//         const hmacValue = hmac.digest("hex");
-
-//         if (hmacValue === payment.razorpay_signature) {
-
-//             const checkoutProduct = await Cart.find({ userid: req.session.userid }).populate({
-//                 path: "product.productid",
-//                 model: Product,
-//                 select: 'name price image',
-//             });
-    
-//             const products = checkoutProduct.reduce((acc, checkoutItem) => {
-//                 return acc.concat(checkoutItem.product.map((product, index) => ({
-//                     productId: product.productid._id,
-//                     name: product.productid.name,
-//                     price: product.productid.price,
-//                     offerDiscount: product.offerDiscount,
-//                     quantity: product.quantity,
-//                     total: product.totalPrice,
-//                     orderStatus: orderStatus,
-//                     image: product.productid.image[0],
-//                 })));
-//             }, []);
-    
-
-//             for (const product of products) {
-//                 try {
-    
-//                     const productInStock = await Product.findById(product.productId);
-    
-//                     if (productInStock) {
-//                         productInStock.quantity -= product.quantity;
-//                         await productInStock.save();
-//                     } else {
-//                         console.error(`Product with ID ${product.productId} not found in the stock database`);
-//                     }
-//                 } catch (error) {
-//                     console.error('Error updating product stock:', error);
-//                     return res.status(500).json({ success: false, message: 'An error occurred while updating product stock.' });
-//                 }
-//             }
-//             console.log("order.receipt: ", order.receipt);
-//             const Dorder = await Order.findById({ _id: order.receipt });
-//             console.log("Order inside verify payment: ", Dorder);
-//             console.log("payment.razorpay_payment_id: ", payment.razorpay_payment_id);
-
-//             await Order.findByIdAndUpdate(order.receipt, { orderStatus: "Placed" });
-
-//             console.log('req.body.id:', req.body.id);
-//             if(req.body.id != undefined) {
-//                 res.status(200).json({ success: true, hashedOrderId: req.body.id });
-    
-//             }
-            
-//         }
-       
-       
-//     } catch (error) {
-//         // Handle errors and redirect to an error page
-//         console.error('Error verifying payment:', error);
-//         return res.redirect('/500');
-//     }
-// };
-
-
-
-// const verifyPayment = async (req, res) => {
-//     try {
-//         const userId = req.session.user_id;
-//         const { payment, order } = req.body;
-//         const orderId = order.receipt;
-
-//         const crypto = require('crypto');
-//         let hmac = crypto.createHmac('sha256', process.env.RAZORPAY_SECRET_KEY);
-//         hmac.update(payment.razorpay_order_id + '|' + payment.razorpay_payment_id);
-//         hmac = hmac.digest('hex');
-
-//         if (hmac === payment.razorpay_signature) {
-//             const orderDetails = await Order.findById(orderId);
-
-//             if (!orderDetails) {
-//                 console.error('Order not found:', orderId);
-//                 return res.status(404).json({ error: 'Order not found' });
-//             }
-
-//             orderDetails.paymentStatus = "Razorpay";
-//             await orderDetails.save();
-
-//             const cartDeleteResult = await Cart.deleteOne({ userid: userId });
-
-//             if (!cartDeleteResult.ok) {
-//                 console.error('Error deleting cart items for user:', userId);
-//                 return res.status(500).json({ error: 'Error deleting cart items' });
-//             }
-
-//             return res.json({ payment: true });
-//         } else {
-//             console.error('Razorpay signature mismatch');
-//             return res.status(400).json({ error: 'Razorpay signature mismatch' });
-//         }
-//     } catch (error) {
-//         console.error('Error verifying payment:', error);
-//         return res.status(500).json({ error: 'Error verifying payment' });
-//     }
-// };
-
 
 const generateRazorpay = (orderid, adjustedAmount) => {
     return new Promise((resolve, reject) => {
@@ -1027,6 +910,87 @@ const loadOrderConfirmation = async (req, res) => {
 }
 
 
+const continuePayment = async(req, res) => {
+    try {
+        // console.log('reched', req.body)
+        const { amount, orderId } = req.body;
+        const options = {
+            amount: amount * 100,
+            currency: "INR",
+            receipt: "" + orderId,
+          };
+          instance.orders.create(options, function (err, order) {
+            if (err) {
+              console.log(err);
+            }
+            // console.log("order created by razorpay: ", order);
+            res.status(201).json({ success: true, order });
+        });
+        
+    } catch (error) {
+        
+    }
+}
+
+const continueVerifyPayment = async (req, res) => {
+    try {
+        // console.log("Inside verify payment");
+        const { payment, order } = req.body;
+        // console.log("payment: ", payment);
+        // console.log("order: ", order);
+        const userId = req.session.user?._id;
+        // console.log(req.body);
+        const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY);
+        hmac.update(payment.razorpay_order_id + "|" + payment.razorpay_payment_id);
+        const hmacValue = hmac.digest("hex");
+
+        if (hmacValue === payment.razorpay_signature) {
+            const orderid = order.receipt
+            const matchedOrder  = await Order.findOne(
+                { userId: req.session.userid, _id:orderid  }
+            );
+
+            if (!matchedOrder) {
+                throw new Error('Order not found');
+            }
+    
+            // Iterate over each product in the matchedOrder
+            for (let product of matchedOrder.products) {
+                // Find the corresponding product in the product model
+                const productToUpdate = await Product.findOne({ _id: product.productId });
+
+                if (!productToUpdate) {
+                    throw new Error(`Product with ID ${product.productId} not found`);
+                }
+    
+                // Reduce the stock by the quantity ordered
+                productToUpdate.quantity -= product.quantity;
+    
+                // Ensure the stock does not go below 0
+                productToUpdate.quantity = Math.max(0, productToUpdate.quantity);
+    
+                // Save the updated product
+                await productToUpdate.save();
+            }
+
+            // Update order status to "Placed"
+           const up = await Order.updateOne(
+                {"_id": order.receipt}, {
+                    $set: { "products.$[].orderStatus": "Placed" }
+                })
+
+            // console.log('req.body.id:', req.body.id);
+            if(req.body.id != undefined) {
+                res.status(200).json({ success: true, hashedOrderId: req.body.id });
+            }
+        }
+    } catch (error) {
+        // Handle errors and redirect to an error page
+        console.error('Error verifying payment:', error);
+        return res.redirect('/500');
+    }
+};
+
 module.exports = {
     loadCart,
     addToCart,
@@ -1039,4 +1003,6 @@ module.exports = {
     verifyPayment,
     loadOrderConfirmation,
     cartquantity,
+    continuePayment,
+    continueVerifyPayment,
 }

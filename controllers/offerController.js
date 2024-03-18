@@ -2,14 +2,41 @@ const {Offer} = require("../models/offerModel");
 const Product = require("../models/productModel");
 const Category = require("../models/categoryModel");
 
+// const loadOffer = async (req, res) => {
+//     try {
+//         const offers = await Offer.find();
+//         res.render ('offerlist', { offers });
+//     } catch (error) {
+//         console.error('Error fetching offers:', error);
+//         res.status(500).send('An error occurred while fetching offers.');
+//     }
+// }
+
 const loadOffer = async (req, res) => {
-    try {
-        const offers = await Offer.find();
-        res.render ('offerlist', { offers });
-    } catch (error) {
-        console.error('Error fetching offers:', error);
-        res.status(500).send('An error occurred while fetching offers.');
-    }
+  try {
+      const offers = await Offer.find();
+
+      const currentDate = new Date();
+        const activeOffers = [];
+        const expiredOffers = [];
+
+        offers.forEach(offer => {
+            const startDate = new Date(offer.startDate);
+            const expiryDate = new Date(offer.expiryDate);
+
+            if (currentDate >= startDate && currentDate <= expiryDate) {
+                activeOffers.push(offer);
+            } else {
+                expiredOffers.push(offer);
+            }
+        });
+
+
+      res.render ('offerlist', { activeOffers, expiredOffers });
+  } catch (error) {
+      console.error('Error fetching offers:', error);
+      res.status(500).send('An error occurred while fetching offers.');
+  }
 }
 
 const loadAddOffer = async (req, res) => {

@@ -76,10 +76,25 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
+const loadOrderDetails = async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const order = await Order.findById(orderId).populate('userId').populate('products.productId');
+        
+        console.log("order: ", order);
 
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+        res.render('orderDetailsAdmin', { order });
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 
 module.exports = {
     loadAdminOrderList,
     updateOrderStatus,
+    loadOrderDetails,
 }

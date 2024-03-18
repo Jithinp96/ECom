@@ -95,5 +95,7 @@ user_route.put(`/orderdetails/:orderId/products/:productId/return`, userProfileC
 user_route.get('/invoice/:id', userAuth.isLogin, userAuth.isAuthenticated, userProfileController.getInvoice);
 
 user_route.get('/paymentpolicy', userController.loadPaymentPolicy);
+user_route.post('/continue-payment', cartController.continuePayment);
+user_route.post('/continue-verify-payment', cartController.continueVerifyPayment);
 
 module.exports = user_route;

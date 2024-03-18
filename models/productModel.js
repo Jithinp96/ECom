@@ -39,24 +39,34 @@ const productSchema = mongoose.Schema({
     }
 });
 
+
 productSchema.methods.determineBestOffer = async function() {
     let bestOffer = null;
     let bestOfferType = null;
+
+    // Helper function to check if the current date is within the offer's validity period
+    const isOfferValid = (offer) => {
+        const currentDate = new Date();
+        const startDate = new Date(offer.startDate);
+        const expiryDate = new Date(offer.expiryDate);
+
+        return currentDate >= startDate && currentDate <= expiryDate;
+    };
 
     try {
         if (this.offer) {
             const productOffer = this.offer;
             
-            if (productOffer && productOffer.is_active) {
+            if (productOffer && productOffer.is_active && isOfferValid(productOffer)) {
                 bestOffer = productOffer;
                 bestOfferType = 'product';
             }
         }
         
         if (this.category) {
-            const category = await Category.findById(this.category).populate('offer');
+            const category = await Category.findById(this.category).populate('offer').exec();
 
-            if (category && category.offer && category.offer.is_active) {
+            if (category && category.offer && category.offer.is_active && isOfferValid(category.offer)) {
                 if (!bestOffer || category.offer.discountPercentage > bestOffer.discountPercentage) {
                     bestOffer = category.offer;
                     bestOfferType = 'category';
@@ -69,6 +79,37 @@ productSchema.methods.determineBestOffer = async function() {
 
     return { bestOffer, bestOfferType };
 };
+
+// productSchema.methods.determineBestOffer = async function() {
+//     let bestOffer = null;
+//     let bestOfferType = null;
+
+//     try {
+//         if (this.offer) {
+//             const productOffer = this.offer;
+            
+//             if (productOffer && productOffer.is_active) {
+//                 bestOffer = productOffer;
+//                 bestOfferType = 'product';
+//             }
+//         }
+        
+//         if (this.category) {
+//             const category = await Category.findById(this.category).populate('offer');
+
+//             if (category && category.offer && category.offer.is_active) {
+//                 if (!bestOffer || category.offer.discountPercentage > bestOffer.discountPercentage) {
+//                     bestOffer = category.offer;
+//                     bestOfferType = 'category';
+//                 }
+//             }
+//         }
+//     } catch (error) {
+//         console.error("Error determining best offer:", error);
+//     }
+
+//     return { bestOffer, bestOfferType };
+// };
 
 
 

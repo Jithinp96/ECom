@@ -52,6 +52,7 @@ admin_route.post('/submitEditProduct/:id', upload.array('image', 4), productCont
 //ORDER PART
 admin_route.get('/order', adminAuth.isLogin, orderController.loadAdminOrderList);
 admin_route.post('/toggleOrderStatus', orderController.updateOrderStatus);
+admin_route.get('/order-details/:orderId', orderController.loadOrderDetails);
 
 //SALES REPORT
 admin_route.get('/salesreport', adminDashboardController.loadSalesReport);

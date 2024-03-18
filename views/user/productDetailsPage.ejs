@@ -89,7 +89,9 @@
                                             <span class="price-block">
                                                 <span class="out-price" style="text-decoration: line-through;">₹<%=product.price%></span>
                                                 <span class="offer-price">₹<%=product.price - (product.price * (bestOffer.discountPercentage / 100))%></span>
-                                                <span class="discount-percentage" style="color: green;">(<%=bestOffer.discountPercentage%>% off)</span>
+                                                <span class="badge rounded-pill text-white bg-success" style="font-size: 0.5em; padding: 0.2em 0.5em;">
+                                                    <%= bestOffer.discountPercentage %>% off
+                                                </span>
                                             </span>
                                         <% } else { %>
                                             ₹<%=product.price%>
@@ -292,6 +294,8 @@
             }
 
             const responseData = await response.json();
+            console.log("responseData: ", responseData);
+            
             // Display SweetAlert success notification
             Swal.fire({
                 icon: 'success',

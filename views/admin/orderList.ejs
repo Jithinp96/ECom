@@ -38,7 +38,8 @@
                                             <th scope="col">Total Price</th>
                                             <th scope="col">Date</th>
                                             <th scope="col">Payment</th>
-                                            <th scope="col">Order Status</th>
+                                            <!-- <th scope="col">Order Status</th> -->
+                                            <!-- <th scope="col">Action</th> -->
                                             <th scope="col">Action</th>
                                         </tr>
                                     </thead>
@@ -58,10 +59,10 @@
                                                         <td><%= order.date.toLocaleDateString() %></td>
                                                         <td><%= order.paymentMode %></td>
                                                         <!-- <td><%= product.orderStatus %></td> -->
-                                                        <td>
+                                                        <!-- <td>
                                                             <div class="form-group mb-4">
                                                                 <select class="custom-select mr-sm-2" id="orderStatusDropdown_<%= order._id %>" name="orderStatus">
-                                                                    <!-- Options for order status dropdown -->
+                                                                    
                                                                     <option value="Placed" <%= product.orderStatus === 'Placed' ? 'selected' : '' %>>Placed</option>
                                                                     <option value="Shipped" <%= product.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
                                                                     <option value="Delivered" <%= product.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
@@ -70,11 +71,14 @@
                                                                     <option value="Cancelled" <%= product.orderStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
                                                                 </select>
                                                             </div>
-                                                        </td>
-                                                        <td>
-                                                            <!-- <button class="btn btn-primary update-status-btn" data-orderid="<%= order.id %>" id="updateBtn<%= order._id %>">Update</button> -->
+                                                        </td> -->
+                                                        <!-- <td>
+                                                            
                                                             <input type="hidden" value="<%= product.productId %>" id="productIdOg">
                                                             <button class="btn btn-primary update-status-btn" data-orderid="<%= order.id %>" data-productid="<%= product._id %>" id="updateBtn<%= order._id %>">Update</button>
+                                                        </td> -->
+                                                        <td>
+                                                            <a href="/admin/order-details/<%= order._id %>" class="btn btn-info">View Details</a>
                                                         </td>
                                                     </tr>
                                                 <% }) %>

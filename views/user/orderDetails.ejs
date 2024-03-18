@@ -45,9 +45,22 @@
                 <div class="card-body p-5">
                     <div class="mb-0 d-flex justify-content-between">
                         <div>
-                            <span class="me-3">Estimated Delivery By: <strong><span style="color: green;"><%= order.edd.toDateString() %>, 11PM</span></strong></span>
-                        
+                            <% var pendingOrder = order.products.some(function(product) { return product.orderStatus === "Pending"; }); %>
+                            
+                            <% if (pendingOrder) { %>
+                                <div class="warning-message" style="background-color: #ffe6e6; color: #990000; padding: 10px; border-radius: 5px;">
+                                    <% order.products.forEach(function(product) { %>
+                                        <% if (product.orderStatus === "Pending") { %>
+                                            <p>The payment for this order has been failed, please <button class="btn-link" type="button" onclick="continuePayment('<%=order.grandTotal %>', '<%= order._id%>', '<%= order.hashedOrderId%>')" id="continuePayment">click here</button> to pay now.</p>
+                                        <% } %>
+                                    <% }); %>
+                                </div>
+                            <% } else { %>
+                                <span class="me-3">Estimated Delivery By: <strong><span style="color: green;"><%= order.edd.toDateString() %>, 11PM</span></strong></span>
+                            <% } %>
                         </div>
+                        
+                        
                     
                         <div class="d-flex">
                             <!-- <button class="btn btn-link p-0 me-3 d-none d-lg-block btn-icon-text" 
@@ -229,6 +242,7 @@
                                             <span class="badge rounded-pill text-white 
                                                 <% switch (product.orderStatus) { 
                                                     case 'Placed': %>bg-info<% break; 
+                                                    case 'Pending': %>bg-primary<% break;
                                                     case 'Cancelled': %>bg-danger<% break; 
                                                     case 'Delivered': %>bg-success<% break; 
                                                     case 'Returned': %>bg-warning<% break; 
@@ -276,7 +290,7 @@
                     </tr>
                     <tr class="fw-bold">
                         <td colspan="2">GRAND TOTAL</td>
-                        <td class="text-end">₹<%=order.grandTotal %></td>
+                        <td class="text-end" id="grandTotal">₹<%=order.grandTotal %></td>
                     </tr>
                     </tfoot>
                 </table>
@@ -288,29 +302,27 @@
           <!-- Customer Notes -->
           <div class="card mb-4 p-3">
             <div class="card-body ">
-                <!-- <div class="row p-5"> -->
-                    <!-- <div class="col-lg-8"> -->
-                        <h3 class="h6">Payment Details</h3>
-                        <% if (order.paymentMode === 'cod') { %>
-                            <p><strong>Payment Method: </strong>Cash On Delivery<br>
-                        <% } else if (order.paymentMode === 'razorpay') { %>
-                            <p><strong>Payment Method: </strong>Razor Pay<br>
-                        <% } else if (order.paymentMode === 'wallet') { %>
-                            <p><strong>Payment Method: </strong>Wallet<br>
-                        <% } %>      
-                        <strong>Payment ID: </strong><%= order.paymentId %></p>
-                    <!-- </div> -->
-                <!-- </div> -->
+                
+                <h3 class="h6">Payment Details</h3>
+                <% if (order.paymentMode === 'cod') { %>
+                    <p><strong>Payment Method: </strong>Cash On Delivery<br>
+                <% } else if (order.paymentMode === 'razorpay') { %>
+                    <p><strong>Payment Method: </strong>Razor Pay<br>
+                <% } else if (order.paymentMode === 'wallet') { %>
+                    <p><strong>Payment Method: </strong>Wallet<br>
+                <% } %>      
+                <strong>Payment ID: </strong><%= order.paymentId %></p>
+                  
             </div>
         </div>
           <div class="card mb-4 p-3">
             <!-- Shipping information -->
             <div class="card-body">
 
-              <h3 class="h6">Shipping Information</h3>
+              <!-- <h3 class="h6">Shipping Information</h3>
               <strong>FedEx</strong>
               <span><a href="#" class="text-decoration-underline" target="_blank">FF1234567890</a> <i class="bi bi-box-arrow-up-right"></i> </span>
-              <hr>
+              <hr> -->
               <h3 class="h6">Shipping Address</h3>
               <address>
                 <strong><%=order.address.name %></strong><br>
@@ -396,6 +408,105 @@
     </div>
   </div>
   
+
+<!-- Continue Payment Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    let grandTotal = '<%=order.grandTotal %>';
+    console.log("grandTotal: ", grandTotal);
+
+
+    function continuePayment(amount, orderId, id) {
+         try {
+            console.log('helond')
+            $.ajax({
+                type: 'POST',
+                url: '/continue-payment',
+                contentType: 'application/json',
+                data: JSON.stringify({amount, orderId}),
+                success: (res) => {
+                    console.log("res: ", res);
+                    console.log("id: ", id);
+                    if(res.success) {
+                        console.log('Inside success');
+                        console.log("res.order: ", res.order);
+                        pendingPayment(res.order, id)
+                    }
+                }
+
+            })
+         } catch (error) {
+           
+         }
+    }
+
+    function pendingPayment(order, id) {
+        console.log("Inside razorpay fn");
+        console.log("order.amount: ", order.amount);
+        let options = {
+            "key": '<%= process.env.RAZORPAY_ID_KEY %>',
+            "amount": order.amount,
+            "currency": "INR",
+            "name": "FurnIt",
+            "description": "Test Transaction",
+            "image": "assets/images/logo.png",
+            "order_id": order.id,
+            "handler": function(response) {
+                verifyPayment(response, order, id);
+            },
+            "prefill": {
+                "name": "Customer Name",
+                "email": "customer@example.com",
+                "contact": "9999999999"
+            },
+            "theme": {
+                "color": "#CC9966"
+            }
+        };
+        var rzp = new Razorpay(options);
+        rzp.open();
+    }
+
+    function verifyPayment(payment, order, id) {
+        fetch("/continue-verify-payment", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                 payment,
+                 order,
+                 id
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Payment verification failed");
+            }
+            return response.json();
+        })
+        .then(responseData => {
+            if (responseData.success) {
+                let hashedOrderId = responseData.hashedOrderId;
+                window.location.href = `/orderconfirmation/${hashedOrderId}`;
+            } else {
+                document.getElementById("warningMessage").textContent = "Payment verification failed. Please try again.";
+                document.getElementById("warningMessage").style.color = "red";
+                document.getElementById("warningMessage").style.display = "block";
+            }
+        })
+        .catch(error => {
+            console.error("Error verifying payment:", error);
+            document.getElementById("warningMessage").textContent = "Payment verification failed. Please try again.";
+            document.getElementById("warningMessage").style.color = "red";
+            document.getElementById("warningMessage").style.display = "block";
+        });
+    }
+
+   
+</script>
+
+
   <script>
     function openReturnModal(link) {
       let productId = link.getAttribute('data-product-id');
@@ -530,6 +641,9 @@
     //     hide.style.display = 'inline-block'
     // }
 </script>
+
+
+
 
 <%-include('../layouts/footbar.ejs')%>
 <%-include('../layouts/footer.ejs')%>

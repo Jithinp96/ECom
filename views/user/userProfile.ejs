@@ -84,7 +84,21 @@
                                                                         </div>
                                                                         <div class="col-md-8">
                                                                             <div class="product-info">
-                                                                                <p><strong><%= product.name %></strong></p>
+                                                                                <p><strong><%= product.name %></strong>
+                                                                                    <span class="badge rounded-pill text-white 
+                                                                                        <% switch (product.orderStatus) { 
+                                                                                            case 'Placed': %>bg-info<% break; 
+                                                                                            case 'Pending': %>bg-primary<% break;
+                                                                                            case 'Cancelled': %>bg-danger<% break; 
+                                                                                            case 'Delivered': %>bg-success<% break; 
+                                                                                            case 'Returned': %>bg-warning<% break; 
+                                                                                            default: %>bg-secondary<% break; 
+                                                                                            } %>"
+                                                                                        >
+                                                                                        <%= product.orderStatus %>
+                                                                                    </span>
+                                                                                </p>
+                                                                                
                                                                                 <p>Quantity: <%= orderItem.products[0].quantity %> Price: ₹<%= product.price %></p>
                                                                         </div>
                                                                         <div class="product-info">
