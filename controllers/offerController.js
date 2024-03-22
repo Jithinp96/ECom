@@ -2,16 +2,7 @@ const {Offer} = require("../models/offerModel");
 const Product = require("../models/productModel");
 const Category = require("../models/categoryModel");
 
-// const loadOffer = async (req, res) => {
-//     try {
-//         const offers = await Offer.find();
-//         res.render ('offerlist', { offers });
-//     } catch (error) {
-//         console.error('Error fetching offers:', error);
-//         res.status(500).send('An error occurred while fetching offers.');
-//     }
-// }
-
+// ========== FOR LOADING OFFER LIST ===========
 const loadOffer = async (req, res) => {
   try {
       const offers = await Offer.find();
@@ -39,6 +30,7 @@ const loadOffer = async (req, res) => {
   }
 }
 
+// ========== FOR LOADING ADD OFFER PAGE ===========
 const loadAddOffer = async (req, res) => {
     try {
         res.render ('addoffer');
@@ -47,12 +39,11 @@ const loadAddOffer = async (req, res) => {
     }
 }
 
+// ========== FOR ADDING AN OFFER ===========
 const addOffer = async (req, res) => {
     try {
-        // Extract offer details from the request body
         const { offerName, discountPercentage, startDate, expiryDate } = req.body;
 
-        // Create a new Offer document
         const newOffer = new Offer({
             offerName,
             discountPercentage,
@@ -60,7 +51,6 @@ const addOffer = async (req, res) => {
             expiryDate
         });
 
-        // Save the new offer to the database
         await newOffer.save();
         res.redirect('/admin/offer');
     } catch (error) {
@@ -69,6 +59,7 @@ const addOffer = async (req, res) => {
     }
 }
 
+// ========== FOR LAODING EDIT OFFER PAGE ===========
 const loadEditOffer = async (req, res) => {
   try {
     const offerId = req.params.offerId;
@@ -84,6 +75,7 @@ const loadEditOffer = async (req, res) => {
   }
 }
 
+// ========== FOR EDITING AN OFFER ===========
 const editOffer = async (req, res) => {
   try {
     const offerId = req.params.offerId;
@@ -108,18 +100,25 @@ const editOffer = async (req, res) => {
   }
 }
 
+// ========== FOR LOADING THE PAGE FOR APPLYING PRODUCT OFFER ===========
 const loadProductApplyOffer = async (req, res) => {
-    try {
-        const offers = await Offer.find();
-        const productId = req.query.id
-        const product = await Product.findOne({_id:productId})
+  try {
+      const currentDate = new Date();
+      const offers = await Offer.find();
+      const productId = req.query.id;
+      const product = await Product.findOne({_id: productId});
 
-        res.render("selectproductofferlist", { offers, productId, product });
-    } catch (error) {
-        console.log(error);
-    }
+      // Separate offers into active and expired
+      const activeOffers = offers.filter(offer => new Date(offer.expiryDate) > currentDate);
+      const expiredOffers = offers.filter(offer => new Date(offer.expiryDate) <= currentDate);
+
+      res.render("selectproductofferlist", { activeOffers, expiredOffers, productId, product });
+  } catch (error) {
+      console.log(error);
+  }
 }
 
+// ========== FOR APPLYING AN OFFER TO PRODUCT ===========
 const applyProductOffer = async (req,res)=>{
     try {
       const {offer,product} = req.body;
@@ -142,6 +141,7 @@ const applyProductOffer = async (req,res)=>{
     }
 }
 
+// ========== FOR REMOVING A PRODUCT OFFER ===========
 const removeProductOffer = async (req,res)=>{
     try {
       const {offerId , productId} = req.body
@@ -155,18 +155,24 @@ const removeProductOffer = async (req,res)=>{
     }
 }
 
+// ========== FOR LOADING THE PAGE FOR APPLYING CATEGORY OFFER ===========
 const loadCategoryApplyOffer = async (req, res) => {
-    try {
-        const offers = await Offer.find();
-        const categoryId = req.query.id
-        const category = await Category.findOne({_id:categoryId})
+  try {
+      const currentDate = new Date();
+      const offers = await Offer.find();
+      const categoryId = req.query.id
+      const category = await Category.findOne({_id:categoryId})
 
-        res.render("selectcategoryofferlist", { offers, categoryId, category });
-    } catch (error) {
-        console.log(error);
-    }
+      const activeOffers = offers.filter(offer => new Date(offer.expiryDate) > currentDate);
+      const expiredOffers = offers.filter(offer => new Date(offer.expiryDate) <= currentDate);
+
+      res.render("selectcategoryofferlist", { activeOffers, expiredOffers, categoryId, category });
+  } catch (error) {
+      console.log(error);
+  }
 }
 
+// ========== FOR APPLYING CATEGORY OFFER ===========
 const applyCategoryOffer = async (req,res)=>{
     try {
       const {offer,category} = req.body;
@@ -189,6 +195,7 @@ const applyCategoryOffer = async (req,res)=>{
     }
 }
 
+// ========== FOR REMOVING CATEGORY OFFER ===========
 const removeCategoryOffer = async (req,res)=>{
     try {
       const {offerId , categoryId} = req.body

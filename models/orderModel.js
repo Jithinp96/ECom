@@ -92,17 +92,6 @@ const orderSchema = mongoose.Schema({
     }
 });
 
-// async function checkForDeliveredItems(orderId) {
-//     try {
-//         const order = await Order.findOne({ orderId: orderId, 'products.orderStatus': 'Delivered' });
-//         return order !== null;
-//     } catch (error) {
-//         console.error('Error checking for delivered items:', error);
-//         return false;
-//     }
-// }
-
 orderSchema.plugin(mongoosePaginate);
-
 
 module.exports = mongoose.model('Order', orderSchema);

@@ -64,9 +64,10 @@
                                         </tbody>
                                     </table>
                                     <div class="text-right">
-                                        <a href="/edit/<%= user._id %>" class="btn btn-secondary mt-1" data-toggle="modal" data-target="#edituser-modal">Edit User</a>
-
-                                      </div>                               
+                                        <a href="/edit/<%= user._id %>" class="btn btn-secondary mt-1" data-toggle="modal" data-target="#edituser-modal">Edit Profile</a>
+                                    
+                                        <a href="/changepassword/" class="btn btn-dark mt-1">Change Password</a>
+                                    </div>                             
                                 </div>
                                 
                                 <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
@@ -265,8 +266,59 @@
     </main><!-- End .main -->
 </div><!-- End .page-wrapper -->
 <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
-<!-- 
- Add adress modal -->
+
+<!--  Change password modal -->
+<!-- <div class="modal fade" id="editpassword-modal" tabindex="-1" role="dialog" aria-labelledby="editPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editPasswordModalLabel">Change Password</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm">
+                    <div class="container-fluid form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" class="form-control" id="currentPassword" placeholder="Enter your current password">
+                        
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="newPassword">New Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Enter your new password" required>
+                            <div class="password-icon" onmouseover="showPasswordRules()" onmouseout="hidePasswordRules()">ℹ️ Password Rules</div>
+                        </div>
+                        <div class="password-rules" id="passwordRules" style="display: none;">
+                            Password Rules: <br>
+                            * Must be at least 8 characters long<br>
+                            * Must contain at least:<br>
+                            - One uppercase letter.<br>
+                            - One lowercase letter.<br>
+                            - One number.<br>
+                            - One special character.
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="container-fluid form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your new password">
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="updatePasswordBtn" class="btn btn-primary">Change Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+
+<!--  Add adress modal -->
 
 <div class="modal fade" id="newaddress-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -453,6 +505,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
 
 <script>
     function toggleOrderDetails(orderId) {

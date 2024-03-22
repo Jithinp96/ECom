@@ -4,6 +4,7 @@ const Product = require("../models/productModel")
 const Coupon = require("../models/couponModel")
 const Cart = require("../models/cartModel");
 
+// ========== FOR LOADING COUPON PAGE ===========
 const loadCouponPage = async (req, res) => {
     try {
         
@@ -17,6 +18,7 @@ const loadCouponPage = async (req, res) => {
     }
 }
 
+// ========== FOR LOADING ADD COUPON PAGE ===========
 const loadAddCoupon = async (req, res) => {
     try {
         res.render("addcoupon")
@@ -25,6 +27,7 @@ const loadAddCoupon = async (req, res) => {
     }
 }
 
+// ========== FOR ADDING THE COUPON TO DB ===========
 const addCoupon = async (req, res) => {
     try {
         
@@ -58,7 +61,6 @@ const addCoupon = async (req, res) => {
             });
             await newCoupon.save();
             res.redirect('/admin/coupon');
-            // res.status(201).json(savedCoupon);
         }
     } catch (err) {
         console.error('Error saving coupon:', err.message);
@@ -66,6 +68,7 @@ const addCoupon = async (req, res) => {
     }
 }
 
+// ========== FOR DELETING A COUPON FROM DATABASE ===========
 const deleteCoupon = async (req, res) => {
     const couponId = req.params.id;
     try {
@@ -78,7 +81,7 @@ const deleteCoupon = async (req, res) => {
 }
 
 
-// apply coupon
+// ========== FOR APPLYING A COUPON ON AN ORDER ===========
 const applyCoupon = async (req, res) => {
     try {
         const userId = req.session.userid;
@@ -127,7 +130,7 @@ const applyCoupon = async (req, res) => {
                         } },
                         { new: true }
                     );
-                    return res.json({ success: true, totalPrice: changeTotalPrice ,message : 'Coupon applied successfully'}); // Return to avoid multiple responses
+                    return res.json({ success: true, totalPrice: changeTotalPrice ,message : 'Coupon applied successfully'});
                 } else {
                     
                     return res.json({
@@ -150,6 +153,7 @@ const applyCoupon = async (req, res) => {
         }
   };
 
+// ========== FOR REMOVING A COUPON FROM AN ORDER ===========
 const removeCoupon = async (req, res) => {
     const userId = req.session.userid;
 
@@ -165,7 +169,6 @@ const removeCoupon = async (req, res) => {
         }
 
         const { subTotal, offerDiscount, couponDiscount } = updatedCart;
-        // const newGrandTotal = subTotal - offerDiscount - couponDiscount;
         const newGrandTotal = subTotal - couponDiscount;
 
         
@@ -178,7 +181,7 @@ const removeCoupon = async (req, res) => {
     }
 }
 
-
+// ========== FOR LOADING EDIT COUPON PAGE ===========
 const loadEditCoupon = async (req, res) => {
     try {
         const couponId = req.params.couponId;
@@ -195,24 +198,22 @@ const loadEditCoupon = async (req, res) => {
     }
 };
 
+// ========== FOR EDITING AN COUPON ===========
 const editCoupon = async (req, res) => {
     try {
         const couponId = req.params.couponId;
         const { couponCode, discountAmount, minOrderAmount, couponDescription, startDate, expiryDate } = req.body;
 
-        // Get the existing coupon
         const existingCoupon = await Coupon.findById(couponId);
 
         const capitalCouponCode = couponCode.toUpperCase();
         const exist = await Coupon.findOne({couponCode: capitalCouponCode});
 
         if(exist){
-            // console.log("Coupon code already exist");
             req.flash("error","Coupon code already exist");
             res.redirect('/admin/addcoupon');
         }
         else {
-            // Update the existing coupon with the new information
             await Coupon.findByIdAndUpdate(couponId, {
                 couponCode: capitalCouponCode,
                 discountAmount: discountAmount,
@@ -220,12 +221,10 @@ const editCoupon = async (req, res) => {
                 couponDescription: couponDescription,
                 startDate: startDate,
                 expiryDate: expiryDate,
-                // Use the existing status if not provided in the form data
-                // is_listed: req.body.is_listed || existingCoupon.is_listed
             });
         }
 
-        res.redirect('/admin/coupon'); // Redirect to a suitable route after successful submission
+        res.redirect('/admin/coupon'); 
     } catch (error) {
         console.log(error.message);
         req.flash('err', 'Error editing coupon. Please try again');

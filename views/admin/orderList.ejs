@@ -77,9 +77,11 @@
                                                             <input type="hidden" value="<%= product.productId %>" id="productIdOg">
                                                             <button class="btn btn-primary update-status-btn" data-orderid="<%= order.id %>" data-productid="<%= product._id %>" id="updateBtn<%= order._id %>">Update</button>
                                                         </td> -->
-                                                        <td>
-                                                            <a href="/admin/order-details/<%= order._id %>" class="btn btn-info">View Details</a>
-                                                        </td>
+                                                        <% if (index === 0) { %>
+                                                            <td>
+                                                                <a href="/admin/order-details/<%= order._id %>" class="btn btn-info">View Details</a>
+                                                            </td>
+                                                        <% } %>
                                                     </tr>
                                                 <% }) %>
                                             <% }) %>

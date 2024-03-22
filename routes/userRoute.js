@@ -3,8 +3,6 @@ const user_route = express();
 
 user_route.set('views', './views');
 user_route.set('view engine','ejs');
-// user_route.set('views','./views/user');
-// user_route.set('views','./views/partials');
 
 //MIDDLEWARES
 const userAuth = require("../middlewares/userAuth");
@@ -21,7 +19,6 @@ user_route.use(bodyParser.urlencoded({extended:true}));
 //CONTROLLERS
 const userController = require("../controllers/userController");
 const cartController = require("../controllers/cartController");
-const orderController = require("../controllers/orderController");
 const wishlistController = require("../controllers/wishlistController")
 const userProfileController = require("../controllers/userProfileController")
 const couponController = require("../controllers/couponController");
@@ -80,8 +77,10 @@ user_route.post('/verify-payment', cartController.verifyPayment);
 user_route.get('/orderconfirmation/:Id', userAuth.isLogin, userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, cartController.loadOrderConfirmation);
 
 //USER PROFILE
-user_route.get('/profile', userAuth.checkBlockedStatus, userAuth.checkBlockedStatus, userAuth.isLogin, userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userProfileController.loadUserProfile);
+user_route.get('/profile', userAuth.checkBlockedStatus, userAuth.isLogin, userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userProfileController.loadUserProfile);
 user_route.put('/edit/:id', userProfileController.updateUser);
+user_route.get('/changepassword', userAuth.checkBlockedStatus, userAuth.isLogin, userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userController.loadUpdatePassword);
+user_route.post('/submit-change-password', userController.updatePassword);
 
 //USER ADDRESS
 user_route.get('/user/address/:id', userAuth.checkBlockedStatus, userProfileController.loadEditAddress);
@@ -92,9 +91,9 @@ user_route.get('/orderdetails/:Id', userAuth.checkBlockedStatus, userAuth.isLogi
 user_route.put('/orderdetails/:orderId/products/:productId/cancel', userProfileController.orderCancel);
 user_route.put(`/orderdetails/:orderId/products/:productId/return`, userProfileController.orderReturnRequest);
 
-user_route.get('/invoice/:id', userAuth.isLogin, userAuth.isAuthenticated, userProfileController.getInvoice);
+// user_route.get('/invoice/:id', userAuth.isLogin, userAuth.isAuthenticated, userProfileController.getInvoice);
 
-user_route.get('/paymentpolicy', userController.loadPaymentPolicy);
+user_route.get('/paymentpolicy', userAuth.checkBlockedStatus, userAuth.isAuthenticated, navbarMiddleware.fetchCartAndWishlistCounts, userController.loadPaymentPolicy);
 user_route.post('/continue-payment', cartController.continuePayment);
 user_route.post('/continue-verify-payment', cartController.continueVerifyPayment);
 

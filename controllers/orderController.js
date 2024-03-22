@@ -1,10 +1,10 @@
 const Order = require("../models/orderModel");
-const User = require("../models/userModel");
+// const User = require("../models/userModel");
 const Product = require("../models/productModel")
-const Cart = require("../models/cartModel");
+// const Cart = require("../models/cartModel");
 const Wallet = require("../models/walletModel");
-const easyinvoice = require('easyinvoice');
 
+// ========== FOR LOADING ORDER LIST ON ADMIN SIDE ===========
 const loadAdminOrderList = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -18,6 +18,7 @@ const loadAdminOrderList = async (req, res) => {
     }
 }
 
+// ========== FOR UPDATING ORDER STATUS IN ADMIN SIDE ===========
 const updateOrderStatus = async (req, res) => {
     try {
         console.log("Inside updateOrderStatus fn");
@@ -76,6 +77,7 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
+// ========== FOR LOADING ADMIN ORDER DETAILS PAGE ===========
 const loadOrderDetails = async (req, res) => {
     try {
         const orderId = req.params.orderId;

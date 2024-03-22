@@ -13,10 +13,6 @@ const wishlistSchema = mongoose.Schema({
                 ref: 'Product',
                 required: true
             },
-            image: {
-                type:String,
-                
-            }
         }
     ],
 })

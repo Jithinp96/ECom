@@ -2,7 +2,7 @@ const Products = require('../models/productModel');
 const Category = require('../models/categoryModel');
 const multer = require('multer');
 
-
+// ========== FOR LOADING PRODUCT LIST ===========
 const loadProductList = async (req,res) => {
     try{
         const products = await Products.find().populate('category');
@@ -13,6 +13,7 @@ const loadProductList = async (req,res) => {
     
 }
 
+// ========== FOR SHOWING CATEGORY IN ADD PRODUCT PAGE ===========
 const loadCategory = async (req, res) => {
     try {
         const category = await Category.find()
@@ -22,96 +23,16 @@ const loadCategory = async (req, res) => {
     }
 }
 
-// const addProduct = async (req, res) => {
-//     console.log("Inside Add Product controller");
-//     try {
-//       const { name, price, quantity, category, description } = req.body;
-//       console.log("name: ", name);
-//       console.log("price: ", price);
-//       console.log("quantity: ", quantity);
-//       console.log("category: ", category);
-//       console.log("description: ", description);
-  
-//       const images = req.files.map(file => file.filename);
-
-//       const newProduct = new Products({
-//         name: name,
-//         price: price,
-//         quantity:quantity,
-//         category: category,
-//         description: description,
-//         image: images
-//       });
-      
-//       console.log("Just above the save newProduct");
-//       await newProduct.save();
-  
-//       res.redirect('/admin/product'); 
-//     } catch (error) {
-//       console.error(error);
-//       req.flash('err', 'Error saving product. Please try again.'); 
-//       res.redirect('/admin/addproduct'); 
-//     }
-// };
-
-// const addProduct = async (req, res) => {
-//     console.log("Inside Add Product controller");
-//     try {
-//         const { name, price, quantity, category, description } = req.body;
-//         console.log("name: ", name);
-//         console.log("price: ", price);
-//         console.log("quantity: ", quantity);
-//         console.log("category: ", category);
-//         console.log("description: ", description);
-
-//         // Process uploaded images
-//         let images = req.files.map(file => file.filename);
-
-//         // Handle removed images
-//         const removedImages = req.body.deletedImages || [];
-//         images = images.filter(image => !removedImages.includes(image));
-
-//         // Delete removed images from storage if any
-//         if (removedImages.length > 0) {
-//             for (const imageFilename of removedImages) {
-//                 // Delete the removed image from storage
-//                 deleteImageFromStorage(imageFilename);
-//             }
-//             console.log('Deleted images from storage successfully.');
-//         }
-
-//         // Create a new product object with the processed images
-//         const newProduct = new Products({
-//             name: name,
-//             price: price,
-//             quantity: quantity,
-//             category: category,
-//             description: description,
-//             image: images
-//         });
-
-//         console.log("Just above the save newProduct");
-//         await newProduct.save();
-
-//         res.redirect('/admin/product');
-//     } catch (error) {
-//         console.error(error);
-//         req.flash('err', 'Error saving product. Please try again.');
-//         res.redirect('/admin/addproduct');
-//     }
-// };
-
+// ========== FOR ADDING PRODUCT ===========
 const addProduct = async (req, res) => {
     try {
-        // Parse form data
+
         const { name, price, quantity, category, description } = req.body;
         let images = req.files.map(file => file.filename);
 
-        // Handle removed images
         const deletedImages = req.body.deletedImages ? JSON.parse(req.body.deletedImages) : [];
-        images = images.filter(image => !deletedImages.includes(image)); // Exclude removed images
+        images = images.filter(image => !deletedImages.includes(image));
 
-        // Save product details to the database
         const newProduct = new Products({
             name: name,
             price: price,
@@ -130,7 +51,7 @@ const addProduct = async (req, res) => {
     }
 };
 
-
+// ========== FOR CHANGING PRODUCT STATUS TO LISTED AND UNLISTED ===========
 const toggleProductStatus = async (req, res) => {
     try {
         const productId = req.params.productId;
@@ -157,7 +78,7 @@ const toggleProductStatus = async (req, res) => {
     }
 };
 
-
+// ========== FOR EDITING A PRODUCT DETAILS ===========
 const loadEditProduct = async (req, res) => {
     try {
         const productId = req.params.id;
@@ -177,6 +98,7 @@ const loadEditProduct = async (req, res) => {
     }
 }
 
+// ========== FOR EDITING A PRODUCT ===========
 const editProduct = async (req, res) => {
     try {
         const productId = req.params.id;

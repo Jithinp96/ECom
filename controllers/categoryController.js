@@ -1,10 +1,12 @@
 const _ = require('lodash');
 const Categories = require("../models/categoryModel");
 
+// ========== FUNCTION FOR CHANGING TO TITLE CASE ===========
 function toTitleCase(str) {
     return _.startCase(_.toLower(str));
 }
 
+// ========== FOR ADDING CATEGORY ===========
 const addCategory = async (req, res) => {
 
     const { categoryName } = req.body;
@@ -30,7 +32,7 @@ const addCategory = async (req, res) => {
     }
 };
 
-
+// ========== FOR LOADING CATEGORY LISTING PAGE ===========
 const loadCategoryList = async (req,res) => {
     try{
         const categories = await Categories.find()
@@ -41,6 +43,7 @@ const loadCategoryList = async (req,res) => {
     
 }
 
+// ========== FOR CHANGING THE STATUS OF CATEGORY ===========
 const toggleCategoryStatus = async (req, res) => {
     try {
         const categoryId = req.params.categoryId;
@@ -66,7 +69,7 @@ const toggleCategoryStatus = async (req, res) => {
     }
 };
 
-
+// ========== FOR EDITING CATEGORY ===========
 const editCategory = async (req, res) => {
     try {
         

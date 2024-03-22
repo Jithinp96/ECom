@@ -5,10 +5,10 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
+                <!-- Active Offers Table -->
                 <div class="card">
                     <div class="card-body">
-                        <% const currentDate = new Date() %>
-                        <h4 class="card-title">Offer List</h4>
+                        <h4 class="card-title">Active Offers</h4>
                         <div class="table-responsive">
                             <table class="table">
                                 <thead class="bg-primary text-white">
@@ -22,7 +22,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% offers.forEach(function(offer, index) { %>
+                                    <% activeOffers.forEach(function(offer, index) { %>
                                         <tr>
                                             <td><%= index + 1 %></td>
                                             <td><%= offer.offerName %></td>
@@ -42,13 +42,56 @@
                                                         </button>
                                                     <% } %>
                                                 </div>
-                                                
                                             </td>
-                                            
                                         </tr>
                                     <% }); %>
                                 </tbody>
-                                
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expired Offers Table -->
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Expired Offers</h4>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead class="bg-primary text-white">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Offer Name</th>
+                                        <th>Discount Percentage</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <!-- <th>Action</th> -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% expiredOffers.forEach(function(offer, index) { %>
+                                        <tr>
+                                            <td><%= index + 1 %></td>
+                                            <td><%= offer.offerName %></td>
+                                            <td><%= offer.discountPercentage %>%</td>
+                                            <td><%= offer.startDate %></td>
+                                            <td><%= offer.expiryDate %></td>
+                                            <!-- <td>
+                                                <div id="button">
+                                                    <% if(String(product.offer) === String(offer._id)){ %>
+                                                        <button class="btn btn-danger" onclick="removeProductOffer('<%= offer._id %>','<%= product._id %>')">Remove</button>
+                                                    <% } else { %>
+                                                        <button class="btn btn-info"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#offerModal"
+                                                            onclick="applyProductOffer('<%= offer._id %>','<%= product._id %>')">
+                                                            Apply Offer
+                                                        </button>
+                                                    <% } %>
+                                                </div>
+                                            </td> -->
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -57,6 +100,7 @@
         </div>
     </div>
 </div>
+
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>

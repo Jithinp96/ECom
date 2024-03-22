@@ -21,7 +21,6 @@ const transactionSchema = mongoose.Schema({
     },
     orderId2: {
         type: String,
-        // required: true
     },
     date: {
         type: Date,

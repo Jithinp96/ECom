@@ -6,7 +6,7 @@
         color: red;
     }
     .small-text {
-        font-size: 12px; /* Adjust the font size as needed */
+        font-size: 12px;
     }
 
     .password-wrapper {
@@ -52,27 +52,22 @@
                                     <div class="form-group">
                                         <label for="register-first-name-2">First Name *</label>
                                         <input type="text" class="form-control" id="register-first-name-2" name="fname" required>
-                                    </div><!-- End .form-group -->
+                                    </div>
 
                                     <div class="form-group">
                                         <label for="register-last-name-2">Last Name *</label>
                                         <input type="text" class="form-control" id="register-last-name-2" name="lname" required>
-                                    </div><!-- End .form-group -->
+                                    </div>
 
                                     <div class="form-group">
                                         <label for="register-email-2">Your email address *</label>
                                         <input type="email" class="form-control" id="register-email-2" name="email" required>
-                                    </div><!-- End .form-group -->
+                                    </div>
 
                                     <div class="form-group">
                                         <label for="register-mobile">Your Mobile Number *</label>
                                         <input type="text" class="form-control" id="register-mobile" name="mobile" required>
-                                    </div><!-- End .form-group -->
-
-                                    <!-- <div class="form-group">
-                                        <label for="register-password-2">Password *</label>
-                                        <input type="password" class="form-control" id="register-password-2" name="password" required>
-                                    </div>  -->
+                                    </div>
 
                                     <div class="form-group">
                                         <label for="register-password-2">Password *</label>
@@ -94,8 +89,7 @@
                                     <div class="form-group">
                                         <label for="register-confirpassword-2">Confirm Password *</label>
                                         <input type="password" class="form-control" id="register-confirmpassword-2" name="confirmPassword" required>
-                                    </div> <!--  End .form-group -->
-
+                                    </div>
                                     <div class="form-footer">
                                         <div id="validation-message"></div>
                                         <button type="submit" class="btn btn-outline-primary-2">
@@ -106,18 +100,18 @@
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input" id="register-policy-2" required>
                                             <label class="custom-control-label" for="register-policy-2">I agree to the <a href="#">privacy policy</a> *</label>
-                                        </div><!-- End .custom-checkbox -->
-                                    </div><!-- End .form-footer -->
+                                        </div>
+                                    </div>
                                 </form>
                                 <p>Already a member? <a href="/login" class="forgot-link">Login</a></p>
-                            </div><!-- .End .tab-pane -->
-                        </div><!-- End .tab-content -->
-                    </div><!-- End .form-tab -->
-                </div><!-- End .form-box -->
-            </div><!-- End .container -->
-        </div><!-- End .login-page section-bg -->
-    </main><!-- End .main -->
-</div><!-- End .page-wrapper -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
 
 <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
@@ -141,7 +135,6 @@ function hidePasswordRules() {
 
 <script>
     function validateForm() {
-        // Reset previous validation messages
         clearValidationMessages();
 
         var firstNameInput = document.getElementById('register-first-name-2');
@@ -151,93 +144,77 @@ function hidePasswordRules() {
         var passwordInput = document.getElementById('register-password-2');
         var confirmPasswordInput = document.getElementById('register-confirmpassword-2');
 
-        // Validate first name
         if (!validateNoSpaces(firstNameInput.value)) {
             displayValidationMessage('First Name cannot contain blank spaces.', 'register-first-name-2');
             return false;
         }
 
-        // Validate last name
         if (!validateNoSpaces(lastNameInput.value)) {
             displayValidationMessage('Last Name cannot contain blank spaces.', 'register-last-name-2');
             return false;
         }
 
-        // Validate email format
         var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
         if (!emailRegex.test(emailInput.value)) {
             displayValidationMessage('Invalid email format. Please enter a valid email.', 'register-email-2');
             return false;
         }
 
-        // Validate mobile
         if (!validateNoSpaces(mobileInput.value)) {
             displayValidationMessage('Mobile cannot contain blank spaces.', 'register-mobile');
             return false;
         }
 
-        // Validate mobile number length
         if (mobileInput.value.length < 10) {
             displayValidationMessage('Mobile number should be at least 10 digits.', 'register-mobile');
             return false;
         }
 
-        // Validate password
         if (!validateNoSpaces(passwordInput.value)) {
             displayValidationMessage('Password cannot contain blank spaces.', 'register-password-2');
             return false;
         }
 
-        // Validate strong password
         if (!validateStrongPassword(passwordInput.value)) {
             displayValidationMessage('Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.', 'register-password-2');
             return false;
         }
 
-        // Validate confirm password
         if (!validateNoSpaces(confirmPasswordInput.value)) {
             displayValidationMessage('Confirm Password cannot contain blank spaces.', 'register-confirmpassword-2');
             return false;
         }
 
-        // Validate password and confirm password match
         if (passwordInput.value !== confirmPasswordInput.value) {
             displayValidationMessage('Password and Confirm Password should be the same.', 'register-confirmpassword-2');
             return false;
         }
 
-        // Allow form submission if all validations pass
         return true;
     }
 
     function validateNoSpaces(inputValue, inputId) {
-        // Use a regular expression to check for spaces
         let spaceRegex = /\s/;
         return !spaceRegex.test(inputValue);
     }
 
     function validateStrongPassword(password) {
-        // Password must be at least 8 characters long
         if (password.length < 8) {
             return false;
         }
 
-        // Password must contain at least one uppercase letter
         if (!/[A-Z]/.test(password)) {
             return false;
         }
 
-        // Password must contain at least one lowercase letter
         if (!/[a-z]/.test(password)) {
             return false;
         }
 
-        // Password must contain at least one number
         if (!/\d/.test(password)) {
             return false;
         }
 
-        // Password must contain at least one special character
         if (!/[!@#$%^&*()_+{}\[\]:;<>,.?\/\\~-]/.test(password)) {
             return false;
         }
@@ -252,10 +229,8 @@ function hidePasswordRules() {
         messageDiv.classList.add('text-red', 'small-text');
         messageDiv.textContent = message;
 
-        // Insert the message div below the input field
         inputField.parentNode.insertBefore(messageDiv, inputField.nextSibling);
     
-        // Remove the message when the user starts typing in the input field
         inputField.addEventListener('input', function () {
             messageDiv.remove();
         });

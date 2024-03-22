@@ -1,7 +1,9 @@
 const Users = require("../models/userModel");
 const Orders = require("../models/orderModel")
-const Products = require("../models/productModel")
+// const Products = require("../models/productModel")
 
+
+// ========== LOAD ADMIN DASHBOARD ===========
 const loadDashboard = async (req,res) => {
     try{
         const userCount = await Users.countDocuments();
@@ -10,7 +12,6 @@ const loadDashboard = async (req,res) => {
         const returnedCount = await Orders.countDocuments({ "products.orderStatus": 'Returned' });
         const cancelledCount = await Orders.countDocuments({ "products.orderStatus": 'Cancelled' });
 
-        // Calculate total order price
         const orders = await Orders.find();
         
         let totalOrderPrice = 0;
@@ -23,12 +24,10 @@ const loadDashboard = async (req,res) => {
             totalCouponOffer += order.couponDiscount;
         });
 
-        //Sales chart part
         const currentDate = new Date();
         const startDate = new Date(currentDate - 30 * 24 * 60 * 60 * 1000);
         const order2 = await Orders.find();
 
-        // Calculate monthly earning
         const order = await Orders.find({
             date: { $gte: startDate, $lt: currentDate },
         });
@@ -56,7 +55,6 @@ const loadDashboard = async (req,res) => {
             }, 0)
             : 0;
 
-            // Calculate monthly ordered count
             const monthlyOrderedCount = await Orders.aggregate([
                 {
                     $match: {
@@ -89,11 +87,8 @@ const loadDashboard = async (req,res) => {
 
             const data = Array.from({ length: 12 }).fill(0);
 
-            // Initialize an array with 12 elements, each set to zero
             const monthlyData = Array.from({ length: 12 }).fill(0);
 
-
-            // Populate the array based on the provided data
             monthlyOrderedCount.forEach(item => {
                 const monthIndex = parseInt(item._id.split("-")[1], 10) - 1;
                 monthlyData[monthIndex] = item.count;
@@ -210,11 +205,11 @@ const loadDashboard = async (req,res) => {
                     $group: {
                         _id: "$productDetails.category",
                         totalQuantitySold: { $sum: "$products.quantity" },
-                        totalSalesAmount: { $sum: "$products.total" }, // Calculate total sales amount
+                        totalSalesAmount: { $sum: "$products.total" }, 
                     },
                 },
-                { $sort: { totalQuantitySold: -1 } }, // Sort by total sales count
-                // Removed the $limit stage to include all categories
+                { $sort: { totalQuantitySold: -1 } },
+                
                 {
                     $lookup: {
                         from: "categories", 
@@ -229,7 +224,7 @@ const loadDashboard = async (req,res) => {
                         _id: 0,
                         categoryId: "$_id",
                         totalQuantitySold: 1,
-                        totalSalesAmount: 1, // Include the new field in the projection
+                        totalSalesAmount: 1, 
                         categoryName: "$categoryDetails.name"
                     }
                 }
@@ -262,12 +257,13 @@ const loadDashboard = async (req,res) => {
     }
 }
 
+// ========== FILTERING MONTHLY DATA ===========
 const filterDashboard = async (req, res) => {
     try {
       const { data } = req.body;
       const desiredMonth = data; 
-      const startDate = new Date(desiredMonth + "-01T00:00:00Z"); // Start of month
-      const endDate = new Date(desiredMonth + "-31T23:59:59Z"); // End of month (adjusted for days in February)
+      const startDate = new Date(desiredMonth + "-01T00:00:00Z"); 
+      const endDate = new Date(desiredMonth + "-31T23:59:59Z"); 
       
       const monthData = await Orders.aggregate([
         {
@@ -289,10 +285,8 @@ const filterDashboard = async (req, res) => {
         },
       ]);
   
-      // Initialize an array with 30 elements, each set to zero
       const newData = Array.from({ length: 30 }).fill(0);
   
-      // Populate the array based on the provided data
       monthData.forEach((item) => {
         const dayIndex = parseInt(item._id, 10) - 1; 
         if (dayIndex >= 0 && dayIndex < 30) {
@@ -308,6 +302,7 @@ const filterDashboard = async (req, res) => {
   };
   
 
+// ========== LOADING SALES REPORT PAGE ===========
 const loadSalesReport = async (req, res) => {
     try {
         const orders = await Orders.find().populate('userId').populate('products.productId');
@@ -318,7 +313,7 @@ const loadSalesReport = async (req, res) => {
     }
 }
 
-
+// ========== GENERATE SALES REPORT FOR THE SPECIFIED DATE ===========
 const generateSalesReport = async (req, res) => {
     try {
         const { startDate, endDate } = req.body;

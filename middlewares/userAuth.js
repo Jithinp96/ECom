@@ -27,6 +27,7 @@ const isLogout = async(req, res, next) => {
     }
 }
 
+// ========== FOR VIEWING LOGIN OR USER PROFILE OPTION ON NAVBAR ===========
 const isAuthenticated = async (req, res, next) => {
     try {
         if (req.session && req.session.userid) {
@@ -41,23 +42,18 @@ const isAuthenticated = async (req, res, next) => {
     }
 };
 
+// ========== FOR CHECKING WHETHER A USER IS BLOCKED OR NOT ===========
 const checkBlockedStatus = async (req, res, next) => {
     try {
         const userId = req.session.userid;
-        // console.log("userId", userId);
-
         if (userId) {
             const userData = await Users.findById(userId);
-            // console.log("userData: ", userData);
 
             if (userData && userData.is_blocked) {
-                // Log out the user and redirect to the login page
                 req.session.userid = null;
-                //req.flash('error', 'Admin has blocked this account. Please contact support for assistance.');
                 return res.redirect('/login');
             }
         }
-
         next();
     } catch (error) {
         console.log(error.message);

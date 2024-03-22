@@ -1,20 +1,24 @@
-const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
+const Swal = require('sweetalert2');
 const nodemailer = require('nodemailer')
-// const userAuth = require("../middlewares/userAuth")
-const Order = require("../models/orderModel");
-const Wallet = require('../models/walletModel');
-const Category = require ("../models/categoryModel");
 const mongoose = require('mongoose');
 const crypto = require('crypto');
+
+// ========== REQUIRING MODELS ===========
+// const Order = require("../models/orderModel");
+const User = require('../models/userModel');
+const Wallet = require('../models/walletModel');
+const Category = require ("../models/categoryModel");
 const Token = require("../models/tokenModel")
 const Cart = require("../models/cartModel");
 const Wishlist = require("../models/wishlistModel");
-
 const UserOTPVerification = require("../models/userOTPVerification");
 const Products = require("../models/productModel");
+
 const { request } = require('express');
 
+
+// ========== PASSWORD HASHING FUNCTION ===========
 const securePassword = async(password) => {
     try{
         const passwordHash = await bcrypt.hash(password, 10);
@@ -24,6 +28,7 @@ const securePassword = async(password) => {
     }
 }
 
+// ========== FOR LOADING REGISTER PAGE ===========
 const loadRegister = async (req, res) => {
     try {
         res.render('user/registration')
@@ -32,7 +37,7 @@ const loadRegister = async (req, res) => {
     }
 }
 
-
+// ========== FOR ADDING THE USER DETAILS TO DB ===========
 const insertUser = async (req, res) => {
     try{
 
@@ -56,14 +61,11 @@ const insertUser = async (req, res) => {
                 is_verified: 0,
             });
 
-            // Save the new user to the database
             await newUser.save();
 
-            // Create a wallet for the new user
             const newWallet = new Wallet({ user: newUser._id });
             await newWallet.save();
 
-            // Send OTP verification email
             sendOTPVerificationEmail(newUser, res);
         }
     } catch(error){
@@ -72,10 +74,9 @@ const insertUser = async (req, res) => {
     }
 }
 
-
+// ========== FOR SENDING OTP VERFICATION EMAIL ===========
 const sendOTPVerificationEmail = async ({email}, res) => {
     try {
-        console.log("Indide theOTP email send fn");
         let transporter = nodemailer.createTransport({
             service:'gmail',
             host:'smtp.gmail.com',
@@ -89,7 +90,6 @@ const sendOTPVerificationEmail = async ({email}, res) => {
         const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
         console.log("OTP: "+otp);
 
-        // mail options
         const mailOptions = {
             from: 'officialfurnit@gmail.com',
             to: email,
@@ -97,13 +97,10 @@ const sendOTPVerificationEmail = async ({email}, res) => {
             html: `Your OTP is: ${otp}`
         };
 
-        //HASHING OTP
         const saltRounds = 10;
         const hashedOTP = await bcrypt.hash(otp, saltRounds);
         const newOTPVerification = await new UserOTPVerification({email: email, otp: hashedOTP});
         
-        
-        //SAVE OTP RECORD
         await newOTPVerification.save();
         await transporter.sendMail(mailOptions);
 
@@ -114,9 +111,9 @@ const sendOTPVerificationEmail = async ({email}, res) => {
     }
 }
 
+// ========== FOR LOADING OTP ENTERING PAGE ===========
 const loadOTP = async (req, res) => {
     try {
-        console.log("Inside Load OTP page");
         const email = req.query.email;
         res.render('user/OTPVerification', { email: email});
     } catch (error) {
@@ -124,7 +121,7 @@ const loadOTP = async (req, res) => {
     }
 }
 
-
+// ========== OTP VERIFICATION FUNCTION ===========
 const verifyOTP = async (req, res) => {
     try {
         const email = req.body.email;
@@ -135,9 +132,7 @@ const verifyOTP = async (req, res) => {
             res.render('user/OTPVerification', {email, errorMessage:"OTP Expired. Please resend OTP and try again...!!!"})
             return;
         }
-
         const {otp: hashedOTP} = userVerification;
-
         const validOTP = await bcrypt.compare(otp, hashedOTP);
         
         if (validOTP) {
@@ -153,7 +148,6 @@ const verifyOTP = async (req, res) => {
                 });
             }
 
-            // delete theOTPrecord
             const user = await User.findOne({email: email})
             await userVerification.deleteOne({email: email});
             if (user.is_verified) {
@@ -164,30 +158,23 @@ const verifyOTP = async (req, res) => {
                         fname: user.fname
 
                     };
-                    
                     res.redirect('/login?success=true');
                 } 
                 else {
-                    console.log("user blocked from this site");
-
                     req.flash('error', 'you are blocked from this contact with admin');
                     res.redirect('/login')
-
                 }
-
             }
         } else {
-            
             res.render('user/OTPVerification', {email, errorMessage:"Invalid OTP. Please try again...!!!"})
         }
-
     } catch (error) {
         console.log(error);
     }
 };
 
 
-/////////////////////// resend otp
+// ========== RESEND OTP ===========
 const resendOTP = async (req, res) => {
     try {
 
@@ -200,18 +187,15 @@ const resendOTP = async (req, res) => {
                 email: userEmail
             }, res);
         } else {
-
             console.log("User email not provided in the query");
-
         }
 
     } catch (error) {
         console.log(error);
-
     }
 }
 
-
+// ========== FOR LAODING FORGOT PASSWORD PAGE ===========
 const loadForgotPassword = async (req,res)=>{
     try {
         res.render('user/forgotpassword')
@@ -220,6 +204,7 @@ const loadForgotPassword = async (req,res)=>{
     }
 }
 
+// ========== FOR SUBMITING THE EMAIL TO GET RESET LINK ===========
 const submitForgotPassword = async (req, res) => {
     try {
         const email = req.body.email;
@@ -264,8 +249,8 @@ const submitForgotPassword = async (req, res) => {
     }
 }
 
+// ========== LOADING RESET PASSWORD PAGE ===========
 const loadResetPassword = async (req,res)=>{
-
     try {
         const token = req.params.token;
         console.log("token from params: ", token);
@@ -285,6 +270,7 @@ const loadResetPassword = async (req,res)=>{
 
 }
 
+// ========== FOR CHANGING THE PASSWORD IN FORGOT PASSWORD ===========
 const submitResetPassword = async (req,res)=>{
     try {
         const token = req.body.token;
@@ -319,13 +305,11 @@ const submitResetPassword = async (req,res)=>{
     }
 }
 
-
-
+// ========== VERFYING THE USER LOGIN DETAILS ===========
 const verifyLogin = async(req, res) => {
     try{
         const email = req.body.email;
         const password = req.body.password;
-
         const userData = await User.findOne({email: email});
         
         if(userData){
@@ -334,7 +318,6 @@ const verifyLogin = async(req, res) => {
             if(passwordMatch){
                 if(!userData.is_blocked){
                     if(!userData.is_verified){
-                        console.log("Non verified user reverifying");
                         sendOTPVerificationEmail(userData, res);
                     }
                     else{
@@ -345,20 +328,17 @@ const verifyLogin = async(req, res) => {
                 else{
                     req.flash('error', 'Your account is temporarily suspended... Please contact Admin')
                     res.redirect('/login');
-                    console.log("User Blocked");
                 }
                 
             }
             else {
                 req.flash('error', 'Email or Password is Incorrect...!!!')
                 res.redirect('/login');
-                console.log("Wrong Password");
             }
         }
         else{
             req.flash('error', 'Email or Password is Incorrect...!!!')
             res.redirect('/login');
-            console.log("Wrong Email");
         }
 
     } catch (error) {
@@ -366,8 +346,59 @@ const verifyLogin = async(req, res) => {
     }
 }
 
+// ========== FOR LOADING THE PASSWORD CHANGING PAGE IN USER PROFILE ===========
+const loadUpdatePassword = async (req, res) => {
+    try {
+        res.render('user/changepassword');
+    } catch (error) {
+        console.log(error);
+    }
+}
 
+// ========== FOR SAVING THE NEW PASSWORD IN DATABASE ===========
+const updatePassword = async (req, res) => {
+    try {
+        const userId = req.session.userid;
 
+        if (!userId) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const user = await User.findOne({ _id: userId });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        
+        const currentPassword = req.body.currentPassword;
+        const newPassword = req.body.newPassword;
+        const confirmPassword = req.body.confirmPassword;
+
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(400).json({ message: "Current password is incorrect" });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ message: "New passwords do not match" });
+        }
+
+        const hashedNewPassword = await securePassword(newPassword);
+        user.password = hashedNewPassword;
+
+        await user.save();
+
+        req.flash('success', 'Password Changed Successfully');
+        res.redirect('/changepassword'); 
+
+    } catch (error) {
+        console.error(error.message);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+// ========== FOR LOGGING OUT USER ===========
 const userLogout = async (req, res) => {
     try {
         req.session.userid = null
@@ -378,7 +409,7 @@ const userLogout = async (req, res) => {
     }
 }
 
-
+// ========== FOR LOADING LOGIN PAGE ===========
 const loadLogin = async (req, res) => {
     try {
         res.render('user/login', { message: "" })
@@ -388,6 +419,7 @@ const loadLogin = async (req, res) => {
     }
 }
 
+// ========== FOR LOADING ABOUT US PAGE ===========
 const loadAboutUs = async (req, res) => {
     try {
         res.render('user/aboutUs')
@@ -397,6 +429,7 @@ const loadAboutUs = async (req, res) => {
     }
 }
 
+// ========== FOR LOADING CONTACT US PAGE ===========
 const loadContactUs = async (req, res) => {
     try {
         res.render('user/contactUs')
@@ -406,8 +439,8 @@ const loadContactUs = async (req, res) => {
     }
 }
 
+// ========== FOR LOADING HOME PAGE ===========
 const ITEMS_PER_PAGE = 8;
-
 const loadHome = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
 
@@ -416,32 +449,28 @@ const loadHome = async (req, res) => {
         const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
         
         const categories = await Category.find({is_listed: true});
-        // Populate both 'category' and 'offer' fields for each product
+        
         let products = await Products.find({ is_listed: true })
             .populate('category', 'is_listed')
-            .populate('offer') // Populate the 'offer' field
+            .populate('offer') 
             .skip((page - 1) * ITEMS_PER_PAGE)
             .limit(ITEMS_PER_PAGE);
 
-        // Determine the best offer for each product
         products = await Promise.all(products.map(async (product) => {
             const { bestOffer, bestOfferType } = await product.determineBestOffer();
             return { ...product.toObject(), bestOffer, bestOfferType };
         }));
 
-        // Access cart and wishlist counts from res.locals
         const cartCount = res.locals.cartCount;
         const wishlistCount = res.locals.wishlistCount;
 
         const filteredProducts = products.filter(product => product.category.is_listed);
 
-        // Check if there are any products or categories
         if (filteredProducts.length === 0 || categories.length === 0) {
-            // Handle the case when there are no products or categories
-            return res.render('home', { userAuthenticated: req.session.userid, products: [], categories: [] });
+            
+            return res.render('user/home', { userAuthenticated: req.session.userid, products: [], categories: [] });
         }
 
-        // Pass the filteredProducts to the view along with the offer details
         res.render('user/home', { userAuthenticated: req.session.userid, currentPage: page, totalPages, cartCount, wishlistCount, products: filteredProducts, categories });
     } catch (error) {
         console.error(error.message);
@@ -449,6 +478,7 @@ const loadHome = async (req, res) => {
     }
 }
 
+// ========== FOR LOADING EACH PRODUCT DETAILS PAGE ===========
 const loadProductDetails = async (req, res) => {
     try {
         const userId = req.session.userid;
@@ -457,26 +487,17 @@ const loadProductDetails = async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(productId)) {
             return res.status(400).json({ error: 'Invalid product ID' });
         }
-        // const product = await Products.findById(productId);
         const product = await Products.findById(productId).populate('offer').populate('category');
 
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        // console.log("Above the determine best offer in controller");
-        // Determine the best offer for the product
         const { bestOffer, bestOfferType } = await product.determineBestOffer();
-        // console.log("bestOffer: ", bestOffer);
-        // console.log(("bestOfferType: ", bestOfferType));
-
-        // console.log("Passed the best offer in controller");
-
-        // Check if the product is already in the cart
+        
         const cart = await Cart.findOne({ userid: userId, 'product.productid': productId });
         let alreadyInCart = false;
 
-        // If the product is in the cart, set alreadyInCart to true
         if (cart) {
             alreadyInCart = true;
         }
@@ -484,12 +505,10 @@ const loadProductDetails = async (req, res) => {
         const wishlist = await Wishlist.findOne({ userid: userId, 'product.productid': productId });
         let alreadyInWishlist = false;
 
-        // If the product is in the cart, set alreadyInCart to true
         if (wishlist) {
             alreadyInWishlist = true;
         }
 
-        // Pass the product, userId, alreadyInCart, alreadyInWishlist, and bestOffer to the view
         res.render('user/productDetailsPage', { product, userId, alreadyInCart, alreadyInWishlist, bestOffer, bestOfferType });
     } catch (error) {
         console.log(error.message);
@@ -497,118 +516,7 @@ const loadProductDetails = async (req, res) => {
     }
 };
 
-// const loadHome = async (req, res) => {
-//     const page = parseInt(req.query.page) || 1;
-
-//     try {
-//         const totalItems = await Products.countDocuments({ is_listed: true });
-//         const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-        
-//         const categories = await Category.find({is_listed: true});
-//         // Populate both 'category' and 'offer' fields for each product
-//         const products = await Products.find({ is_listed: true })
-//             .populate('category', 'is_listed')
-//             .populate('offer') // Populate the 'offer' field
-//             .skip((page - 1) * ITEMS_PER_PAGE)
-//             .limit(ITEMS_PER_PAGE);
-
-//         // Access cart and wishlist counts from res.locals
-//         const cartCount = res.locals.cartCount;
-//         const wishlistCount = res.locals.wishlistCount;
-
-//         const filteredProducts = products.filter(product => product.category.is_listed);
-
-//         // Check if there are any products or categories
-//         if (filteredProducts.length === 0 || categories.length === 0) {
-//             // Handle the case when there are no products or categories
-//             return res.render('home', { userAuthenticated: req.session.userid, products: [], categories: [] });
-//         }
-
-//         // Pass the filteredProducts to the view along with the offer details
-//         res.render('user/home', { userAuthenticated: req.session.userid, currentPage: page, totalPages, cartCount, wishlistCount, products: filteredProducts, categories });
-//     } catch (error) {
-//         console.error(error.message);
-//         res.status(500).send('Internal Server Error');
-//     }
-// }
-
-
-// const loadHome = async (req, res) => {
-//     const page = parseInt(req.query.page) || 1;
-
-//     try {
-//         const totalItems = await Products.countDocuments({ is_listed: true });
-//         const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-        
-//         const categories = await Category.find({is_listed: true})
-//         const products = await Products.find({ is_listed: true }).populate('category', 'is_listed')
-//         .skip((page - 1) * ITEMS_PER_PAGE)
-//         .limit(ITEMS_PER_PAGE);
-
-//         // Access cart and wishlist counts from res.locals
-//         const cartCount = res.locals.cartCount;
-//         const wishlistCount = res.locals.wishlistCount;
-
-//         const filteredProducts = products.filter(product => product.category.is_listed);
-
-//             // Check if there are any products or categories
-//             if (filteredProducts.length === 0 || categories.length === 0) {
-//                 // Handle the case when there are no products or categories
-//                 return res.render('home', {  userAuthenticated: req.session.userid, products: [], categories: [] });
-//             }
-
-
-//         res.render('user/home', { userAuthenticated: req.session.userid,  currentPage: page, totalPages, cartCount, wishlistCount, products: filteredProducts, categories });
-//     } catch (error) {
-//         console.error(error.message);
-//         res.status(500).send('Internal Server Error');
-//     }
-// }
-
-
-
-// const loadProductDetails = async (req, res) => {
-//     try {
-//         const userId = req.session.userid;
-//         const productId = req.params.productId;
-
-//         // Check if productId is a valid ObjectId
-//         if (!mongoose.Types.ObjectId.isValid(productId)) {
-//             return res.status(400).json({ error: 'Invalid product ID' });
-//         }
-//         console.log("Reached above product finding");
-//         const product = await Products.findById(productId);
-
-//         if (!product) {
-//             return res.status(404).json({ error: 'Product not found' });
-//         }
-
-//         // Check if the product is already in the cart
-//         const cart = await Cart.findOne({ userid: userId, 'product.productid': productId });
-//         let alreadyInCart = false;
-
-//         // If the product is in the cart, set alreadyInCart to true
-//         if (cart) {
-//             alreadyInCart = true;
-//         }
-
-//         const wishlist = await Wishlist.findOne({ userid: userId, 'product.productid': productId });
-//         let alreadyInWishlist = false;
-
-//         // If the product is in the cart, set alreadyInCart to true
-//         if (wishlist) {
-//             alreadyInWishlist = true;
-//         }
-
-//         res.render('user/productDetailsPage', { product, userId, alreadyInCart, alreadyInWishlist });
-//     } catch (error) {
-//         console.log(error.message);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-// };
-
-
-
+// ========== FOR LOADING PAYMENT POLICY PAGE ===========
 const loadPaymentPolicy = async (req, res) => {
     try {
         res.render("user/paymentpolicy");
@@ -617,14 +525,14 @@ const loadPaymentPolicy = async (req, res) => {
     }
 }
 
+// ========== FOR LOADING THE SHOP PAGE ===========
 const ITEMS_PER_PAGE_SHOP = 9;
-
 const loadAllProducts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     try {
         const categoriesQueryParam = req.query.categories;
         const minPrice = parseInt(req.query.minPrice) || 0;
-        const maxPrice = parseInt(req.query.maxPrice) || 10000; // Assuming 10000 is the maximum price
+        const maxPrice = parseInt(req.query.maxPrice) || 10000; 
         const searchTerm = req.query.search;
 
         let filter = { is_listed: true };
@@ -634,15 +542,13 @@ const loadAllProducts = async (req, res) => {
             filter.category = { $in: categoryIds };
         }
 
-        // Add price range filter
         filter.price = { $gte: minPrice, $lte: maxPrice };
 
         if (searchTerm) {
-            // Assuming 'name' is the field you want to search in
-            // Adjust this according to your schema
+            
             filter.$or = [
                 { name: { $regex: searchTerm, $options: 'i' } },
-                // Add more fields here if you want to search in other fields
+                
             ];
         }
 
@@ -652,11 +558,11 @@ const loadAllProducts = async (req, res) => {
 
         let products = await Products.find(filter)
             .populate('category')
-            .populate('offer') // Populate the 'offer' field
+            .populate('offer') 
             .skip((page - 1) * ITEMS_PER_PAGE_SHOP)
             .limit(ITEMS_PER_PAGE_SHOP);
 
-        // Determine the best offer for each product
+        
         products = await Promise.all(products.map(async (product) => {
             const { bestOffer, bestOfferType } = await product.determineBestOffer();
             return { ...product.toObject(), bestOffer, bestOfferType };
@@ -674,59 +580,6 @@ const loadAllProducts = async (req, res) => {
     }
 }
 
-
-
-// const loadAllProducts = async (req, res) => {
-//     const page = parseInt(req.query.page) || 1;
-//     try {
-//         const categoriesQueryParam = req.query.categories;
-//         const minPrice = parseInt(req.query.minPrice) || 0;
-//         const maxPrice = parseInt(req.query.maxPrice) || 10000; // Assuming 1000 is the maximum price
-//         const searchTerm = req.query.search;
-
-//         let filter = { is_listed: true };
-
-//         if (categoriesQueryParam) {
-//             const categoryIds = categoriesQueryParam.split(',');
-//             filter.category = { $in: categoryIds };
-//         }
-
-//         // Add price range filter
-//         filter.price = { $gte: minPrice, $lte: maxPrice };
-
-//         if (searchTerm) {
-//             // Assuming 'name' is the field you want to search in
-//             // Adjust this according to your schema
-//             filter.$or = [
-//                 { name: { $regex: searchTerm, $options: 'i' } },
-//                 // Add more fields here if you want to search in other fields
-//             ];
-//         }
-
-//         const totalItems = await Products.countDocuments(filter);
-//         const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE_SHOP);
-//         const categories = await Category.find({is_listed: true});
-
-//         const products = await Products.find(filter)
-//             .populate('category')
-//             .skip((page - 1) * ITEMS_PER_PAGE_SHOP)
-//             .limit(ITEMS_PER_PAGE_SHOP);
-
-//         if (req.xhr) {
-//             res.render("partials/productList", { products, currentPage: page, totalPages });
-//         } else {
-//             res.render("user/allproducts", { products, currentPage: page, totalPages, categories });
-//         }
-
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// }
-
-
-
-
 module.exports ={
     loadRegister,
     insertUser,
@@ -734,21 +587,25 @@ module.exports ={
     sendOTPVerificationEmail,
     resendOTP,
     verifyOTP,
-    verifyLogin,
 
+    loadUpdatePassword,
+    updatePassword,
     loadForgotPassword,
     submitForgotPassword,
     loadResetPassword,
     submitResetPassword,
 
-    
     userLogout,
     loadLogin,
+    verifyLogin,
+
     loadHome,
+    loadAllProducts,
+    
     loadAboutUs,
     loadContactUs,
     loadProductDetails,
     loadPaymentPolicy,
 
-    loadAllProducts,
+    
 }
