@@ -30,7 +30,7 @@ const loadUserProfile = async (req, res) => {
         const orders = result.docs;
         const totalPages = result.totalPages;
 
-        res.render('user/userprofile', { user, userAddress, order: orders, wallet, currentPage: page, totalPages, pageSize: size });
+        res.render('user/userProfile', { user, userAddress, order: orders, wallet, currentPage: page, totalPages, pageSize: size });
     } catch (error) {
         console.log(error);
         res.status(500).send('Internal Server Error');
