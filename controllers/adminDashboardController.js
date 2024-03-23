@@ -306,7 +306,7 @@ const filterDashboard = async (req, res) => {
 const loadSalesReport = async (req, res) => {
     try {
         const orders = await Orders.find().populate('userId').populate('products.productId');
-        res.render("salesreport", { orders });
+        res.render("salesReport", { orders });
     } catch (error) {
         console.log(error);
         
@@ -331,7 +331,7 @@ const generateSalesReport = async (req, res) => {
           .populate('products.productId')
           .sort({ date: -1 });
           
-        res.render('salesreport', { orders })
+        res.render('salesReport', { orders })
 
     } catch (error) {
         console.error("Error generating sales report:", error);

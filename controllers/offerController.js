@@ -23,7 +23,7 @@ const loadOffer = async (req, res) => {
         });
 
 
-      res.render ('offerlist', { activeOffers, expiredOffers });
+      res.render ('offerList', { activeOffers, expiredOffers });
   } catch (error) {
       console.error('Error fetching offers:', error);
       res.status(500).send('An error occurred while fetching offers.');
@@ -33,7 +33,7 @@ const loadOffer = async (req, res) => {
 // ========== FOR LOADING ADD OFFER PAGE ===========
 const loadAddOffer = async (req, res) => {
     try {
-        res.render ('addoffer');
+        res.render ('addOffer');
     } catch (error) {
         console.log(error);
     }
@@ -69,7 +69,7 @@ const loadEditOffer = async (req, res) => {
       return res.status(404).send('Offer not found');
   }
 
-    res.render('editoffer', {offer: offer})
+    res.render('editOffer', {offer: offer})
   } catch (error) {
     console.log(error);
   }
@@ -112,7 +112,7 @@ const loadProductApplyOffer = async (req, res) => {
       const activeOffers = offers.filter(offer => new Date(offer.expiryDate) > currentDate);
       const expiredOffers = offers.filter(offer => new Date(offer.expiryDate) <= currentDate);
 
-      res.render("selectproductofferlist", { activeOffers, expiredOffers, productId, product });
+      res.render("selectProductOfferList", { activeOffers, expiredOffers, productId, product });
   } catch (error) {
       console.log(error);
   }
@@ -166,7 +166,7 @@ const loadCategoryApplyOffer = async (req, res) => {
       const activeOffers = offers.filter(offer => new Date(offer.expiryDate) > currentDate);
       const expiredOffers = offers.filter(offer => new Date(offer.expiryDate) <= currentDate);
 
-      res.render("selectcategoryofferlist", { activeOffers, expiredOffers, categoryId, category });
+      res.render("selectCategoryOfferList", { activeOffers, expiredOffers, categoryId, category });
   } catch (error) {
       console.log(error);
   }

@@ -21,7 +21,7 @@ const loadCouponPage = async (req, res) => {
 // ========== FOR LOADING ADD COUPON PAGE ===========
 const loadAddCoupon = async (req, res) => {
     try {
-        res.render("addcoupon")
+        res.render("addCoupon")
     } catch (error) {
         console.log(error);
     }

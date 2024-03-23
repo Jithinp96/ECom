@@ -36,7 +36,7 @@ const addCategory = async (req, res) => {
 const loadCategoryList = async (req,res) => {
     try{
         const categories = await Categories.find()
-        res.render('CategoryList',{ categories: categories});
+        res.render('categoryList',{ categories: categories});
     } catch (error) {
         console.log(error);
     }
