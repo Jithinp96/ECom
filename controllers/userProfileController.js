@@ -151,7 +151,7 @@ const loadOrderDetails = async (req, res) => {
         }
 
         const isProductDelivered = order.products.some(product => product.orderStatus === 'Delivered');
-        res.render('user/orderdetails', { order, isProductDelivered });
+        res.render('user/orderDetails', { order, isProductDelivered });
     } catch (error) {
         console.log(error);
         res.status(500).send('Internal Server Error');

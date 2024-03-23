@@ -115,7 +115,7 @@ const sendOTPVerificationEmail = async ({email}, res) => {
 const loadOTP = async (req, res) => {
     try {
         const email = req.query.email;
-        res.render('user/OTPVerification', { email: email});
+        res.render('user/otpVerification', { email: email});
     } catch (error) {
         console.log(error);
     }
@@ -129,7 +129,7 @@ const verifyOTP = async (req, res) => {
         const userVerification = await UserOTPVerification.findOne({email:email});
 
         if (! userVerification) {
-            res.render('user/OTPVerification', {email, errorMessage:"OTP Expired. Please resend OTP and try again...!!!"})
+            res.render('user/otpVerification', {email, errorMessage:"OTP Expired. Please resend OTP and try again...!!!"})
             return;
         }
         const {otp: hashedOTP} = userVerification;
@@ -166,7 +166,7 @@ const verifyOTP = async (req, res) => {
                 }
             }
         } else {
-            res.render('user/OTPVerification', {email, errorMessage:"Invalid OTP. Please try again...!!!"})
+            res.render('user/otpVerification', {email, errorMessage:"Invalid OTP. Please try again...!!!"})
         }
     } catch (error) {
         console.log(error);
@@ -198,7 +198,7 @@ const resendOTP = async (req, res) => {
 // ========== FOR LAODING FORGOT PASSWORD PAGE ===========
 const loadForgotPassword = async (req,res)=>{
     try {
-        res.render('user/forgotpassword')
+        res.render('user/forgotPassword')
     } catch (error) {
         console.log(error.message);
     }
@@ -263,7 +263,7 @@ const loadResetPassword = async (req,res)=>{
             return res.redirect('/forgotpassword');
         }
 
-        res.render('user/resetpassword',{token});
+        res.render('user/resetPassword',{token});
     } catch (error) {
         console.log(error.message);
     }
@@ -349,7 +349,7 @@ const verifyLogin = async(req, res) => {
 // ========== FOR LOADING THE PASSWORD CHANGING PAGE IN USER PROFILE ===========
 const loadUpdatePassword = async (req, res) => {
     try {
-        res.render('user/changepassword');
+        res.render('user/changePassword');
     } catch (error) {
         console.log(error);
     }
@@ -519,7 +519,7 @@ const loadProductDetails = async (req, res) => {
 // ========== FOR LOADING PAYMENT POLICY PAGE ===========
 const loadPaymentPolicy = async (req, res) => {
     try {
-        res.render("user/paymentpolicy");
+        res.render("user/paymentPolicy");
     } catch (error) {
         console.log(error);
     }

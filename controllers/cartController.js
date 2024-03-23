@@ -226,7 +226,6 @@ const checkoutAddAddress = async(req, res) => {
     try {
         const user = await User.findById(req.session.userid)
 
-        
         user.address.push({
             name: req.body.name,
             housename: req.body.housename,
@@ -236,7 +235,6 @@ const checkoutAddAddress = async(req, res) => {
             mobile: req.body.mobile
         });
 
-        
         const savedUser = await user.save();
 
         res.status(200).json({ message: 'Address saved successfully', user: savedUser });
@@ -270,9 +268,7 @@ const placeOrder = async (req, res) => {
         
         switch (paymentMethod) {
             case 'wallet':
-                console.log("Wallet selected");
     
-                
                 try {
                     const wallet = await Wallet.findOne({ user: userId });
                     if (!wallet) {
@@ -280,7 +276,6 @@ const placeOrder = async (req, res) => {
                         throw new Error("Wallet not found for the user");
                     }
 
-                    
                     if (wallet.balance >= grandTotal) {
                         wallet.balance -= grandTotal;
                         wallet.walletHistory.push({
@@ -304,7 +299,6 @@ const placeOrder = async (req, res) => {
                 }
                 break;
             case 'razorpay':
-                console.log("Inside razorpay case");
                 orderStatus = 'Pending';
                 paymentStatus = 'success'
                 break;
@@ -322,7 +316,6 @@ const placeOrder = async (req, res) => {
                 return res.status(400).json({ success: false, message: 'Invalid payment method' });
         }
         if (paymentStatus !== 'success') {
-            console.log("Payment status not success");
             return res.status(400).json({ success: false, message: paymentMessage });
         }
         const checkoutProduct = await Cart.find({ userid: req.session.userid }).populate({
@@ -347,7 +340,6 @@ const placeOrder = async (req, res) => {
         const user = await User.findById(req.session.userid).lean();
 
         if (!user) {
-            console.log("Inside not user if condn");
             console.error('User not found');
             return res.redirect('/error');
         }
@@ -427,7 +419,6 @@ const placeOrder = async (req, res) => {
     }
         
     } catch (error) {
-        console.log("Inside last catch");
         console.error('Error:', error);
         res.status(500).json({ success: false, message: 'An error occurred while processing the order or updating product stock.' });
     }
@@ -522,7 +513,7 @@ const loadOrderConfirmation = async (req, res) => {
         if (!order) {
             return res.status(404).render('user/error', { message: 'Order not found' });
         }
-        res.render('user/orderconfirmation', { order,  user});
+        res.render('user/orderConfirmation', { order,  user});
     } catch (error) {
         console.log(error);
         res.status(500).render('user/error', { message: 'Internal server error' });
