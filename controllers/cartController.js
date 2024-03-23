@@ -106,6 +106,7 @@ const addToCart = async (req, res) => {
 
         res.status(200).json({ message: 'Product added to cart successfully', isProductInCart: !!existingProduct });
     } catch (error) {
+        console.log("Inside add to cart catch");
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
     }
