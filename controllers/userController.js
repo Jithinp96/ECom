@@ -233,7 +233,7 @@ const submitForgotPassword = async (req, res) => {
             }
         })
 
-        const resetLink = `http://localhost:4000/resetpassword/${token}`
+        const resetLink = `http://furnit.site/resetpassword/${token}`
         const mailOptions = {
             from: 'officialfurnit@gmail.com',
             to: email,
