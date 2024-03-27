@@ -95,16 +95,20 @@
                 <div class="dropdown compare-dropdown">
                     <a href="/wishlist" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-display="static" title="Wishlist" aria-label="Compare Products">
                         <i class="icon-heart-o"></i>
-                        <span class="wishlist-count"><%= locals.wishlistCount %></span> <!-- Render wishlist count dynamically -->
+                        <% if (locals.wishlistCount > 0) { %>
+                            <span class="wishlist-count"><%= locals.wishlistCount %></span>
+                        <% } %>
                     </a>
                 </div><!-- End .compare-dropdown -->
                 
                 <div class="dropdown cart-dropdown">
                     <a href="/cart" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-display="static">
                         <i class="icon-shopping-cart"></i>
-                        <span class="cart-count"><%= locals.cartCount %></span> <!-- Render cart count dynamically -->
+                        <% if (locals.cartCount > 0) { %>
+                            <span class="cart-count"><%= locals.cartCount %></span>
+                        <% } %>
                     </a>
-                </div><!-- End .cart-dropdown -->
+                </div>
             </div><!-- End .header-right -->
         </div><!-- End .container -->
     </div><!-- End .header-middle -->
