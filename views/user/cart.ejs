@@ -215,6 +215,7 @@
     <script src="assets/js/superfish.min.js"></script>
     <script src="assets/js/owl.carousel.min.js"></script>
     <script src="assets/js/bootstrap-input-spinner.js"></script>
+    
     <!-- Main JS File -->
     <script src="assets/js/main.js"></script>
 </body>
@@ -222,7 +223,6 @@
 
 <script>
     function removeProduct(productId) {
-        // Send a DELETE request to the server to remove the product
         console.log("Inside remove fn");
         console.log(("productId: ", productId));
         fetch(`/removeFromCart/${productId}`, {
@@ -238,9 +238,7 @@
             return response.json();
         })
         .then(data => {
-            // Handle success, you can update the UI as needed
             console.log(data);
-            // Optionally, you can reload the cart page or update the UI without a page reload
             window.location.reload();
         })
         .catch(error => {
@@ -254,15 +252,12 @@
 
         const total = quantity * productPrice;
         totalPriceElement.textContent = `₹${total.toFixed(2)}`;
-
-        // You may also need to update the grand total here based on all products' total prices
         updateGrandTotal();
     }
 
 
 
     function updateGrandTotal() {
-        // Calculate and update the grand total based on all products' total prices
         const totalElements = document.querySelectorAll('.total-col');
         let grandTotal = 0;
 
@@ -283,18 +278,10 @@
     document.querySelectorAll('.quantity-input').forEach(input => {
         input.addEventListener('change', async (event) => {
             const productId = input.id;
-            // console.log("productId: ", productId);
             const quantity = input.value;
-            // console.log("quantity: ", quantity);
-            const cartId = '<%= cartId %>'; 
-            // console.log("cartId: ", cartId);
-            
+            const cartId = '<%= cartId %>';
 
             const response = await updateCartQuantity(cartId, productId, quantity);
-            // console.log("response: ", response);
-
-            // Update total price and subtotal on the frontend
-            // For example:
             document.getElementById('subtotal').innerText = response.subtotal;
             document.getElementById('totalPrice').innerText = response.totalPrice;
         });

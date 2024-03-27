@@ -83,15 +83,15 @@ const sendOTPVerificationEmail = async ({email}, res) => {
             port: 465,
             secure: true,
             auth: {
-                user: 'officialfurnit@gmail.com',
-                pass: 'crzo lqng bteh lnxu'
+                user: process.env.email,
+                pass: process.env.passkey
             }
         })
         const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
         console.log("OTP: "+otp);
 
         const mailOptions = {
-            from: 'officialfurnit@gmail.com',
+            from: process.env.email,
             to: email,
             subject: "Verify Your email",
             html: `Your OTP is: ${otp}`
@@ -180,8 +180,6 @@ const resendOTP = async (req, res) => {
 
         const userEmail = req.query.email;
         await UserOTPVerification.deleteMany({email: userEmail});
-        console.log(UserOTPVerification)
-        console.log("User Email:", userEmail);
         if (userEmail) {
             sendOTPVerificationEmail({
                 email: userEmail
@@ -228,14 +226,14 @@ const submitForgotPassword = async (req, res) => {
             port: 465,
             secure: true,
             auth: {
-                user: 'officialfurnit@gmail.com',
-                pass: 'crzo lqng bteh lnxu'
+                user: process.env.email,
+                pass: process.env.passkey
             }
         })
 
         const resetLink = `http://furnit.site/resetpassword/${token}`
         const mailOptions = {
-            from: 'officialfurnit@gmail.com',
+            from: process.env.email,
             to: email,
             subject: 'Reset Password',
             html: `Click <a href="${resetLink}">here</a> to reset your password.`,
@@ -253,12 +251,8 @@ const submitForgotPassword = async (req, res) => {
 const loadResetPassword = async (req,res)=>{
     try {
         const token = req.params.token;
-        console.log("token from params: ", token);
         const tokenData = await Token.findOne({ Token: token });
-        console.log("Database log: ", Token.find());
-        console.log("tokenData: ", tokenData);
         if (!tokenData) {
-            console.log("Inside Not token data");
             req.flash('error', 'Invalid or expired token.');
             return res.redirect('/forgotpassword');
         }
@@ -280,7 +274,6 @@ const submitResetPassword = async (req,res)=>{
         const tokenData = await Token.findOne({ Token: token });
 
         if (!tokenData) {
-            console.log("Inside not tokendata");
             req.flash('error', 'Invalid or expired token.');
             return res.redirect('/forgotpassword');
         }

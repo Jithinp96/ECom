@@ -16,8 +16,8 @@
     background-color: #007bff;
     color: #fff;
 }
-
 </style>
+
 <!-- <div> -->
     <div id="product-list-container" class="products mb-3" >
         <div class="row justify-content-center product-list-items" >
@@ -27,18 +27,9 @@
                     <div class="product product-7 text-center" >
                         
                         <figure class="product-media">
-                            
                             <a href="/productdetails/<%= product._id%>">
                                 <img src="<%= product.image[0] %>" alt="Product image" class="product-image">
                             </a>
-    
-                            <div class="product-action-vertical">
-                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                            </div><!-- End .product-action-vertical -->
-    
-                            <div class="product-action">
-                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                            </div><!-- End .product-action -->
                         </figure><!-- End .product-media -->
     
                         <div class="product-body">
@@ -60,20 +51,8 @@
                                     <div class="offer-price">₹<%= product.price %></div><!-- End .out-price -->
                                 <% } %>
                             </div>
-
-
-                            <!-- <div class="ratings-container">
-                                <div class="ratings">
-                                    <div class="ratings-val" style="width: 20%;"></div>
-                                </div>
-                                <span class="ratings-text">( 2 Reviews )</span>
-                            </div> -->
-    
-                            
                         </div><!-- End .product-body -->
-                        
                     </div><!-- End .product -->
-                
                 </div><!-- End .col-sm-6 col-lg-4 -->
             <% }); %>
             

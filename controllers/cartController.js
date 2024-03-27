@@ -54,6 +54,11 @@ const loadCart = async (req, res) => {
 const addToCart = async (req, res) => {
     try {
         const { productId, userId, quantity } = req.body;
+
+        if (!userId ) {
+            return res.status(400).json({ error: 'User is not login' });
+        }
+
         let userCart = await Cart.findOne({ userid: userId });
         const product = await Product.findById(productId).populate('offer').populate('category', 'offer');
         const { bestOffer, bestOfferType } = await product.determineBestOffer();
@@ -68,8 +73,7 @@ const addToCart = async (req, res) => {
                         productid: product._id,
                         quantity: quantity,
                         totalPrice: quantity * (product.price - offerDiscount),
-                        offerDiscount: offerDiscount,
-                        image: product.image[0],
+                        offerDiscount: offerDiscount
                     },
                 ],
             });

@@ -12,9 +12,9 @@ const loadWishlist = async (req, res) => {
             model: Product, 
             select: 'name price quantity image',
         });
-        res.render('user/wishlist', {wishlistProduct})
+        res.render('user/wishlist', {wishlistProduct, userId})
     } catch (error) {
-        console.log(error);
+        console.log("Error in catch", error);
     }
 }
 

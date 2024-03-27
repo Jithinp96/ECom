@@ -2,8 +2,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
-<!-- molla/product.html  22 Nov 2019 09:54:50 GMT -->
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -24,10 +22,12 @@
     <meta name="msapplication-TileColor" content="#cc9966">
     <meta name="msapplication-config" content="/assets/images/icons/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
+    
     <!-- Plugins CSS File -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/plugins/owl-carousel/owl.carousel.css">
     <link rel="stylesheet" href="/assets/css/plugins/magnific-popup/magnific-popup.css">
+    
     <!-- Main CSS File -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/plugins/nouislider/nouislider.css">
@@ -67,23 +67,7 @@
 
                             <div class="col-md-6">
                                 <div class="product-details">
-                                    <h1 class="product-title"><%=product.name%></h1><!-- End .product-title -->
-
-                                    <!-- <div class="ratings-container">
-                                        <div class="ratings">
-                                            <div class="ratings-val" style="width: 80%;"></div>
-                                        </div>
-                                        <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
-                                    </div> -->
-
-                                    <!-- <div class="product-price">
-                                        ₹<%=product.price%>
-                                    </div> -->
-                                    <!-- <style>
-                                    .price-block span {
-                                        display: block;
-                                    }
-                                </style> -->
+                                    <h1 class="product-title"><%=product.name%></h1>
                                     <div class="product-price">
                                         <% if (bestOffer) { %>
                                             <span class="price-block">
@@ -127,14 +111,12 @@
 
                                     <script>
                                         function validateQuantity(input) {
-                                            // Remove non-numeric characters from the input value
                                             input.value = input.value.replace(/\D/g, '');
 
-                                            // Ensure the value is within the specified range
                                             const min = parseInt(input.min) || 1;
                                             const max = parseInt(input.max) || 1000;
                                             const value = parseInt(input.value) || min;
-
+                                            
                                             input.value = Math.min(Math.max(value, min), max);
                                         }
                                     </script>
@@ -164,22 +146,19 @@
                                                     <span>View Wishlist</span>
                                                 </a>
                                             <% } %>
-                                        </div><!-- End .details-action-wrapper -->
-                                    </div><!-- End .product-details-action -->
+                                        </div>
+                                    </div>
                                     <div id="loginMessage"></div>
-                                </div><!-- End .product-details -->
-                            </div><!-- End .col-md-6 -->
-                        </div><!-- End .row -->
-                    </div><!-- End .product-details-top -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="product-details-tab">
                         <ul class="nav nav-pills justify-content-center" role="tablist">
                             <li class="nav-item">
                                 <a class="nav-link active" id="product-desc-link" data-toggle="tab" href="#product-desc-tab" role="tab" aria-controls="product-desc-tab" aria-selected="true">Description</a>
                             </li>
-                            <!-- <li class="nav-item">
-                                <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews (2)</a>
-                            </li> -->
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane fade show active" id="product-desc-tab" role="tabpanel" aria-labelledby="product-desc-link">
@@ -189,38 +168,6 @@
                                     <p><%=product.description%></p>
                                 </div><!-- End .product-desc-content -->
                             </div><!-- .End .tab-pane -->
-                            <!-- <div class="tab-pane fade" id="product-review-tab" role="tabpanel" aria-labelledby="product-review-link">
-                                <div class="reviews">
-                                    <h3>Reviews (2)</h3>
-                                    <div class="review">
-                                        <div class="row no-gutters">
-                                            <div class="col-auto">
-                                                <h4><a href="#">Samanta J.</a></h4>
-                                                <div class="ratings-container">
-                                                    <div class="ratings">
-                                                        <div class="ratings-val" style="width: 80%;"></div>
-                                                    </div>
-                                                </div>
-                                                <span class="review-date">6 days ago</span>
-                                            </div>
-                                            <div class="col">
-                                                <h4>Good, perfect size</h4>
-
-                                                <div class="review-content">
-                                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus cum dolores assumenda asperiores facilis porro reprehenderit animi culpa atque blanditiis commodi perspiciatis doloremque, possimus, explicabo, autem fugit beatae quae voluptas!</p>
-                                                </div>
-
-                                                <div class="review-action">
-                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (2)</a>
-                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                
-                                </div>
-                            </div> -->
                         </div><!-- End .tab-content -->
                     </div><!-- End .product-details-tab -->
                 </div><!-- End .container -->
@@ -228,9 +175,6 @@
         </main><!-- End .main -->
 
         <%-include('../layouts/footbar.ejs')%>
-    <!-- <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button> -->
-
-
 
     <!-- Login Warning Modal -->
     <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
@@ -263,76 +207,70 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-    const productId = '<%= product._id %>';
-    const userId = '<%= userId %>';
+        const productId = '<%= product._id %>';
+        const userId = '<%= userId %>';
 
-    const addToCartBtn = document.getElementById('addToCartBtn');
-    const viewCartBtn = document.getElementById('viewCartBtn');
-    const addToCartText = document.getElementById('addToCartText');
-
-    // Function to add product to cart
-    const addToCart = async () => {
-        const Quantity = document.getElementById('qty').value;
-        const data = {
-            productId: productId,
-            userId: userId,
-            quantity: Quantity
-        };
-        console.log("/productdetails/productId#");
-
-        try {
-            const response = await fetch('/addtocart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to add product to cart');
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        const viewCartBtn = document.getElementById('viewCartBtn');
+        const addToCartText = document.getElementById('addToCartText');
+    
+        // Function to add product to cart
+        const addToCart = async () => {
+            const Quantity = document.getElementById('qty').value;
+            const data = {
+                productId: productId,
+                userId: userId,
+                quantity: Quantity
+            };
+    
+            try {
+                const response = await fetch('/addtocart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+    
+                if (!response.ok) {
+                    if (response.status === 400) {
+                        const errorData = await response.json();
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'error',
+                            title: errorData.error,
+                            showConfirmButton: false,
+                            timer: 1700,
+                        });
+                    } else {
+                        throw new Error('Failed to add product to cart');
+                    }
+                } else {
+                    const responseData = await response.json();
+                    console.log("responseData: ", responseData);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Product added to cart!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        $('#reloadButton').load(`/productdetails/${productId} #reloadButton`);
+                    });
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error adding to cart',
+                    text: 'An error occurred while adding the product to the cart.'
+                });
             }
-
-            const responseData = await response.json();
-            console.log("responseData: ", responseData);
-            
-            // Display SweetAlert success notification
-            Swal.fire({
-                icon: 'success',
-                title: 'Product added to cart!',
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                $('#reloadButton').load('/productdetails/<%= product._id%> #reloadButton');
-            });
-
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-
-            // Display SweetAlert error notification
-            Swal.fire({
-                icon: 'error',
-                title: 'Error adding to cart',
-                text: 'An error occurred while adding the product to the cart.'
-            });
-        }
-    };
-
-    // event listener for the "Add to Cart" button
-    addToCartBtn.addEventListener('click', () => {
-        const isLoggedIn = '<%= userId !== "" %>';
-        if (isLoggedIn) {
-            // If user is logged in, proceed with adding to cart
-            addToCart();
-        } else {
-            // If user is not logged in, show the login modal
-            $('#loginModal').modal('show');
-        }
+        };
+    
+        addToCartBtn.addEventListener('click', addToCart);
     });
-});
-
-
-</script>
+    </script>
+    
 
 <!-- Add to wishlist -->
 <script>
@@ -374,23 +312,19 @@
 
 <script>
     $(document).ready(function() {
-            // Add an event listener to the input field
             $("#qty").on("input", function() {
                 var inputElement = $(this);
                 var currentValue = parseInt(inputElement.val()) || 0;
                 var maxValue = parseInt(inputElement.attr("max")) || Infinity;
     
-                // Check if the maximum value is reached
                 if (currentValue >= maxValue) {
-                    // Show SweetAlert when the maximum value is reached
                     Swal.fire({
                         icon: 'warning',
                         title: 'Maximum Quantity Reached',
                         text: 'You cannot exceed the maximum quantity.',
                         showConfirmButton: false,
-                        timer: 3500 // Automatically close after 3.5 seconds
+                        timer: 3500
                     });
-                    // Reset the value to the maximum allowed
                     inputElement.val(maxValue);
                 }
             });
@@ -412,7 +346,4 @@
     <script src="/assets/js/main.js"></script>
 </body>
 
-
-
-<!-- molla/product.html  22 Nov 2019 09:55:05 GMT -->
 </html>

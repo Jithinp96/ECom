@@ -30,7 +30,7 @@
                                         <div class="product">
                                             <figure class="product-media">
                                                 <a href="#">
-                                                    <img src="<%= product.productid.image[0] %>" alt="Product image"> <!-- Use the correct path to the image -->
+                                                    <img src="<%= product.productid.image[0] %>" alt="Product image">
                                                 </a>
                                             </figure>
 
@@ -39,12 +39,11 @@
                                             </h3><!-- End .product-title -->
                                         </div><!-- End .product -->
                                     </td>
-                                    <td class="price-col">$<%= product.productid.price %></td> <!-- Display price -->
-                                    <!-- <td class="stock-col"><span class="in-stock">In stock</span></td> -->
+                                    <td class="price-col">₹ <%= product.productid.price %></td>
                                     <td class="stock-col">
                                         <% if (product.productid.quantity !== undefined) { %>
                                             <% const quantity = product.productid.quantity; %>
-                                            <%- console.log(wishlistProduct) %>
+                                            
                                             <% if (quantity === 0) { %>
                                                 <span class="out-of-stock" style="color: red;">Out of stock</span>
                                             <% } else if (quantity > 0 && quantity <= 10) { %>
@@ -60,7 +59,9 @@
                                         <% if (product.productid.quantity === 0) { %>
                                             <button class="btn btn-block btn-outline-primary-2" style="pointer-events: none; opacity: 0.5;"><i class="icon-cart-plus"></i>Add to Cart</button>
                                         <% } else { %>
-                                            <button class="btn btn-block btn-outline-primary-2"><i class="icon-cart-plus"></i>Add to Cart</button>
+                                            <button class="btn btn-block btn-outline-primary-2" onclick="addtoCart('<%=product.productid._id%>','<%=userId%>')">
+                                                <i class="icon-cart-plus"></i>Add to Cart
+                                            </button>
                                         <% } %>
                                     </td>
                                     
@@ -84,10 +85,70 @@
 </main><!-- End .main -->
 
 
+<!-- Add to cart -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const userId = '<%= userId %>';
+
+        window.addtoCart = async (productId, userId) => {
+            const Quantity = 1;
+            const data = {
+                productId: productId,
+                userId: userId,
+                quantity: Quantity
+            };
+
+            try {
+                const response = await fetch('/addtocart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    if (response.status === 400) {
+                        const errorData = await response.json();
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'error',
+                            title: errorData.error,
+                            showConfirmButton: false,
+                            timer: 1700,
+                        });
+                    } else {
+                        throw new Error('Failed to add product to cart');
+                    }
+                } else {
+                    const responseData = await response.json();
+                    console.log("responseData: ", responseData);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Product added to cart!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        console.log("Inside the .then");
+                        location.reload();
+                    });
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error adding to cart',
+                    text: 'An error occurred while adding the product to the cart.'
+                });
+            }
+        };
+    });
+</script>
+
 <!-- To remove item from wishlist -->
 <script>
     function removeProduct(productId) {
-        // Send a DELETE request to the server to remove the product
         fetch(`/removeFromWishlist/${productId}`, {
             method: 'DELETE',
             headers: {
@@ -101,9 +162,6 @@
             return response.json();
         })
         .then(data => {
-            // Handle success, you can update the UI as needed
-            console.log(data);
-            // Optionally, you can reload the wishlist page or update the UI without a page reload
             window.location.reload();
         })
         .catch(error => {
